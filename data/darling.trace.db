@@ -1,0 +1,4 @@
+2023-09-30 04:08:58.181944+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Синтаксическая ошибка в выражении SQL "Delete [*]TABLE USER22"; ожидалось "identifier"
+Syntax error in SQL statement "Delete [*]TABLE USER22"; expected "identifier"; SQL statement:
+Delete TABLE USER22 [42001-224]

@@ -1,4 +1,4 @@
-package main.ru.merkurev.stock;
+package stock.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

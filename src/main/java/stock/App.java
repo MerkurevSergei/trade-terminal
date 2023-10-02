@@ -1,9 +1,12 @@
-package main.ru.merkurev.stock;
+package stock;
+
+import stock.model.Quote;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -11,16 +14,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.math.RoundingMode.HALF_DOWN;
-
 public class App {
 
     private static final String COMMA_DELIMITER = ",";
 
     public static void main(String[] args) throws IOException {
-        List<main.ru.merkurev.stock.Quote> quotesAll = loadData("c:\\temp\\files\\file.csv");
-        List<main.ru.merkurev.stock.Quote> quotes500 = quotesAll.subList(quotesAll.size() - 501, quotesAll.size() - 1);
-        List<main.ru.merkurev.stock.Quote> quotes250 = quotesAll.subList(quotesAll.size() - 251, quotesAll.size() - 1);
+        List<Quote> quotesAll = loadData("c:\\temp\\files\\file.csv");
+        List<Quote> quotes500 = quotesAll.subList(quotesAll.size() - 501, quotesAll.size() - 1);
+        List<Quote> quotes250 = quotesAll.subList(quotesAll.size() - 251, quotesAll.size() - 1);
 
         Map<LocalDate, Long> percentProfitAll = daysToProfit(quotesAll, 1);
         Map<LocalDate, Long> percentProfit500 = daysToProfit(quotes500, 1);
@@ -105,7 +106,7 @@ public class App {
             }
         }
         BigDecimal fullSize = BigDecimal.valueOf(percentProfit.size());
-        return BigDecimal.valueOf(daysInCondition).divide(fullSize, 2, HALF_DOWN).multiply(BigDecimal.valueOf(100));
+        return BigDecimal.valueOf(daysInCondition).divide(fullSize, 2,  RoundingMode.HALF_DOWN).multiply(BigDecimal.valueOf(100));
     }
 
     private static Map<LocalDate, Long> daysToProfit(List<Quote> quotes, int profitInPercent) {
@@ -119,12 +120,12 @@ public class App {
     }
 
     private static Long collectPercentProfit(Quote quote, int quoteIndex, List<Quote> quotes, int profitInPercent) {
-        BigDecimal startPrice = quote.open().add(quote.close()).divide(BigDecimal.valueOf(2), HALF_DOWN);
+        BigDecimal startPrice = quote.open().add(quote.close()).divide(BigDecimal.valueOf(2), RoundingMode.HALF_DOWN);
         int length = Math.min(quoteIndex + 1000, quotes.size());
         for (int i = quoteIndex + 1; i < length; i++) {
             Quote futureQuote = quotes.get(i);
             BigDecimal futurePrice = futureQuote.close().max(futureQuote.open());
-            BigDecimal up = futurePrice.subtract(startPrice).divide(startPrice, HALF_DOWN).multiply(BigDecimal.valueOf(100));
+            BigDecimal up = futurePrice.subtract(startPrice).divide(startPrice, RoundingMode.HALF_DOWN).multiply(BigDecimal.valueOf(100));
             if (up.compareTo(new BigDecimal(profitInPercent)) > 0) {
                 return (long) (i - quoteIndex);
             }
