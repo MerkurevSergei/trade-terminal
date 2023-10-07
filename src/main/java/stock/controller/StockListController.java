@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -28,68 +30,41 @@ import static stock.shared.ApplicationProperties.TINKOFF_TOKEN;
 
 public class StockListController implements Initializable {
 
-    Consumer<String> callback;
-//    private StockListWindow(Application aThis) {
-//        parent = aThis;
-//
-//        subStage = new Stage();
-//        Group subRoot = new Group();
-//        Scene scene = new Scene(subRoot, 300, 200);
-//        subStage.setScene(scene);
-//        subStage.show();
-//
-//        VBox vBox = new VBox();
-//
-//        labelID = new Label();
-//        labelID.setText(subStage.toString());
-//
-//        messageIn = new Label();
-//        subTextField = new TextField();
-//
-//        subSendButton = new Button("Send to main Window");
-//        subSendButton.setOnAction(new EventHandler<ActionEvent>() {
-//
-//            @Override
-//            public void handle(ActionEvent t) {
-//                setMainMsg(subTextField.getText());
-//            }
-//
-//        });
-//
-//        vBox.getChildren().addAll(labelID, messageIn, subTextField, subSendButton);
-//        subRoot.getChildren().add(vBox);
-//    }
-//
-//    public void start(Stage stage) throws IOException {
-//        FXMLLoader loader = new FXMLLoader();
-//        URL xmlUrl = getClass().getResource("/stocklist.fxml");
-//        loader.setLocation(xmlUrl);
-//        Parent root = loader.load();
-//
-//        stage.setTitle(new String("Моя прелесть".getBytes("WINDOWS-1251"), StandardCharsets.UTF_8));
-//        stage.setScene(new Scene(root));
-//        stage.show();
-//    }
+    Consumer<Share> callback;
 
     @FXML
-    private ListView<String> fullSharesView;
+    private ListView<Share> fullSharesView;
 
     private final List<Share> shares = new ArrayList<>();
 
 
+
     public void onMouseClicked(MouseEvent event) throws IOException {
         if (event.getButton().equals(MouseButton.PRIMARY) && (event.getClickCount() == 2)) {
-            callback.accept("Hello");
+
+            Share selectedItem = fullSharesView.getSelectionModel().getSelectedItem();
+            callback.accept(selectedItem);
         }
     }
 
 
     private void loadShares(InvestApi api) {
+        fullSharesView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Share t, boolean empty) {
+                super.updateItem(t, empty);
+                if (empty) {
+                    setText(null);
+                } else {
+                    setText(t.getName());
+                }
+            }
+        });
+
         shares.addAll(api.getInstrumentsService().getShares(InstrumentStatus.INSTRUMENT_STATUS_BASE).join());
-        List<String> sharesNames = shares.stream()
+        List<Share> sharesNames = shares.stream()
                 .filter(share -> RealExchange.REAL_EXCHANGE_MOEX.equals(share.getRealExchange()))
-                .map(Share::getName)
-                .sorted()
+                .sorted(Comparator.comparing(Share::getName))
                 .toList();
         this.fullSharesView.setItems(FXCollections.observableArrayList(sharesNames));
     }
@@ -118,7 +93,7 @@ public class StockListController implements Initializable {
     }
 
 
-    public void setCallback(Consumer<String> consumer) {
+    public void setCallback(Consumer<Share> consumer) {
         this.callback = consumer;
     }
 }

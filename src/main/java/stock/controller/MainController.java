@@ -1,36 +1,46 @@
 package stock.controller;
 
-import javafx.application.Application;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.Getter;
+import ru.tinkoff.piapi.contract.v1.Share;
+import stock.repository.MainShareRepository;
+import stock.shared.BeanRegister;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.function.Consumer;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 @Getter
-public class MainController extends Application {
+public class MainController implements Initializable {
+
+    private final MainShareRepository mainShareRepository = BeanRegister.MAIN_SHARE_REPOSITORY;
 
     @FXML
-    public ListView<String> mainSharesView;
+    public ListView<Share> mainSharesView;
 
     @Override
-    public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main.fxml"));
-        Parent root = loader.load();
-
-        stage.setTitle(new String("Моя прелесть".getBytes("WINDOWS-1251"), StandardCharsets.UTF_8));
-        stage.setScene(new Scene(root));
-        stage.show();
+    public void initialize(URL location, ResourceBundle resources) {
+        mainSharesView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Share t, boolean empty) {
+                super.updateItem(t, empty);
+                if (empty) {
+                    setText(null);
+                } else {
+                    setText(t.getName());
+                }
+            }
+        });
+        this.mainSharesView.getItems().setAll(mainShareRepository.getSharesAndSort());
     }
 
     public void openStockList(ActionEvent event) throws IOException {
@@ -41,23 +51,22 @@ public class MainController extends Application {
         controller.setCallback(this::addToList);
 
         Stage childStage = new Stage();
-        childStage.setTitle(new String("Выбор акций".getBytes("WINDOWS-1251"), StandardCharsets.UTF_8));
+        childStage.setTitle("Выбор акций");
         Scene scene = new Scene(stockListFxml);
         childStage.setScene(scene);
         childStage.initModality(Modality.APPLICATION_MODAL);
 
         childStage.show();
-
-
     }
 
-    public void addToList(String value) {
-
-        this.mainSharesView.getItems().add(value);
-
+    public void addToList(Share value) {
+        mainShareRepository.save(value);
+        this.mainSharesView.getItems().setAll(mainShareRepository.getSharesAndSort());
     }
 
-    public static void main(String[] args) {
-        launch();
+    public void deleteFromList(ActionEvent actionEvent) {
+        Share selectedItem = mainSharesView.getSelectionModel().getSelectedItem();
+        mainShareRepository.deleteById(selectedItem.getFigi());
+        this.mainSharesView.getItems().setAll(mainShareRepository.getSharesAndSort());
     }
 }

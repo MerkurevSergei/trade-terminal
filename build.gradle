@@ -7,8 +7,10 @@ version '1.0-SNAPSHOT'
 
 java {
     sourceCompatibility = '17'
-}
 
+}
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
 
 repositories {
     mavenCentral()
@@ -25,4 +27,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2'
     implementation 'org.slf4j:slf4j-simple:2.0.9'
     implementation 'com.h2database:h2:2.2.224'
+    implementation 'com.google.inject:guice:7.0.0'
+
+
 }
