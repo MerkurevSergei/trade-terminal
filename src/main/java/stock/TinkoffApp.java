@@ -9,7 +9,6 @@ import ru.tinkoff.piapi.contract.v1.Share;
 import ru.tinkoff.piapi.contract.v1.SubscriptionStatus;
 import ru.tinkoff.piapi.core.InvestApi;
 import ru.tinkoff.piapi.core.stream.StreamProcessor;
-import stock.controller.MainFXMLController;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class TinkoffApp {
 
-    static final Logger log = LoggerFactory.getLogger(MainFXMLController.class);
+    static final Logger log = LoggerFactory.getLogger(TinkoffApp.class);
 
 
     static final Executor delayedExecutor = CompletableFuture.delayedExecutor(225, TimeUnit.SECONDS);

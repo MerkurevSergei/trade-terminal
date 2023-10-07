@@ -5,11 +5,11 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="stock.controller.StoksListFXMLController">
+<AnchorPane prefHeight="900.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="stock.controller.StockListController">
    <children>
       <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="720.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <left>
-            <ListView id="fullSharesView" fx:id="fullSharesView" maxHeight="1.7976931348623157E308" onMouseClicked="#onMouseClicked" prefHeight="670.0" prefWidth="300.0" BorderPane.alignment="CENTER">
+            <ListView id="fullSharesView" fx:id="fullSharesView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onMouseClicked="#onMouseClicked" prefHeight="670.0" prefWidth="400.0" BorderPane.alignment="CENTER">
                <padding>
                   <Insets left="3.0" />
                </padding></ListView>
