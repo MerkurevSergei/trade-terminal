@@ -1,0 +1,4 @@
+.error-status {
+    -fx-background-color: #ffdddd;
+    -fx-text-fill: red;
+}

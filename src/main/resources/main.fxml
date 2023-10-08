@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<AnchorPane fx:id="parentPane" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="stock.controller.MainController">
+<AnchorPane fx:id="parentPane" prefHeight="720.0" prefWidth="1280.0" styleClass="main-style.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="stock.ui.MainTradeController">
     <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="720.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <top>
           <MenuBar maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="25.0" BorderPane.alignment="CENTER">
@@ -26,35 +26,35 @@
                   </Menu>
                   <Menu mnemonicParsing="false" text="Настройки">
                       <items>
-                          <MenuItem mnemonicParsing="false" onAction="#openStockList" text="Выбор акций" />
+                          <MenuItem mnemonicParsing="false" onAction="#openWindowAvailableStocks" text="Выбор акций" />
                       </items>
                   </Menu>
               </menus>
           </MenuBar>
         </top>
         <bottom>
-          <Label maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="25.0" style="-fx-border-style: solid; -fx-border-color: #828282;" text="StatusBar" BorderPane.alignment="CENTER">
+          <Label fx:id="mainTradeStatusBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="25.0" style="-fx-border-style: solid; -fx-border-color: #828282;" text="StatusBar" BorderPane.alignment="CENTER">
               <padding>
                   <Insets left="5.0" />
               </padding>
           </Label>
         </bottom>
         <left>
-          <ListView id="mainSharesView" fx:id="mainSharesView" maxHeight="1.7976931348623157E308" prefHeight="670.0" prefWidth="300.0" BorderPane.alignment="CENTER">
+          <ListView id="mainSharesView" fx:id="fxmlListViewShare" maxHeight="1.7976931348623157E308" prefHeight="670.0" prefWidth="300.0" BorderPane.alignment="CENTER">
               <padding>
                   <Insets left="3.0" />
               </padding>
             <contextMenu>
                <ContextMenu>
                  <items>
-                   <MenuItem mnemonicParsing="false" onAction="#deleteFromList" text="Удалить" />
+                   <MenuItem mnemonicParsing="false" onAction="#deleteShare" text="Удалить" />
                  </items>
                </ContextMenu>
             </contextMenu>
           </ListView>
         </left>
       <center>
-         <TableView fx:id="volatilityTableView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <TableView fx:id="fxmlTableViewVolatility" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
            <columns>
              <TableColumn prefWidth="75.0" text="C1" />
              <TableColumn prefWidth="75.0" text="C2" />
@@ -64,7 +64,7 @@
       <right>
          <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
            <buttons>
-             <Button mnemonicParsing="false" onAction="#loadHistory" text="LoadHistory" />
+             <Button mnemonicParsing="false" onAction="#calculateVolatility" text="LoadHistory" />
            </buttons>
          </ButtonBar>
       </right>
