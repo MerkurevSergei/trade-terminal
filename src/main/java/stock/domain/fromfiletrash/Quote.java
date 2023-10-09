@@ -1,4 +1,4 @@
-package stock.model;
+package stock.domain.fromfiletrash;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -1,6 +1,4 @@
-package stock.model;
-
-import javafx.fxml.Initializable;
+package stock.domain.model;
 
 import java.math.BigDecimal;
 
@@ -47,8 +45,8 @@ public record MarketCalculator(BigDecimal buyTaxInterest, BigDecimal sellTaxInte
     public static void main(String[] args) {
         BigDecimal tax005 = new BigDecimal("0.05");
         MarketCalculator marketCalculator = new MarketCalculator(tax005, tax005, new BigDecimal("13"));
-        BigDecimal bigDecimal = marketCalculator.grossSellPrice(ONE, BigDecimal.valueOf(20));
+        BigDecimal bigDecimal = marketCalculator.grossSellPrice(new BigDecimal("100"), new BigDecimal("1"));
         System.out.println(bigDecimal);
-        System.out.println(marketCalculator.netSellPrice(ONE, BigDecimal.valueOf(20)));
+        System.out.println(marketCalculator.netSellPrice(new BigDecimal("100"), new BigDecimal("1")));
     }
 }

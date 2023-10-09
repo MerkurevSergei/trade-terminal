@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.tinkoff.piapi.core.InvestApi;
 import stock.client.HistoryClient;
+import stock.client.TinkoffApiHistoryClient;
 import stock.repository.MainShareRepository;
 
 import static stock.shared.ApplicationProperties.TINKOFF_TOKEN;
@@ -15,6 +16,6 @@ public class BeanRegister {
 
     public static final MainShareRepository MAIN_SHARE_REPOSITORY = new MainShareRepository();
 
-    public static final HistoryClient HISTORY_CLIENT = new HistoryClient();
+    public static final HistoryClient HISTORY_CLIENT = new TinkoffApiHistoryClient();
 
 }

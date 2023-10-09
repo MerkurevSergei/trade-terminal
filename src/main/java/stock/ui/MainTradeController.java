@@ -15,13 +15,18 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import lombok.Getter;
 import ru.tinkoff.piapi.contract.v1.Share;
+import stock.domain.balancer.Balancer;
 import stock.shared.BeanRegister;
+import stock.ui.trade.RevenueTableManager;
 import stock.ui.trade.ShareListManager;
 import stock.ui.trade.VolatilityTableManager;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 @Getter
@@ -31,6 +36,7 @@ public class MainTradeController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         this.shareListManager = new ShareListManager(fxmlListViewShare, BeanRegister.MAIN_SHARE_REPOSITORY);
         this.volatilityTableManager = new VolatilityTableManager(fxmlTableViewVolatility, BeanRegister.HISTORY_CLIENT);
+        this.revenueTableManager = new RevenueTableManager(fxmlTableViewRevenue, new Balancer(BeanRegister.HISTORY_CLIENT));
         Thread.setDefaultUncaughtExceptionHandler((thread, exception) -> {
             Throwable rootCause = getRootCause(exception);
             Platform.runLater(() -> {
@@ -71,6 +77,19 @@ public class MainTradeController implements Initializable {
     public void calculateVolatility() {
         volatilityTableManager.calculateVolatility(shareListManager.getSelectedItem());
     }
+
+    // ===================================================================== //
+    // ======================= ТАБЛИЦА ДОХОДНОСТИ ======================= //
+    // ===================================================================== //
+
+    @FXML
+    private TableView<Map.Entry<LocalDate, BigDecimal>> fxmlTableViewRevenue;
+    private RevenueTableManager revenueTableManager;
+
+    public void calculateRevenue() {
+        revenueTableManager.calculateRevenue(shareListManager.getSelectedItem());
+    }
+
 
     // ===================================================================== //
     // ========================== СТРОКА СТАТУСА =========================== //

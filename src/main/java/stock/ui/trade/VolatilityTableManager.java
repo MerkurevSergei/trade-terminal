@@ -44,7 +44,7 @@ public record VolatilityTableManager(TableView<List<String>> volatilityTableView
         BigDecimal volatility02 = BigDecimal.ZERO;
         BigDecimal volatility03 = BigDecimal.ZERO;
         BigDecimal volatilityByDay = BigDecimal.ZERO;
-        List<HistoricCandle> historicCandles = historyClient.loadHistoryDay(selectedItem.getFigi(), start, start.plusDays(120));
+        List<HistoricCandle> historicCandles = historyClient.getDailyCandles(selectedItem.getFigi(), start, start.plusDays(120));
         for (HistoricCandle candle : historicCandles) {
             LocalDateTime currentDate = Instant.ofEpochSecond(candle.getTime().getSeconds(), candle.getTime().getNanos())
                     .atOffset(ZoneOffset.UTC)

@@ -1,6 +1,6 @@
 package stock;
 
-import stock.model.Quote;
+import stock.domain.fromfiletrash.Quote;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
