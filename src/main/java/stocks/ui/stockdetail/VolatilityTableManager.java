@@ -1,4 +1,4 @@
-package stocks.ui.trade;
+package stocks.ui.stockdetail;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -43,7 +43,7 @@ public record VolatilityTableManager(TableView<List<String>> volatilityTableView
         BigDecimal volatility01 = BigDecimal.ZERO;
         BigDecimal volatility02 = BigDecimal.ZERO;
         BigDecimal volatility03 = BigDecimal.ZERO;
-        BigDecimal volatilityByDay = BigDecimal.ZERO;
+        BigDecimal volatilityByDay;
         List<HistoricCandle> historicCandles = historyClient.getDailyCandles(selectedItem.getFigi(), start.atStartOfDay(), start.plusDays(120).atStartOfDay());
         for (HistoricCandle candle : historicCandles) {
             LocalDateTime currentDate = Instant.ofEpochSecond(candle.getTime().getSeconds(), candle.getTime().getNanos())

@@ -5,26 +5,19 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import lombok.Getter;
 import ru.tinkoff.piapi.contract.v1.Share;
 import stocks.shared.BeanRegister;
+import stocks.shared.JavaFxUtils;
 import stocks.ui.trade.RevenueTableManager;
 import stocks.ui.trade.ShareListManager;
-import stocks.ui.trade.VolatilityTableManager;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -34,14 +27,13 @@ public class MainTradeController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.shareListManager = new ShareListManager(fxmlListViewShare, BeanRegister.MAIN_SHARE_REPOSITORY);
-        this.volatilityTableManager = new VolatilityTableManager(fxmlTableViewVolatility, BeanRegister.HISTORY_CLIENT);
         this.revenueTableManager = new RevenueTableManager(fxmlTableViewRevenue, BeanRegister.HISTORY_CLIENT);
-        Thread.setDefaultUncaughtExceptionHandler((thread, exception) -> {
-            Throwable rootCause = getRootCause(exception);
-            Platform.runLater(() -> {
-                showError(rootCause.getMessage());
-            });
-        });
+        Thread.setDefaultUncaughtExceptionHandler(
+                (thread, exception) -> {
+                    exception.printStackTrace();
+                    Platform.runLater(() -> showError(getRootCause(exception).getMessage()));
+                }
+        );
     }
 
     private Throwable getRootCause(Throwable throwable) {
@@ -66,23 +58,11 @@ public class MainTradeController implements Initializable {
     }
 
     // ===================================================================== //
-    // ======================= ТАБЛИЦА ВОЛАТИЛЬНОСТИ ======================= //
-    // ===================================================================== //
-
-    @FXML
-    private TableView<List<String>> fxmlTableViewVolatility;
-    private VolatilityTableManager volatilityTableManager;
-
-    public void calculateVolatility() {
-        volatilityTableManager.calculateVolatility(shareListManager.getSelectedItem());
-    }
-
-    // ===================================================================== //
     // ======================= ТАБЛИЦА ДОХОДНОСТИ ======================= //
     // ===================================================================== //
 
     @FXML
-    private TableView<Map.Entry<LocalDate, BigDecimal>> fxmlTableViewRevenue;
+    private TableView<Map.Entry<String, BigDecimal>> fxmlTableViewRevenue;
     private RevenueTableManager revenueTableManager;
 
     public void calculateRevenue() {
@@ -110,21 +90,24 @@ public class MainTradeController implements Initializable {
     }
 
     // ===================================================================== //
-    // ================= НАСТРОЙКИ. СПИСОК ДОСТУПНЫХ АКЦИЙ ================= //
+    // =============================== ОКНА ================================ //
     // ===================================================================== //
 
-    public void openWindowAvailableStocks() throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/stocklist.fxml"));
-        Parent stockListFxml = loader.load();
-        StockListController controller = loader.getController();
-        controller.setCallback(this::addShare);
+    /**
+     * Открывает окно с детальной информацией об акции.
+     */
+    public void openWindowStockDetails() {
+        FXMLLoader fxmlDocument = JavaFxUtils.openWindow("/stockdetails.fxml", "Информация об акции");
+        StockDetailsController controller = fxmlDocument.getController();
+        controller.initData(shareListManager.getSelectedItem());
+    }
 
-        Stage childStage = new Stage();
-        childStage.setTitle("Выбор акций");
-        Scene scene = new Scene(stockListFxml);
-        childStage.setScene(scene);
-        childStage.initModality(Modality.APPLICATION_MODAL);
-        childStage.show();
+    /**
+     * Открывает окно настроек со списком доступных для торговли акций.
+     */
+    public void openWindowAvailableStocks() {
+        FXMLLoader fxmlDocument = JavaFxUtils.openWindow("/stocklist.fxml", "Выбор акций");
+        StockListController controller = fxmlDocument.getController();
+        controller.setCallback(this::addShare);
     }
 }

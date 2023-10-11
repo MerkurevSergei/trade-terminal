@@ -1,6 +1,5 @@
 package stocks.domain.balancer;
 
-import lombok.RequiredArgsConstructor;
 import stocks.domain.model.Bet;
 import stocks.domain.model.HistoricPoint;
 
@@ -13,25 +12,27 @@ import static java.math.BigDecimal.ZERO;
 import static stocks.domain.model.Bet.Direction.DOWN;
 import static stocks.domain.model.Bet.Direction.UP;
 
-@RequiredArgsConstructor
 public final class Balancer {
 
     private final List<Bet> bets = new ArrayList<>();
 
     private final List<StatRecord> stat = new ArrayList<>();
 
-    private BigDecimal profitDelta;
+    private final BigDecimal profitDelta;
 
-    private BigDecimal levelGap;
+    private final BigDecimal levelGap;
 
     private Integer unstoppable = 0;
+
+    public Balancer(BigDecimal profitDelta, BigDecimal levelGap) {
+        this.profitDelta = profitDelta;
+        this.levelGap = levelGap;
+    }
 
     public List<StatRecord> getProfitSum(List<HistoricPoint> points) {
         if (points.isEmpty()) {
             return stat;
         }
-        this.profitDelta = getProfitDelta(points.get(0));
-        this.levelGap = this.profitDelta.divide(BigDecimal.valueOf(10), this.profitDelta.scale(), RoundingMode.HALF_UP);
 
         points.forEach(this::doStep);
         closeMarket(points.get(points.size() - 1));
@@ -155,10 +156,5 @@ public final class Balancer {
             Bet bet = new Bet(historicPoint.time(), historicPoint.price(), Bet.Direction.UP);
             bets.add(bet);
         }
-    }
-
-    private BigDecimal getProfitDelta(HistoricPoint historicPoint) {
-        int scale = historicPoint.price().scale();
-        return historicPoint.price().divide(BigDecimal.valueOf(350), scale, RoundingMode.HALF_UP);
     }
 }

@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -50,41 +49,46 @@
             <contextMenu>
                <ContextMenu>
                  <items>
-                   <MenuItem mnemonicParsing="false" onAction="#deleteShare" text="Удалить" />
+                     <MenuItem mnemonicParsing="false" onAction="#openWindowStockDetails" text="Инфо" />
+                     <MenuItem mnemonicParsing="false" onAction="#deleteShare" text="Удалить" />
                  </items>
                </ContextMenu>
             </contextMenu>
           </ListView>
         </left>
-      <right>
-         <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-      </right>
       <center>
-         <GridPane BorderPane.alignment="CENTER">
+         <GridPane prefHeight="674.0" prefWidth="920.0" BorderPane.alignment="CENTER">
            <columnConstraints>
-             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+             <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="100.0" />
+             <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="100.0" />
+               <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="100.0" />
            </columnConstraints>
            <rowConstraints>
-             <RowConstraints maxHeight="642.0" minHeight="10.0" prefHeight="639.0" vgrow="SOMETIMES" />
-             <RowConstraints maxHeight="223.0" minHeight="0.0" prefHeight="31.0" vgrow="SOMETIMES" />
-             <RowConstraints maxHeight="121.0" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
+             <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="629.6000122070312" vgrow="SOMETIMES" />
+             <RowConstraints maxHeight="-Infinity" minHeight="0.0" prefHeight="27.999987792968795" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="-Infinity" minHeight="6.3999755859374545" prefHeight="12.000012207031205" vgrow="SOMETIMES" />
            </rowConstraints>
             <children>
-               <TableView fx:id="fxmlTableViewVolatility" prefHeight="275.0" prefWidth="200.0">
+               <TableView fx:id="fxmlTableViewRevenue" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="639.0" prefWidth="370.0" GridPane.columnIndex="2">
                  <columns>
                    <TableColumn prefWidth="75.0" text="C1" />
                    <TableColumn prefWidth="75.0" text="C2" />
                  </columns>
                </TableView>
-               <TableView fx:id="fxmlTableViewRevenue" prefHeight="639.0" prefWidth="370.0" GridPane.columnIndex="1">
+               <Button maxHeight="-Infinity" mnemonicParsing="false" onAction="#calculateRevenue" text="Button" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+               <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0">
                  <columns>
                    <TableColumn prefWidth="75.0" text="C1" />
                    <TableColumn prefWidth="75.0" text="C2" />
                  </columns>
                </TableView>
-             <Button mnemonicParsing="false" onAction="#calculateVolatility" prefHeight="25.0" prefWidth="201.0" text="Volatility" GridPane.rowIndex="1" />
-               <Button mnemonicParsing="false" onAction="#calculateRevenue" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+               <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
+                 <columns>
+                   <TableColumn prefWidth="75.0" text="C1" />
+                   <TableColumn prefWidth="75.0" text="C2" />
+                 </columns>
+               </TableView>
+               <Button maxHeight="-Infinity" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="26.0" prefWidth="341.0" text="Запустить" GridPane.rowIndex="1" />
             </children>
          </GridPane>
       </center>
