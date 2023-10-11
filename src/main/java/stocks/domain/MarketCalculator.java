@@ -1,4 +1,4 @@
-package stocks.domain.model;
+package stocks.domain;
 
 import java.math.BigDecimal;
 

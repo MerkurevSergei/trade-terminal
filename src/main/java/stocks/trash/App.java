@@ -1,6 +1,6 @@
-package stocks;
+package stocks.trash;
 
-import stocks.domain.fromfiletrash.Quote;
+import stocks.trash.fromfiletrash.Quote;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

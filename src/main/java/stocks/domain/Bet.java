@@ -1,8 +1,9 @@
-package stocks.domain.model;
+package stocks.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import stocks.domain.order.model.OrderDirection;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ import static java.math.BigDecimal.ZERO;
 public final class Bet {
     private final LocalDateTime time;
     private final BigDecimal price;
-    private final Direction direction;
+    private final OrderDirection direction;
     private BigDecimal stopLoss = ZERO;
     private BigDecimal takeProfit = ZERO;
 
@@ -25,10 +26,5 @@ public final class Bet {
 
     public void setTakeProfit(BigDecimal takeProfit) {
         this.takeProfit = takeProfit;
-    }
-
-    public enum Direction {
-        UP,
-        DOWN
     }
 }

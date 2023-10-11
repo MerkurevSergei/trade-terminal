@@ -1,7 +1,11 @@
-package stocks.domain.balancer;
+package stocks.usecase.balancer;
 
-import stocks.domain.model.Bet;
-import stocks.domain.model.HistoricPoint;
+import stocks.domain.Bet;
+import stocks.domain.history.HistoricPoint;
+import stocks.domain.order.OrderService;
+import stocks.domain.order.SandOrderService;
+import stocks.domain.order.model.OrderDirection;
+import stocks.usecase.Robot;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,10 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.math.BigDecimal.ZERO;
-import static stocks.domain.model.Bet.Direction.DOWN;
-import static stocks.domain.model.Bet.Direction.UP;
+import static stocks.domain.order.model.OrderDirection.DOWN;
+import static stocks.domain.order.model.OrderDirection.UP;
 
-public final class Balancer {
+public final class Balancer implements Robot {
+
+    private final String instrumentUid;
+
+    private final OrderService orderService = new SandOrderService();
 
     private final List<Bet> bets = new ArrayList<>();
 
@@ -24,7 +32,8 @@ public final class Balancer {
 
     private Integer unstoppable = 0;
 
-    public Balancer(BigDecimal profitDelta, BigDecimal levelGap) {
+    public Balancer(String instrumentUid, BigDecimal profitDelta, BigDecimal levelGap) {
+        this.instrumentUid = instrumentUid;
         this.profitDelta = profitDelta;
         this.levelGap = levelGap;
     }
@@ -44,7 +53,8 @@ public final class Balancer {
      *
      * @param currentPoint текущая точка время/цена/объем.
      */
-    private void doStep(HistoricPoint currentPoint) {
+    @Override
+    public void doStep(HistoricPoint currentPoint) {
         makeFirstIsNeed(currentPoint);
         setOrTakeProfit(currentPoint);
         boolean isEmptyLevel = isEmptyLevel(currentPoint);
@@ -104,19 +114,21 @@ public final class Balancer {
             if (lastDirection.equals(DOWN) && unstoppable < 0) {
                 lastDirection = UP;
             }
-            Bet newBet = new Bet(currentPoint.time(), currentPoint.price(), lastDirection);
-            bets.add(newBet);
+            orderService.postOrder(instrumentUid, 1, currentPoint.price(), lastDirection, null);
+            //            Bet newBet = new Bet(currentPoint.time(), currentPoint.price(), lastDirection);
+            //            bets.add(newBet);
             unstoppable = lastDirection.equals(UP) ? unstoppable + 1 : unstoppable - 1;
         } else if (revenue.compareTo(profitDelta) < 0) {
-            Bet.Direction reverseDirection = lastDirection.equals(UP) ? DOWN : UP;
+            OrderDirection reverseDirection = lastDirection.equals(UP) ? DOWN : UP;
             if (reverseDirection.equals(UP) && unstoppable > 0) {
                 reverseDirection = DOWN;
             }
             if (reverseDirection.equals(DOWN) && unstoppable < 0) {
                 reverseDirection = UP;
             }
-            Bet newBet = new Bet(currentPoint.time(), currentPoint.price(), reverseDirection);
-            bets.add(newBet);
+            orderService.postOrder(instrumentUid, 1, currentPoint.price(), reverseDirection, null);
+            //            Bet newBet = new Bet(currentPoint.time(), currentPoint.price(), reverseDirection);
+            //            bets.add(newBet);
             unstoppable = reverseDirection.equals(UP) ? unstoppable + 1 : unstoppable - 1;
         }
     }
@@ -153,8 +165,9 @@ public final class Balancer {
 
     private void makeFirstIsNeed(HistoricPoint historicPoint) {
         if (bets.isEmpty()) {
-            Bet bet = new Bet(historicPoint.time(), historicPoint.price(), Bet.Direction.UP);
-            bets.add(bet);
+            orderService.postOrder(instrumentUid, 1, historicPoint.price(), UP, null);
+//            Bet bet = new Bet(historicPoint.time(), historicPoint.price(), UP);
+//            bets.add(bet);
         }
     }
 }

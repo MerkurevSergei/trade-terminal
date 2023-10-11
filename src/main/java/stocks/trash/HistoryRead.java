@@ -1,8 +1,8 @@
-package stocks.history;
+package stocks.trash;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import stocks.domain.model.MarketCalculator;
-import stocks.domain.fromfiletrash.Quote;
+import stocks.domain.MarketCalculator;
+import stocks.trash.fromfiletrash.Quote;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -1,6 +1,6 @@
-package stocks.domain.balancer;
+package stocks.usecase.balancer;
 
-import stocks.domain.model.Bet;
+import stocks.domain.Bet;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

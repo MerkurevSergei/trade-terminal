@@ -11,7 +11,7 @@ import ru.tinkoff.piapi.contract.v1.InstrumentStatus;
 import ru.tinkoff.piapi.contract.v1.RealExchange;
 import ru.tinkoff.piapi.contract.v1.Share;
 import ru.tinkoff.piapi.core.InvestApi;
-import stocks.shared.BeanRegister;
+import stocks.shared.infrastructure.BeanRegister;
 
 import java.io.IOException;
 import java.net.URL;

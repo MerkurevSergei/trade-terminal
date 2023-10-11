@@ -8,10 +8,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
+import javafx.scene.control.ToggleButton;
 import javafx.util.Duration;
 import lombok.Getter;
 import ru.tinkoff.piapi.contract.v1.Share;
-import stocks.shared.BeanRegister;
+import stocks.shared.infrastructure.BeanRegister;
 import stocks.shared.JavaFxUtils;
 import stocks.ui.trade.RevenueTableManager;
 import stocks.ui.trade.ShareListManager;
@@ -109,5 +110,21 @@ public class MainTradeController implements Initializable {
         FXMLLoader fxmlDocument = JavaFxUtils.openWindow("/stocklist.fxml", "Выбор акций");
         StockListController controller = fxmlDocument.getController();
         controller.setCallback(this::addShare);
+    }
+
+    // ===================================================================== //
+    // ==================== ПЕРЕКЛЮЧЕНИЕ РЕЖИМА РАБОТЫ ===================== //
+    // ===================================================================== //
+
+    public ToggleButton modeSwitcher;
+
+    public void switchWorkMode() {
+        if (modeSwitcher.isSelected()) {
+            modeSwitcher.setText("Торговля");
+            modeSwitcher.setStyle("-fx-background-color:red");
+        } else {
+            modeSwitcher.setText("Песочница");
+            modeSwitcher.setStyle("-fx-background-color:#36D100");
+        }
     }
 }

@@ -1,10 +1,9 @@
-package stocks.client;
+package stocks.domain.history;
 
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 import ru.tinkoff.piapi.core.InvestApi;
-import stocks.domain.model.HistoricPoint;
-import stocks.shared.BeanRegister;
+import stocks.shared.infrastructure.BeanRegister;
 import stocks.shared.DateTimeMapper;
 import stocks.shared.Utils;
 
@@ -15,7 +14,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TinkoffApiHistoryClient implements HistoryClient {
+public class TinkoffHistoryService implements HistoryService {
 
     private static final InvestApi tinkoffClient = BeanRegister.TINKOFF_CLIENT;
 

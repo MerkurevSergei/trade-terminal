@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableView;
 import ru.tinkoff.piapi.contract.v1.Share;
-import stocks.shared.BeanRegister;
+import stocks.shared.infrastructure.BeanRegister;
 import stocks.ui.stockdetail.VolatilityTableManager;
 
 import java.net.URL;

@@ -3,12 +3,12 @@ package stocks.ui.trade;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import ru.tinkoff.piapi.contract.v1.Share;
-import stocks.repository.MainShareRepository;
+import stocks.repository.ShareRepository;
 
-public record ShareListManager(ListView<Share> shareListView, MainShareRepository mainShareRepository) {
+public record ShareListManager(ListView<Share> shareListView, ShareRepository shareRepository) {
 
-    public ShareListManager(ListView<Share> shareListView, MainShareRepository mainShareRepository) {
-        this.mainShareRepository = mainShareRepository;
+    public ShareListManager(ListView<Share> shareListView, ShareRepository shareRepository) {
+        this.shareRepository = shareRepository;
         this.shareListView = shareListView;
         init();
     }
@@ -25,18 +25,18 @@ public record ShareListManager(ListView<Share> shareListView, MainShareRepositor
                 }
             }
         });
-        shareListView.getItems().setAll(mainShareRepository.getSharesAndSort());
+        shareListView.getItems().setAll(shareRepository.getSharesAndSort());
     }
 
     public void addShare(Share share) {
-        mainShareRepository.save(share);
-        shareListView.getItems().setAll(mainShareRepository.getSharesAndSort());
+        shareRepository.save(share);
+        shareListView.getItems().setAll(shareRepository.getSharesAndSort());
     }
 
     public void deleteActiveShare() {
         Share selectedItem = shareListView.getSelectionModel().getSelectedItem();
-        mainShareRepository.deleteById(selectedItem.getFigi());
-        shareListView.getItems().setAll(mainShareRepository.getSharesAndSort());
+        shareRepository.deleteById(selectedItem.getFigi());
+        shareListView.getItems().setAll(shareRepository.getSharesAndSort());
     }
 
     public Share getSelectedItem() {

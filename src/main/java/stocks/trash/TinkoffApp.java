@@ -1,4 +1,4 @@
-package stocks;
+package stocks.trash;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +23,6 @@ public class TinkoffApp {
 
 
     static final Executor delayedExecutor = CompletableFuture.delayedExecutor(225, TimeUnit.SECONDS);
-
-
 
     public static void main(String[] args) {
         var token = "t._qVKudqLJNPnr9lSaPG93sbVMPyqAf4D985DzrNawqqB764SJwmGTRtLlxsWU3QPVKRWrfhE0CmZjyjJe8olEQ";

@@ -1,7 +1,6 @@
-package stocks.domain.fromfiletrash;
+package stocks.trash.fromfiletrash;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import stocks.domain.model.Point;
 
 import java.io.BufferedReader;
 import java.io.File;

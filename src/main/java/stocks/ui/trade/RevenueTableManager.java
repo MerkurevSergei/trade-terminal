@@ -5,10 +5,10 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import ru.tinkoff.piapi.contract.v1.Share;
-import stocks.client.HistoryClient;
-import stocks.domain.balancer.Balancer;
-import stocks.domain.balancer.StatRecord;
-import stocks.domain.model.HistoricPoint;
+import stocks.domain.history.HistoryService;
+import stocks.usecase.balancer.Balancer;
+import stocks.usecase.balancer.StatRecord;
+import stocks.domain.history.HistoricPoint;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -19,9 +19,10 @@ import java.time.Month;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public record RevenueTableManager(TableView<Map.Entry<String, BigDecimal>> revenueTableView,
-                                  HistoryClient historyClient) {
+                                  HistoryService historyService) {
 
     public RevenueTableManager {
         revenueTableView.getColumns().clear();
@@ -42,7 +43,7 @@ public record RevenueTableManager(TableView<Map.Entry<String, BigDecimal>> reven
         Map<LocalDateTime, List<HistoricPoint>> pointsByDay= new LinkedHashMap<>();
         for (int i = 0; i < 30; i++) {
             LocalDateTime currentDay = start.plusDays(i).atStartOfDay();
-            List<HistoricPoint> points = historyClient.getMinutePointsByDay(selectedItem.getFigi(), currentDay, currentDay.plusDays(1));
+            List<HistoricPoint> points = historyService.getMinutePointsByDay(selectedItem.getFigi(), currentDay, currentDay.plusDays(1));
             if (points.isEmpty() || currentDay.getDayOfWeek().equals(DayOfWeek.SUNDAY) || currentDay.getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
                 continue;
             }
@@ -55,7 +56,7 @@ public record RevenueTableManager(TableView<Map.Entry<String, BigDecimal>> reven
                 List<HistoricPoint> points = pbd.getValue();
                 BigDecimal profitDelta = getProfitDelta(points.get(0).price(), BigDecimal.valueOf(j/1000.00));
                 BigDecimal levelGap = levelGap(profitDelta);
-                List<StatRecord> statisticByDay = new Balancer(profitDelta, levelGap).getProfitSum(points);
+                List<StatRecord> statisticByDay = new Balancer(UUID.randomUUID(), profitDelta, levelGap).getProfitSum(points);
                 total = total.add(statisticByDay.stream().map(StatRecord::profitPercent).reduce(BigDecimal::add).orElse(BigDecimal.ZERO));
 
             }

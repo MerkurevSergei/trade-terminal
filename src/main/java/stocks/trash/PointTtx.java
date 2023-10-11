@@ -1,4 +1,4 @@
-package stocks.history;
+package stocks.trash;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

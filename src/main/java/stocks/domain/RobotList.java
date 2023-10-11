@@ -1,4 +1,4 @@
-package stocks.domain.model;
+package stocks.domain;
 
 public enum RobotList {
     BALANCER

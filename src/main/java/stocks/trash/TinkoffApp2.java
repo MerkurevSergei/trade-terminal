@@ -1,4 +1,4 @@
-package stocks;
+package stocks.trash;
 
 import ru.tinkoff.piapi.contract.v1.InstrumentStatus;
 import ru.tinkoff.piapi.contract.v1.RealExchange;

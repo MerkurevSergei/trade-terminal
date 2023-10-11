@@ -6,7 +6,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 import ru.tinkoff.piapi.contract.v1.Share;
-import stocks.client.HistoryClient;
+import stocks.domain.history.HistoryService;
 import stocks.shared.Utils;
 
 import java.math.BigDecimal;
@@ -22,7 +22,7 @@ import static java.math.RoundingMode.HALF_UP;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 
-public record VolatilityTableManager(TableView<List<String>> volatilityTableView, HistoryClient historyClient) {
+public record VolatilityTableManager(TableView<List<String>> volatilityTableView, HistoryService historyService) {
 
     public VolatilityTableManager {
         volatilityTableView.getColumns().clear();
@@ -44,7 +44,7 @@ public record VolatilityTableManager(TableView<List<String>> volatilityTableView
         BigDecimal volatility02 = BigDecimal.ZERO;
         BigDecimal volatility03 = BigDecimal.ZERO;
         BigDecimal volatilityByDay;
-        List<HistoricCandle> historicCandles = historyClient.getDailyCandles(selectedItem.getFigi(), start.atStartOfDay(), start.plusDays(120).atStartOfDay());
+        List<HistoricCandle> historicCandles = historyService.getDailyCandles(selectedItem.getFigi(), start.atStartOfDay(), start.plusDays(120).atStartOfDay());
         for (HistoricCandle candle : historicCandles) {
             LocalDateTime currentDate = Instant.ofEpochSecond(candle.getTime().getSeconds(), candle.getTime().getNanos())
                     .atOffset(ZoneOffset.UTC)

@@ -1,12 +1,11 @@
-package stocks.client;
+package stocks.domain.history;
 
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
-import stocks.domain.model.HistoricPoint;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface HistoryClient {
+public interface HistoryService {
     List<HistoricCandle> getDailyCandles(String figi, LocalDateTime start, LocalDateTime end);
 
     List<HistoricPoint> getDailyPoints(String figi, LocalDateTime start, LocalDateTime end);
