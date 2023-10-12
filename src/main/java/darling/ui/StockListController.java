@@ -1,6 +1,6 @@
 package darling.ui;
 
-import darling.context.SandMarketContext;
+import darling.context.MarketContext;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 
 public class StockListController implements Initializable {
 
-    private final InvestApi tinkoffClient = SandMarketContext.TINKOFF_CLIENT;
+    private final InvestApi tinkoffClient = MarketContext.TINKOFF_CLIENT;
 
     Consumer<Share> callback;
 

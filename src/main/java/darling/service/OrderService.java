@@ -1,4 +1,4 @@
-package darling.domain.order;
+package darling.service;
 
 import darling.domain.order.model.OrderDirection;
 import darling.domain.order.model.OrderType;

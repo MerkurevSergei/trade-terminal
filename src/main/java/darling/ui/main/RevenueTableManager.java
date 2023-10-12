@@ -5,10 +5,10 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import ru.tinkoff.piapi.contract.v1.Share;
-import darling.domain.history.HistoryService;
+import darling.service.HistoryService;
 import darling.domain.robot.balancer.Balancer;
 import darling.domain.robot.balancer.StatRecord;
-import darling.domain.history.HistoricPoint;
+import darling.domain.HistoricPoint;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

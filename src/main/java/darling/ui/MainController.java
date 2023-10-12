@@ -1,9 +1,7 @@
 package darling.ui;
 
 import darling.context.MarketContext;
-import darling.context.SandMarketContext;
-import darling.context.TinkoffMarketContext;
-import darling.domain.positions.model.Operation;
+import darling.domain.operations.model.Operation;
 import darling.shared.JavaFxUtils;
 import darling.ui.main.OperationsManager;
 import darling.ui.main.RevenueTableManager;
@@ -33,23 +31,19 @@ public class MainController implements Initializable {
 
     @FXML
     public TableView<Operation> fxmlTableViewOperations;
-    private OperationsManager operationsManager;
 
     // ===================================================================== //
-    // ========== БЛОК ИНИЦИАЛИЗАЦИИ И ПЕРЕКЛЮЧЕНИЕ РЕЖИМА РАБОТЫ ========== //
+    // ========== БЛОК ИНИЦИАЛИЗАЦИИ И ПЕРЕКЛЮЧЕНИЯ РЕЖИМА РАБОТЫ ========== //
     // ===================================================================== //
 
     private MarketContext marketContext;
 
-    @FXML
-    public ToggleButton modeSwitcher;
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         modeSwitcher.setOnAction(event -> initMarket(modeSwitcher.isSelected()));
-        initMarket(SAND_MODE);
-        this.shareListManager = new ShareListManager(fxmlListViewShare, SandMarketContext.MAIN_SHARE_REPOSITORY);
-        this.revenueTableManager = new RevenueTableManager(fxmlTableViewRevenue, SandMarketContext.HISTORY_CLIENT);
+        initMarket(!SAND_MODE);
+        this.shareListManager = new ShareListManager(fxmlListViewShare, MarketContext.MAIN_SHARE_REPOSITORY);
+        this.revenueTableManager = new RevenueTableManager(fxmlTableViewRevenue, MarketContext.HISTORY_CLIENT);
         Thread.setDefaultUncaughtExceptionHandler(
                 (thread, exception) -> {
                     exception.printStackTrace();
@@ -58,32 +52,19 @@ public class MainController implements Initializable {
         );
     }
 
-    private Throwable getRootCause(Throwable throwable) {
-        Throwable cause = throwable.getCause();
-        return (cause != null) ? getRootCause(cause) : throwable;
-    }
-
     /**
      * Настраивает и запускает контекст приложения, красит кнопочку.
      *
      * @param sandMode true - режим тестирования / false - режим торговли на бирже.
      */
     private void initMarket(boolean sandMode) {
-        modeSwitcher.setSelected(sandMode);
-        if (sandMode) {
-            modeSwitcher.setText("Песочница");
-            modeSwitcher.setStyle("-fx-background-color:#36D100");
-        } else {
-            modeSwitcher.setText("Торговля");
-            modeSwitcher.setStyle("-fx-background-color:red");
-        }
-
+        changeModeSwitcher(sandMode);
         if (marketContext != null) {
             marketContext.stop();
         }
-        marketContext = sandMode ? new SandMarketContext() : new TinkoffMarketContext();
-        this.operationsManager = new OperationsManager(fxmlTableViewOperations, marketContext);
-        marketContext.start();
+        marketContext = new MarketContext(sandMode);
+        OperationsManager operationsManager = new OperationsManager(fxmlTableViewOperations);
+        marketContext.addListener(operationsManager);
     }
 
     // ===================================================================== //
@@ -103,7 +84,7 @@ public class MainController implements Initializable {
     }
 
     // ===================================================================== //
-    // ======================= ТАБЛИЦА ДОХОДНОСТИ ======================= //
+    // ========================= ТАБЛИЦА ДОХОДНОСТИ ======================== //
     // ===================================================================== //
 
     @FXML
@@ -114,25 +95,6 @@ public class MainController implements Initializable {
         revenueTableManager.calculateRevenue(shareListManager.getSelectedItem());
     }
 
-
-    // ===================================================================== //
-    // ========================== СТРОКА СТАТУСА =========================== //
-    // ===================================================================== //
-
-    @FXML
-    public Label mainTradeStatusBar;
-
-    private void showError(String errorMessage) {
-        mainTradeStatusBar.setText(errorMessage);
-        mainTradeStatusBar.getStyleClass().add("error-status");
-
-        PauseTransition pause = new PauseTransition(Duration.seconds(5));
-        pause.setOnFinished(e -> {
-            mainTradeStatusBar.setText("");
-            mainTradeStatusBar.getStyleClass().remove("error-status");
-        });
-        pause.play();
-    }
 
     // ===================================================================== //
     // =============================== ОКНА ================================ //
@@ -156,4 +118,41 @@ public class MainController implements Initializable {
         controller.setCallback(this::addShare);
     }
 
+    // ===================================================================== //
+    // ====================== СТРОКА СТАТУСА И ПРОЧЕЕ ====================== //
+    // ===================================================================== //
+
+    @FXML
+    public Label mainTradeStatusBar;
+
+    private void showError(String errorMessage) {
+        mainTradeStatusBar.setText(errorMessage);
+        mainTradeStatusBar.getStyleClass().add("error-status");
+
+        PauseTransition pause = new PauseTransition(Duration.seconds(5));
+        pause.setOnFinished(e -> {
+            mainTradeStatusBar.setText("");
+            mainTradeStatusBar.getStyleClass().remove("error-status");
+        });
+        pause.play();
+    }
+
+    @FXML
+    public ToggleButton modeSwitcher;
+
+    private void changeModeSwitcher(boolean sandMode) {
+        modeSwitcher.setSelected(sandMode);
+        if (sandMode) {
+            modeSwitcher.setText("Песочница");
+            modeSwitcher.setStyle("-fx-background-color:#36D100");
+        } else {
+            modeSwitcher.setText("Торговля");
+            modeSwitcher.setStyle("-fx-background-color:red");
+        }
+    }
+
+    private Throwable getRootCause(Throwable throwable) {
+        Throwable cause = throwable.getCause();
+        return (cause != null) ? getRootCause(cause) : throwable;
+    }
 }

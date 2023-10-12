@@ -1,5 +1,6 @@
-package darling.domain.history;
+package darling.service;
 
+import darling.domain.HistoricPoint;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 
 import java.time.LocalDateTime;

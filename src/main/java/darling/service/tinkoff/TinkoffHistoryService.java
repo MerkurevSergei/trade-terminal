@@ -1,7 +1,9 @@
-package darling.domain.history;
+package darling.service.tinkoff;
 
+import darling.context.MarketContext;
+import darling.domain.HistoricPoint;
+import darling.service.HistoryService;
 import darling.shared.TinkoffTypeMapper;
-import darling.context.SandMarketContext;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 import ru.tinkoff.piapi.core.InvestApi;
@@ -15,7 +17,7 @@ import java.util.List;
 
 public class TinkoffHistoryService implements HistoryService {
 
-    private static final InvestApi tinkoffClient = SandMarketContext.TINKOFF_CLIENT;
+    private static final InvestApi tinkoffClient = MarketContext.TINKOFF_CLIENT;
 
     @Override
     public List<HistoricCandle> getDailyCandles(String figi, LocalDateTime start, LocalDateTime end) {

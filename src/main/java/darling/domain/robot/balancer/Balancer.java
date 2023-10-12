@@ -1,10 +1,10 @@
 package darling.domain.robot.balancer;
 
-import darling.domain.order.OrderService;
-import darling.domain.order.SandOrderService;
+import darling.service.OrderService;
+import darling.service.sand.SandOrderService;
 import darling.domain.order.model.OrderDirection;
 import darling.domain.Bet;
-import darling.domain.history.HistoricPoint;
+import darling.domain.HistoricPoint;
 import darling.domain.robot.Robot;
 
 import java.math.BigDecimal;

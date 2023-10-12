@@ -1,9 +1,10 @@
-package darling.domain.positions;
+package darling.service.tinkoff;
 
-import darling.context.SandMarketContext;
+import darling.context.MarketContext;
 import darling.context.event.EventListener;
-import darling.domain.positions.model.Operation;
-import darling.domain.positions.model.OperationMapper;
+import darling.domain.operations.model.Operation;
+import darling.domain.operations.model.OperationMapper;
+import darling.service.OperationService;
 import darling.shared.TinkoffTypeMapper;
 import ru.tinkoff.piapi.contract.v1.GetOperationsByCursorResponse;
 
@@ -14,11 +15,11 @@ import java.util.List;
 
 import static darling.shared.ApplicationProperties.ACCOUNT_ID;
 
-public class TinkoffOperationsService implements OperationsService {
+public class TinkoffOperationService implements OperationService {
 
     private final List<EventListener> listeners = new ArrayList<>();
 
-    private static final ru.tinkoff.piapi.core.OperationsService operationsService = SandMarketContext.TINKOFF_CLIENT.getOperationsService();
+    private static final ru.tinkoff.piapi.core.OperationsService operationsService = MarketContext.TINKOFF_CLIENT.getOperationsService();
 
     @Override
     public void refreshOperations(LocalDateTime start, LocalDateTime end) {

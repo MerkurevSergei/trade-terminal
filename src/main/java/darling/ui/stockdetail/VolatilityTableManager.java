@@ -6,7 +6,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 import ru.tinkoff.piapi.contract.v1.Share;
-import darling.domain.history.HistoryService;
+import darling.service.HistoryService;
 import darling.shared.TinkoffTypeMapper;
 
 import java.math.BigDecimal;

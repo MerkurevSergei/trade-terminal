@@ -1,4 +1,4 @@
-package darling.domain.positions.model;
+package darling.domain.operations.model;
 
 import lombok.Builder;
 import ru.tinkoff.piapi.contract.v1.InstrumentType;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  */
 @Builder
 public record Operation(String id, String parentOperationId, String name, LocalDateTime date, OperationType type,
-                        String description, OperationState state, String instrumentUid, String instrumentType,
-                        InstrumentType instrumentKind, BigDecimal payment, BigDecimal price, BigDecimal commission,
+                        String description, OperationState state, String instrumentUid, InstrumentType instrumentType,
+                        BigDecimal payment, BigDecimal price, BigDecimal commission,
                         long quantity, long quantityRest, long quantityDone) {
 }

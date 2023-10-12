@@ -1,6 +1,6 @@
 package darling.ui;
 
-import darling.context.SandMarketContext;
+import darling.context.MarketContext;
 import darling.ui.stockdetail.VolatilityTableManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,7 +19,7 @@ public class StockDetailsController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        volatilityTableManager = new VolatilityTableManager(fxmlTableViewVolatility, SandMarketContext.HISTORY_CLIENT);
+        volatilityTableManager = new VolatilityTableManager(fxmlTableViewVolatility, MarketContext.HISTORY_CLIENT);
     }
 
     public void initData(Share share) {

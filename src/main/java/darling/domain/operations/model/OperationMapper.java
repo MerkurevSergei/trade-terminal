@@ -1,4 +1,4 @@
-package darling.domain.positions.model;
+package darling.domain.operations.model;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
