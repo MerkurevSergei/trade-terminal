@@ -19,7 +19,7 @@ public class StockDetailsController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        volatilityTableManager = new VolatilityTableManager(fxmlTableViewVolatility, MarketContext.HISTORY_CLIENT);
+        volatilityTableManager = new VolatilityTableManager(fxmlTableViewVolatility, MarketContext.HISTORY_SERVICE);
     }
 
     public void initData(Share share) {

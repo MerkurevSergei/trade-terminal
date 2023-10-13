@@ -1,4 +1,5 @@
 package darling.context.event;
 
-public interface Event {
+public enum Event {
+    OPERATION_UPDATED
 }

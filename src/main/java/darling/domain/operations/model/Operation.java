@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * Операция.
  */
 @Builder
-public record Operation(String id, String parentOperationId, String name, LocalDateTime date, OperationType type,
+public record Operation(String id, String brokerAccountId, String parentOperationId, String name, LocalDateTime date, OperationType type,
                         String description, OperationState state, String instrumentUid, InstrumentType instrumentType,
                         BigDecimal payment, BigDecimal price, BigDecimal commission,
                         long quantity, long quantityRest, long quantityDone) {

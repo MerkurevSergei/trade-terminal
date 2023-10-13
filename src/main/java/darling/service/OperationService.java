@@ -1,11 +1,15 @@
 package darling.service;
 
 import darling.context.event.EventListener;
+import darling.domain.operations.model.Operation;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 public interface OperationService {
-    void refreshOperations(LocalDateTime start, LocalDateTime end);
+
+    List<Operation> getAll();
+
+    void sync();
 
     void addListener(EventListener eventListener);
 }

@@ -43,7 +43,7 @@ public class MainController implements Initializable {
         modeSwitcher.setOnAction(event -> initMarket(modeSwitcher.isSelected()));
         initMarket(!SAND_MODE);
         this.shareListManager = new ShareListManager(fxmlListViewShare, MarketContext.MAIN_SHARE_REPOSITORY);
-        this.revenueTableManager = new RevenueTableManager(fxmlTableViewRevenue, MarketContext.HISTORY_CLIENT);
+        this.revenueTableManager = new RevenueTableManager(fxmlTableViewRevenue, MarketContext.HISTORY_SERVICE);
         Thread.setDefaultUncaughtExceptionHandler(
                 (thread, exception) -> {
                     exception.printStackTrace();
@@ -63,7 +63,7 @@ public class MainController implements Initializable {
             marketContext.stop();
         }
         marketContext = new MarketContext(sandMode);
-        OperationsManager operationsManager = new OperationsManager(fxmlTableViewOperations);
+        OperationsManager operationsManager = new OperationsManager(fxmlTableViewOperations, marketContext);
         marketContext.addListener(operationsManager);
     }
 
