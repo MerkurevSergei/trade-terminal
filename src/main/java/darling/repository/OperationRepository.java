@@ -1,13 +1,12 @@
 package darling.repository;
 
-import darling.domain.operations.model.Operation;
+import darling.domain.Operation;
 import lombok.Synchronized;
 import ru.tinkoff.piapi.contract.v1.InstrumentType;
 import ru.tinkoff.piapi.contract.v1.OperationState;
 import ru.tinkoff.piapi.contract.v1.OperationType;
 
 import java.math.RoundingMode;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;

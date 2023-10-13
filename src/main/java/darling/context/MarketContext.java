@@ -1,13 +1,14 @@
 package darling.context;
 
 import darling.context.event.EventListener;
-import darling.domain.operations.model.Operation;
-import darling.service.HistoryService;
-import darling.service.tinkoff.TinkoffHistoryService;
-import darling.service.sand.SandOperationService;
-import darling.service.OperationService;
-import darling.service.tinkoff.TinkoffOperationService;
+import darling.domain.Operation;
+import darling.domain.Position;
 import darling.repository.ShareRepository;
+import darling.service.HistoryService;
+import darling.service.OperationService;
+import darling.service.sand.OperationSandService;
+import darling.service.tinkoff.HistoryTinkoffService;
+import darling.service.tinkoff.OperationTinkoffService;
 import ru.tinkoff.piapi.core.InvestApi;
 
 import java.util.List;
@@ -24,19 +25,27 @@ public class MarketContext {
 
     public static final InvestApi TINKOFF_CLIENT = InvestApi.create(TINKOFF_TOKEN);
 
-    public static final HistoryService HISTORY_SERVICE = new TinkoffHistoryService();
+    public static final HistoryService HISTORY_SERVICE = new HistoryTinkoffService();
 
     private final OperationService operationService;
 
     private final ScheduledExecutorService executorService;
 
+    private final boolean sandMode;
+
 
     public MarketContext(boolean sandMode) {
-        operationService = sandMode ? new SandOperationService() : new TinkoffOperationService();
-        int delay = sandMode ? 0 : 2;
+        this.sandMode = sandMode;
+        operationService = sandMode ? new OperationSandService() : new OperationTinkoffService();
         executorService = Executors.newSingleThreadScheduledExecutor();
+
+    }
+
+    public void start() {
+        int delay = sandMode ? 0 : 2;
         executorService.scheduleWithFixedDelay(() -> {
-            operationService.sync();
+            operationService.syncPositions();
+            operationService.syncOperations();
         }, 1, delay, SECONDS);
     }
 
@@ -53,7 +62,11 @@ public class MarketContext {
     }
 
     public List<Operation> getOperations() {
-        return operationService.getAll();
+        return operationService.getAllOperations();
+    }
+
+    public List<Position> getPositions() {
+        return operationService.getAllPositions();
     }
 
     public void addListener(EventListener eventListener) {

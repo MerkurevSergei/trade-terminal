@@ -33,7 +33,7 @@ public class StockListController implements Initializable {
     private final List<Share> shares = new ArrayList<>();
 
 
-    public void onMouseClicked(MouseEvent event) throws IOException {
+    public void onMouseClicked(MouseEvent event) {
         if (event.getButton().equals(MouseButton.PRIMARY) && (event.getClickCount() == 2)) {
 
             Share selectedItem = fullSharesView.getSelectionModel().getSelectedItem();

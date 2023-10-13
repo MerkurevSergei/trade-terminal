@@ -1,4 +1,4 @@
-package darling.domain.order.model;
+package darling.domain.order;
 
 public enum OrderDirection {
     UP,

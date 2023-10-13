@@ -1,8 +1,8 @@
 package darling.domain.robot.balancer;
 
 import darling.service.OrderService;
-import darling.service.sand.SandOrderService;
-import darling.domain.order.model.OrderDirection;
+import darling.service.sand.OrderSandService;
+import darling.domain.order.OrderDirection;
 import darling.domain.Bet;
 import darling.domain.HistoricPoint;
 import darling.domain.robot.Robot;
@@ -18,7 +18,7 @@ public final class Balancer implements Robot {
 
     private final String instrumentUid;
 
-    private final OrderService orderService = new SandOrderService();
+    private final OrderService orderService = new OrderSandService();
 
     private final List<Bet> bets = new ArrayList<>();
 

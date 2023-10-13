@@ -24,7 +24,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
     implementation 'commons-io:commons-io:2.14.0'
-    implementation 'ru.tinkoff.piapi:java-sdk-core:1.5'
+    implementation 'ru.tinkoff.piapi:java-sdk-core:1.6'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2'
     implementation 'org.slf4j:slf4j-simple:2.0.9'
     implementation 'com.h2database:h2:2.2.224'

@@ -1,6 +1,6 @@
 package darling.domain;
 
-import darling.domain.order.model.OrderDirection;
+import darling.domain.order.OrderDirection;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;

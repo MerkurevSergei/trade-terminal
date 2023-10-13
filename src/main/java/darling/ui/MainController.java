@@ -1,9 +1,11 @@
 package darling.ui;
 
 import darling.context.MarketContext;
-import darling.domain.operations.model.Operation;
+import darling.domain.Operation;
+import darling.domain.Position;
 import darling.shared.JavaFxUtils;
 import darling.ui.main.OperationsManager;
+import darling.ui.main.PositionsManager;
 import darling.ui.main.RevenueTableManager;
 import darling.ui.main.ShareListManager;
 import javafx.animation.PauseTransition;
@@ -31,6 +33,9 @@ public class MainController implements Initializable {
 
     @FXML
     public TableView<Operation> fxmlTableViewOperations;
+
+    @FXML
+    public TableView<Position> fxmlTableViewPositions;
 
     // ===================================================================== //
     // ========== БЛОК ИНИЦИАЛИЗАЦИИ И ПЕРЕКЛЮЧЕНИЯ РЕЖИМА РАБОТЫ ========== //
@@ -64,7 +69,10 @@ public class MainController implements Initializable {
         }
         marketContext = new MarketContext(sandMode);
         OperationsManager operationsManager = new OperationsManager(fxmlTableViewOperations, marketContext);
+        PositionsManager positionsManager = new PositionsManager(fxmlTableViewPositions, marketContext);
         marketContext.addListener(operationsManager);
+        marketContext.addListener(positionsManager);
+        marketContext.start();
     }
 
     // ===================================================================== //

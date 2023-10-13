@@ -1,4 +1,4 @@
-package darling.domain.operations.model;
+package darling.domain;
 
 import lombok.Builder;
 import ru.tinkoff.piapi.contract.v1.InstrumentType;

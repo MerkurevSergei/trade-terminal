@@ -1,14 +1,14 @@
 package darling.service.tinkoff;
 
 import darling.context.MarketContext;
-import darling.domain.order.model.OrderDirection;
+import darling.domain.order.OrderDirection;
 import darling.service.OrderService;
 import ru.tinkoff.piapi.core.OrdersService;
-import darling.domain.order.model.OrderType;
+import darling.domain.order.OrderType;
 
 import java.math.BigDecimal;
 
-public class TinkoffOrderService implements OrderService {
+public class OrderTinkoffService implements OrderService {
     @Override
     public void postOrder(String instrumentId, long quantity, BigDecimal price, OrderDirection direction, OrderType type) {
 

@@ -65,13 +65,7 @@
            </rowConstraints>
             <children>
                <Button maxHeight="-Infinity" mnemonicParsing="false" onAction="#calculateRevenue" text="Button" GridPane.rowIndex="1" />
-               <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
-                 <columns>
-                   <TableColumn prefWidth="75.0" text="C1" />
-                   <TableColumn prefWidth="75.0" text="C2" />
-                 </columns>
-               </TableView>
-               <TableView fx:id="fxmlTableViewRevenue" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="639.0" prefWidth="370.0">
+               <TableView fx:id="fxmlTableViewRevenue" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="639.0" prefWidth="370.0" GridPane.columnIndex="1">
                  <columns>
                    <TableColumn prefWidth="75.0" text="C1" />
                    <TableColumn prefWidth="75.0" text="C2" />
@@ -84,6 +78,12 @@
                    <TableColumn editable="false" maxWidth="275.0" minWidth="275.0" prefWidth="275.0" sortable="false" text="Операция" />
                      <TableColumn editable="false" maxWidth="70.0" minWidth="70.0" prefWidth="70.0" sortable="false" text="Сумма" />
                      <TableColumn editable="false" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" sortable="false" text="A" />
+                 </columns>
+               </TableView>
+               <TableView fx:id="fxmlTableViewPositions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0">
+                 <columns>
+                   <TableColumn prefWidth="75.0" text="Uid" />
+                   <TableColumn prefWidth="75.0" text="Сумма" />
                  </columns>
                </TableView>
             </children>

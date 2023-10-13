@@ -2,8 +2,8 @@ package darling.service.tinkoff;
 
 import darling.context.MarketContext;
 import darling.domain.HistoricPoint;
+import darling.mapper.TinkoffSpecialTypeMapper;
 import darling.service.HistoryService;
-import darling.shared.TinkoffTypeMapper;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 import ru.tinkoff.piapi.core.InvestApi;
@@ -15,7 +15,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TinkoffHistoryService implements HistoryService {
+public class HistoryTinkoffService implements HistoryService {
 
     private static final InvestApi tinkoffClient = MarketContext.TINKOFF_CLIENT;
 
@@ -31,10 +31,10 @@ public class TinkoffHistoryService implements HistoryService {
         List<HistoricPoint> points = new ArrayList<>();
         List<HistoricCandle> dailyCandles = getDailyCandles(figi, start, end);
         for (HistoricCandle candle : dailyCandles) {
-            LocalDateTime time = TinkoffTypeMapper.map(candle.getTime());
-            BigDecimal open = TinkoffTypeMapper.map(candle.getOpen());
-            BigDecimal high = TinkoffTypeMapper.map(candle.getHigh());
-            BigDecimal low = TinkoffTypeMapper.map(candle.getLow());
+            LocalDateTime time = TinkoffSpecialTypeMapper.map(candle.getTime());
+            BigDecimal open = TinkoffSpecialTypeMapper.map(candle.getOpen());
+            BigDecimal high = TinkoffSpecialTypeMapper.map(candle.getHigh());
+            BigDecimal low = TinkoffSpecialTypeMapper.map(candle.getLow());
             long volume = candle.getVolume();
             points.add(new HistoricPoint(time, open, volume / 3));
             points.add(new HistoricPoint(time, high, volume / 3));
@@ -60,10 +60,10 @@ public class TinkoffHistoryService implements HistoryService {
         List<HistoricPoint> points = new ArrayList<>();
         List<HistoricCandle> minuteCandles = getMinuteCandles(figi, start, end);
         for (HistoricCandle candle : minuteCandles) {
-            LocalDateTime time = TinkoffTypeMapper.map(candle.getTime());
-            BigDecimal open = TinkoffTypeMapper.map(candle.getOpen());
-            BigDecimal high = TinkoffTypeMapper.map(candle.getHigh());
-            BigDecimal low = TinkoffTypeMapper.map(candle.getLow());
+            LocalDateTime time = TinkoffSpecialTypeMapper.map(candle.getTime());
+            BigDecimal open = TinkoffSpecialTypeMapper.map(candle.getOpen());
+            BigDecimal high = TinkoffSpecialTypeMapper.map(candle.getHigh());
+            BigDecimal low = TinkoffSpecialTypeMapper.map(candle.getLow());
             long volume = candle.getVolume();
             points.add(new HistoricPoint(time.plusSeconds(1), open, volume / 3));
             points.add(new HistoricPoint(time.plusSeconds(2), high, volume / 3));

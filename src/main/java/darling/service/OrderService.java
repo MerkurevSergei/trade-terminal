@@ -1,7 +1,7 @@
 package darling.service;
 
-import darling.domain.order.model.OrderDirection;
-import darling.domain.order.model.OrderType;
+import darling.domain.order.OrderDirection;
+import darling.domain.order.OrderType;
 
 import java.math.BigDecimal;
 

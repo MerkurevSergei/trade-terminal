@@ -3,7 +3,7 @@ package darling.ui.main;
 import darling.context.MarketContext;
 import darling.context.event.Event;
 import darling.context.event.EventListener;
-import darling.domain.operations.model.Operation;
+import darling.domain.Operation;
 import darling.shared.Utils;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -11,7 +11,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Objects;
 
 public record OperationsManager(TableView<Operation> operationsTableView, MarketContext marketContext) implements EventListener {

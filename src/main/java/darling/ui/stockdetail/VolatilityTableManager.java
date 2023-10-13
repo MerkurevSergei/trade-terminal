@@ -7,7 +7,7 @@ import javafx.scene.control.TableView;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 import ru.tinkoff.piapi.contract.v1.Share;
 import darling.service.HistoryService;
-import darling.shared.TinkoffTypeMapper;
+import darling.mapper.TinkoffSpecialTypeMapper;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -53,10 +53,10 @@ public record VolatilityTableManager(TableView<List<String>> volatilityTableView
             if (currentDate.getDayOfWeek().equals(SATURDAY) || currentDate.getDayOfWeek().equals(SUNDAY)) {
                 continue;
             }
-            BigDecimal high = TinkoffTypeMapper.map(candle.getHigh());
-            BigDecimal low = TinkoffTypeMapper.map(candle.getLow());
+            BigDecimal high = TinkoffSpecialTypeMapper.map(candle.getHigh());
+            BigDecimal low = TinkoffSpecialTypeMapper.map(candle.getLow());
             volatilityByDay = high.subtract(low).setScale(7, HALF_UP);
-            BigDecimal price = TinkoffTypeMapper.map(historicCandles.get(0).getOpen());
+            BigDecimal price = TinkoffSpecialTypeMapper.map(historicCandles.get(0).getOpen());
             volatilityByDay = volatilityByDay.divide(price, 7, HALF_UP).multiply(BigDecimal.valueOf(100));
             if (volatilityByDay.compareTo(BigDecimal.valueOf(1)) < 0) {
                 volatility01 = volatility01.add(BigDecimal.ONE);
