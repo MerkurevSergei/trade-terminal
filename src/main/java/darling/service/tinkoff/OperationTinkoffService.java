@@ -1,6 +1,5 @@
 package darling.service.tinkoff;
 
-import darling.context.MarketContext;
 import darling.context.event.Event;
 import darling.context.event.EventListener;
 import darling.domain.Operation;
@@ -11,6 +10,7 @@ import darling.mapper.TinkoffSpecialTypeMapper;
 import darling.repository.OperationRepository;
 import darling.repository.PositionRepository;
 import darling.service.OperationService;
+import lombok.RequiredArgsConstructor;
 import ru.tinkoff.piapi.contract.v1.GetOperationsByCursorResponse;
 import ru.tinkoff.piapi.core.models.Positions;
 
@@ -22,6 +22,7 @@ import java.util.List;
 
 import static darling.shared.ApplicationProperties.ACCOUNTS;
 
+@RequiredArgsConstructor
 public class OperationTinkoffService implements OperationService {
 
     private final OperationRepository operationRepository = new OperationRepository();
@@ -32,7 +33,7 @@ public class OperationTinkoffService implements OperationService {
 
     private final List<EventListener> listeners = new ArrayList<>();
 
-    private static final ru.tinkoff.piapi.core.OperationsService operationsService = MarketContext.TINKOFF_CLIENT.getOperationsService();
+    private final ru.tinkoff.piapi.core.OperationsService operationsService;
 
     @Override
     public List<Operation> getAllOperations() {

@@ -64,8 +64,8 @@ public class OperationRepository {
 
             // Удалим их, если существуют и сохраним только новые
             operations.removeIf(operation -> existIds.contains(operation.id()));
-            String insertSql = "INSERT INTO operation (id, brokerAccountId, parentOperationId, name, date, type, description, state, " +
-                    "instrumentUid, instrumentType, payment, price, commission, quantity, quantityRest, quantityDone) " +
+            String insertSql = "INSERT INTO operation (id, broker_account_id, parent_operation_id, name, date, type, description, state, " +
+                    "instrument_uid, instrument_type, payment, price, commission, quantity, quantityRest, quantityDone) " +
                     "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             for (Operation o : operations) {
                 try (PreparedStatement ps = connection.prepareStatement(insertSql)) {
@@ -98,20 +98,20 @@ public class OperationRepository {
         List<Operation> operations = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection("jdbc:h2:./data/darling", "sa", "")) {
             try (Statement stmt = connection.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT id, brokerAccountId, parentOperationId, name, date, type, description, state, instrumentUid, " +
-                                                          "instrumentType, payment, price, commission, quantity, quantityRest, quantityDone FROM operation ORDER BY date desc")) {
+                 ResultSet rs = stmt.executeQuery("SELECT id, broker_account_id, parent_operation_id, name, date, type, description, state, instrument_uid, " +
+                                                          "instrument_type, payment, price, commission, quantity, quantityRest, quantityDone FROM operation ORDER BY date desc")) {
                 while (rs.next()) {
                     Operation share = Operation.builder()
                             .id(rs.getString("id"))
-                            .brokerAccountId(rs.getString("brokerAccountId"))
-                            .parentOperationId(rs.getString("parentOperationId"))
+                            .brokerAccountId(rs.getString("broker_account_id"))
+                            .parentOperationId(rs.getString("parent_operation_id"))
                             .name(rs.getString("name"))
                             .date(rs.getTimestamp("date").toLocalDateTime())
                             .type(OperationType.valueOf(rs.getString("type")))
                             .description(rs.getString("description"))
                             .state(OperationState.valueOf(rs.getString("state")))
-                            .instrumentUid(rs.getString("instrumentUid"))
-                            .instrumentType(InstrumentType.valueOf(rs.getString("instrumentType")))
+                            .instrumentUid(rs.getString("instrument_uid"))
+                            .instrumentType(InstrumentType.valueOf(rs.getString("instrument_type")))
                             .payment(rs.getBigDecimal("payment").setScale(2, RoundingMode.HALF_UP))
                             .price(rs.getBigDecimal("price").setScale(6, RoundingMode.HALF_UP))
                             .commission(rs.getBigDecimal("commission").setScale(2, RoundingMode.HALF_UP))

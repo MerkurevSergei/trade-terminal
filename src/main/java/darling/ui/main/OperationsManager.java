@@ -13,7 +13,8 @@ import javafx.scene.control.TableView;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-public record OperationsManager(TableView<Operation> operationsTableView, MarketContext marketContext) implements EventListener {
+public record OperationsManager(TableView<Operation> operationsTableView,
+                                MarketContext marketContext) implements EventListener {
 
     public OperationsManager {
         TableColumn<Operation, String> tableColumnDate = (TableColumn<Operation, String>) operationsTableView.getColumns().get(0);

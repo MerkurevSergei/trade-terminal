@@ -3,23 +3,23 @@ package darling.ui;
 import darling.context.MarketContext;
 import darling.domain.Operation;
 import darling.domain.Position;
+import darling.domain.Share;
+import darling.mapper.ShareMapper;
 import darling.shared.JavaFxUtils;
+import darling.ui.main.MainShareManager;
 import darling.ui.main.OperationsManager;
 import darling.ui.main.PositionsManager;
 import darling.ui.main.RevenueTableManager;
-import darling.ui.main.ShareListManager;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.util.Duration;
 import lombok.Getter;
-import ru.tinkoff.piapi.contract.v1.Share;
 
 import java.math.BigDecimal;
 import java.net.URL;
@@ -46,8 +46,7 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         modeSwitcher.setOnAction(event -> initMarket(modeSwitcher.isSelected()));
-        initMarket(!SAND_MODE);
-        this.shareListManager = new ShareListManager(fxmlListViewShare, MarketContext.MAIN_SHARE_REPOSITORY);
+        initMarket(SAND_MODE);
         this.revenueTableManager = new RevenueTableManager(fxmlTableViewRevenue, MarketContext.HISTORY_SERVICE);
         Thread.setDefaultUncaughtExceptionHandler(
                 (thread, exception) -> {
@@ -70,6 +69,7 @@ public class MainController implements Initializable {
         marketContext = new MarketContext(sandMode);
         OperationsManager operationsManager = new OperationsManager(fxmlTableViewOperations, marketContext);
         PositionsManager positionsManager = new PositionsManager(fxmlTableViewPositions, marketContext);
+        this.mainShareManager = new MainShareManager(fxmlTableViewMainShares, marketContext);
         marketContext.addListener(operationsManager);
         marketContext.addListener(positionsManager);
         marketContext.start();
@@ -80,15 +80,15 @@ public class MainController implements Initializable {
     // ===================================================================== //
 
     @FXML
-    private ListView<Share> fxmlListViewShare;
-    private ShareListManager shareListManager;
+    public TableView<Share> fxmlTableViewMainShares;
+    private MainShareManager mainShareManager;
 
     public void addShare(Share share) {
-        shareListManager.addShare(share);
+        //mainShareManager.addShare(share);
     }
 
     public void deleteShare() {
-        shareListManager.deleteActiveShare();
+       // mainShareManager.deleteActiveShare();
     }
 
     // ===================================================================== //
@@ -100,7 +100,7 @@ public class MainController implements Initializable {
     private RevenueTableManager revenueTableManager;
 
     public void calculateRevenue() {
-        revenueTableManager.calculateRevenue(shareListManager.getSelectedItem());
+        //revenueTableManager.calculateRevenue(ShareMapper.INST.map(mainShareManager.getSelectedItem()));
     }
 
 
@@ -112,18 +112,18 @@ public class MainController implements Initializable {
      * Открывает окно с детальной информацией об акции.
      */
     public void openWindowStockDetails() {
-        FXMLLoader fxmlDocument = JavaFxUtils.openWindow("/stockdetails.fxml", "Информация об акции");
+        FXMLLoader fxmlDocument = JavaFxUtils.openWindow("/stockdetails.fxml", "Информация об акции", marketContext);
         StockDetailsController controller = fxmlDocument.getController();
-        controller.initData(shareListManager.getSelectedItem());
+       // controller.initData(ShareMapper.INST.map(mainShareManager.getSelectedItem()));
     }
 
     /**
      * Открывает окно настроек со списком доступных для торговли акций.
      */
     public void openWindowAvailableStocks() {
-        FXMLLoader fxmlDocument = JavaFxUtils.openWindow("/stocklist.fxml", "Выбор акций");
-        StockListController controller = fxmlDocument.getController();
-        controller.setCallback(this::addShare);
+        FXMLLoader fxmlDocument = JavaFxUtils.openWindow("/stocklist.fxml", "Список доступных акций", marketContext);
+        AvailableStocksController controller = fxmlDocument.getController();
+        controller.setCallbackAddShareToMain(this::addShare);
     }
 
     // ===================================================================== //

@@ -1,19 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="900.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="darling.ui.StockListController">
+<AnchorPane prefHeight="900.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="darling.ui.AvailableStocksController">
    <children>
-      <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="720.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <left>
-            <ListView id="fullSharesView" fx:id="fullSharesView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onMouseClicked="#onMouseClicked" prefHeight="670.0" prefWidth="400.0" BorderPane.alignment="CENTER">
-               <padding>
-                  <Insets left="3.0" />
-               </padding></ListView>
-         </left>
-      </BorderPane>
+      <VBox prefHeight="900.0" prefWidth="400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <ComboBox prefWidth="150.0">
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </ComboBox>
+                  <ComboBox prefWidth="150.0">
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </ComboBox>
+                  <Button mnemonicParsing="false" onAction="#syncAvailableShares" text="Обновить список">
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" />
+               </VBox.margin>
+            </HBox>
+            <TableView fx:id="fxmlTableViewAvailableShares" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="800.0">
+              <columns>
+                <TableColumn prefWidth="53.5999755859375" text="Тикер" />
+                  <TableColumn prefWidth="136.0" text="Наименование" />
+                <TableColumn prefWidth="36.7999267578125" text="Лот" />
+                  <TableColumn prefWidth="75.0" text="Цена за лот" />
+                  <TableColumn prefWidth="75.0" text="Валюта" />
+                  <TableColumn prefWidth="75.0" text="Шорт" />
+                  <TableColumn prefWidth="75.0" text="Страна" />
+                  <TableColumn prefWidth="75.0" text="Сектор" />
+                  <TableColumn prefWidth="75.0" text="Биржа" />
+                  <TableColumn prefWidth="75.0" text="Тип акции" />
+              </columns>
+            </TableView>
+         </children>
+      </VBox>
    </children>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
 </AnchorPane>
