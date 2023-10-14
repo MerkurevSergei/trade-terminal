@@ -24,11 +24,12 @@ import static java.time.Month.JANUARY;
 public class OperationRepository {
 
     @Synchronized
-    public LocalDateTime getLastTime() {
+    public LocalDateTime getLastTime(String account) {
         LocalDateTime lastTime = LocalDateTime.of(2020, JANUARY, 1, 0, 0, 0);
         try (Connection connection = DriverManager.getConnection("jdbc:h2:./data/darling", "sa", "")) {
-            try (Statement stmt = connection.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT max(date) date FROM operation")) {
+            try (PreparedStatement ps = connection.prepareStatement("SELECT max(date) date FROM operation where broker_account_id = ?")) {
+                ps.setString(1, account);
+                ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     Timestamp date = rs.getTimestamp("date");
                     return date == null ? lastTime : date.toLocalDateTime();

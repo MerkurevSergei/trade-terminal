@@ -37,4 +37,8 @@ public record AvailableStockManager(TableView<Share> availableShareTableView, Ma
     public void refresh() {
         availableShareTableView.setItems(FXCollections.observableArrayList(marketContext.getAvailableShares()));
     }
+
+    public void addToMainShares() {
+        marketContext.addMainShare(availableShareTableView.getSelectionModel().getSelectedItem());
+    }
 }

@@ -93,6 +93,7 @@ public class AvailableShareRepository {
         }
     }
 
+    @Synchronized
     public void deleteAll() {
         try (Connection connection = DriverManager.getConnection("jdbc:h2:./data/darling", "sa", "")) {
             try (PreparedStatement ps = connection.prepareStatement("DELETE FROM available_share WHERE true = true")) {

@@ -31,8 +31,8 @@ public record OperationsManager(TableView<Operation> operationsTableView,
     @Override
     public void handle(Event event) {
         boolean notOperationUpdated = !Objects.equals(event, Event.OPERATION_UPDATED);
-        boolean notTableEmpty = operationsTableView.getItems().isEmpty();
-        if (notOperationUpdated && notTableEmpty) {
+        boolean notInit = !Objects.equals(event, Event.CONTEXT_INIT);
+        if (notOperationUpdated && notInit) {
             return;
         }
         operationsTableView.setItems(FXCollections.observableArrayList(marketContext.getOperations()));

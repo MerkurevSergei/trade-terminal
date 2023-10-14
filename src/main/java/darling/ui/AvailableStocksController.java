@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 
 @Slf4j
 public class AvailableStocksController extends AbstractController {
@@ -19,8 +18,6 @@ public class AvailableStocksController extends AbstractController {
     @FXML
     public TableView<Share> fxmlTableViewAvailableShares;
     private AvailableStockManager availableStockManager;
-
-    Consumer<Share> callbackAddShareToMain;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -35,17 +32,12 @@ public class AvailableStocksController extends AbstractController {
 
     public void onMouseClicked(MouseEvent event) {
         if (event.getButton().equals(MouseButton.PRIMARY) && (event.getClickCount() == 2)) {
-            Share selectedItem = availableStockManager.availableShareTableView().getSelectionModel().getSelectedItem();
-            callbackAddShareToMain.accept(selectedItem);
+            availableStockManager.addToMainShares();
         }
     }
 
-    public void setCallbackAddShareToMain(Consumer<Share> consumer) {
-        this.callbackAddShareToMain = consumer;
-    }
-
     public void syncAvailableShares() {
-        log.info("Update shares from exchange");
+        log.info("=== Update shares from exchange ===");
         marketContext.syncAvailableShares();
         availableStockManager.refresh();
     }

@@ -15,10 +15,16 @@ public record PositionsManager(TableView<Position> positionTableView,
                                MarketContext marketContext) implements EventListener {
 
     public PositionsManager {
-        TableColumn<Position, String> tableColumnDate = (TableColumn<Position, String>) positionTableView.getColumns().get(0);
-        TableColumn<Position, String> tableColumnOperation = (TableColumn<Position, String>) positionTableView.getColumns().get(1);
-        tableColumnDate.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().instrumentUid()));
-        tableColumnOperation.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().balance().toString()));
+        TableColumn<Position, String> tableColumnTicker = (TableColumn<Position, String>) positionTableView.getColumns().get(0);
+        TableColumn<Position, String> tableColumnName = (TableColumn<Position, String>) positionTableView.getColumns().get(1);
+        TableColumn<Position, String> tableColumnBalance = (TableColumn<Position, String>) positionTableView.getColumns().get(2);
+        TableColumn<Position, String> tableColumnLotBalance = (TableColumn<Position, String>) positionTableView.getColumns().get(3);
+        TableColumn<Position, String> tableColumnAmount = (TableColumn<Position, String>) positionTableView.getColumns().get(4);
+        tableColumnTicker.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().ticker()));
+        tableColumnName.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().name()));
+        tableColumnBalance.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().balance().toString()));
+        tableColumnLotBalance.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().lotBalance().toString()));
+        tableColumnAmount.setCellValueFactory(param -> new ReadOnlyStringWrapper(""));
     }
 
     @Override

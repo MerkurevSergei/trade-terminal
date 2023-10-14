@@ -16,6 +16,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane fx:id="parentPane" prefHeight="1000.0" prefWidth="1800.0" styleClass="main-style.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="darling.ui.MainController">
     <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="720.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -43,20 +44,21 @@
                <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="515.0" />
            </columnConstraints>
            <rowConstraints>
-             <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="629.6000122070312" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="23.0" vgrow="SOMETIMES" />
+             <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="893.0" vgrow="SOMETIMES" />
              <RowConstraints maxHeight="-Infinity" minHeight="0.0" prefHeight="27.999987792968795" vgrow="SOMETIMES" />
                <RowConstraints maxHeight="-Infinity" minHeight="6.3999755859374545" prefHeight="12.000012207031205" vgrow="SOMETIMES" />
            </rowConstraints>
             <children>
-               <Button maxHeight="-Infinity" mnemonicParsing="false" onAction="#calculateRevenue" text="Button" GridPane.rowIndex="1" />
-               <TableView fx:id="fxmlTableViewRevenue" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="639.0" prefWidth="370.0" GridPane.columnIndex="1">
+               <Button maxHeight="-Infinity" mnemonicParsing="false" onAction="#calculateRevenue" text="Button" GridPane.rowIndex="2" />
+               <TableView fx:id="fxmlTableViewRevenue" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="639.0" prefWidth="370.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                  <columns>
                    <TableColumn prefWidth="75.0" text="C1" />
                    <TableColumn prefWidth="75.0" text="C2" />
                  </columns>
                </TableView>
-               <Button maxHeight="-Infinity" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="26.0" prefWidth="341.0" text="Запустить" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-               <TableView fx:id="fxmlTableViewOperations" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="510.0" GridPane.columnIndex="2">
+               <Button maxHeight="-Infinity" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="26.0" prefWidth="341.0" text="Запустить" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+               <TableView fx:id="fxmlTableViewOperations" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="510.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
                  <columns>
                    <TableColumn editable="false" maxWidth="125.0" minWidth="125.0" prefWidth="125.0" sortable="false" text="Дата" />
                    <TableColumn editable="false" maxWidth="275.0" minWidth="275.0" prefWidth="275.0" sortable="false" text="Операция" />
@@ -64,12 +66,29 @@
                      <TableColumn editable="false" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" sortable="false" text="A" />
                  </columns>
                </TableView>
-               <TableView fx:id="fxmlTableViewPositions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0">
+               <TableView fx:id="fxmlTableViewPositions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
                  <columns>
-                   <TableColumn prefWidth="75.0" text="Uid" />
-                   <TableColumn prefWidth="75.0" text="Сумма" />
+                   <TableColumn prefWidth="75.0" text="Тикер" />
+                   <TableColumn prefWidth="75.0" text="Наименование" />
+                     <TableColumn prefWidth="75.0" text="Баланс (шт.)" />
+                     <TableColumn prefWidth="75.0" text="Баланс (лот.)" />
+                     <TableColumn prefWidth="75.0" text="Сумма" />
                  </columns>
                </TableView>
+               <Label prefHeight="7.0" prefWidth="489.0" text="Активные позиции">
+                  <font>
+                     <Font name="System Bold" size="14.0" />
+                  </font>
+                  <GridPane.margin>
+                     <Insets left="5.0" />
+                  </GridPane.margin></Label>
+               <Label prefHeight="17.0" prefWidth="520.0" text="История операций" GridPane.columnIndex="2">
+                  <GridPane.margin>
+                     <Insets left="5.0" />
+                  </GridPane.margin>
+                  <font>
+                     <Font name="System Bold" size="14.0" />
+                  </font></Label>
             </children>
          </GridPane>
       </center>
@@ -97,7 +116,7 @@
                <ContextMenu>
                  <items>
                      <MenuItem mnemonicParsing="false" onAction="#openWindowStockDetails" text="Инфо" />
-                     <MenuItem mnemonicParsing="false" onAction="#deleteShare" text="Удалить" />
+                     <MenuItem mnemonicParsing="false" onAction="#deleteMainShare" text="Удалить" />
                  </items>
                </ContextMenu>
             </contextMenu>

@@ -1,10 +1,11 @@
 package darling.context;
 
+import darling.context.event.Event;
 import darling.context.event.EventListener;
+import darling.context.event.EventSubscriber;
 import darling.domain.Operation;
 import darling.domain.Position;
 import darling.domain.Share;
-import darling.repository.AvailableShareRepository;
 import darling.service.HistoryService;
 import darling.service.InstrumentService;
 import darling.service.OperationService;
@@ -14,15 +15,16 @@ import darling.service.tinkoff.InstrumentTinkoffService;
 import darling.service.tinkoff.OperationTinkoffService;
 import ru.tinkoff.piapi.core.InvestApi;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static darling.shared.ApplicationProperties.TINKOFF_TOKEN;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class MarketContext {
+public class MarketContext extends EventSubscriber {
 
     public static final InvestApi TINKOFF_CLIENT = InvestApi.create(TINKOFF_TOKEN);
 
@@ -32,10 +34,7 @@ public class MarketContext {
 
     public static final HistoryService HISTORY_SERVICE = new HistoryTinkoffService();
 
-
     private final boolean sandMode;
-
-    public static final AvailableShareRepository MAIN_SHARE_REPOSITORY = new AvailableShareRepository();
 
     public MarketContext(boolean sandMode) {
         this.sandMode = sandMode;
@@ -45,11 +44,16 @@ public class MarketContext {
     }
 
     public void start() {
-        int delay = sandMode ? 1 : 2;
+        int delay = sandMode ? 1 : 2000;
+        notify(Event.CONTEXT_INIT);
         executorService.scheduleWithFixedDelay(() -> {
             operationService.syncPositions();
-            operationService.syncOperations();
-        }, 1, delay, SECONDS);
+            notify(Event.POSITION_UPDATED);
+            if (operationService.syncOperations()) {
+                notify(Event.OPERATION_UPDATED);
+            }
+        }, 1, delay, MILLISECONDS);
+        notify(Event.CONTEXT_STARTED);
     }
 
     public void stop() {
@@ -72,15 +76,25 @@ public class MarketContext {
         instrumentService.syncAvailableShares();
     }
 
+    public void addMainShare(Share share) {
+        instrumentService.addMainShare(share);
+        notify(Event.MAIN_SHARES_UPDATED);
+    }
+
+    public List<Share> getMainShares() {
+        return instrumentService.getMainShares();
+    }
+
+    public void deleteMainShare(Share share) {
+        instrumentService.deleteMainShare(share);
+        notify(Event.MAIN_SHARES_UPDATED);
+    }
+
     public List<Operation> getOperations() {
         return operationService.getAllOperations();
     }
 
     public List<Position> getPositions() {
         return operationService.getAllPositions();
-    }
-
-    public void addListener(EventListener eventListener) {
-        operationService.addListener(eventListener);
     }
 }

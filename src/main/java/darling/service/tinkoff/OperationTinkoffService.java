@@ -1,12 +1,12 @@
 package darling.service.tinkoff;
 
-import darling.context.event.Event;
-import darling.context.event.EventListener;
 import darling.domain.Operation;
 import darling.domain.Position;
+import darling.domain.Share;
 import darling.mapper.OperationMapper;
 import darling.mapper.PositionMapper;
 import darling.mapper.TinkoffSpecialTypeMapper;
+import darling.repository.AvailableShareRepository;
 import darling.repository.OperationRepository;
 import darling.repository.PositionRepository;
 import darling.service.OperationService;
@@ -19,6 +19,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static darling.shared.ApplicationProperties.ACCOUNTS;
 
@@ -29,9 +32,7 @@ public class OperationTinkoffService implements OperationService {
 
     private final PositionRepository positionRepository = new PositionRepository();
 
-    private boolean isStartedLoad = true;
-
-    private final List<EventListener> listeners = new ArrayList<>();
+    private final AvailableShareRepository availableShareRepository = new AvailableShareRepository();
 
     private final ru.tinkoff.piapi.core.OperationsService operationsService;
 
@@ -40,19 +41,14 @@ public class OperationTinkoffService implements OperationService {
         return operationRepository.findAll();
     }
 
-    @Override
-    public List<Position> getAllPositions() {
-        return positionRepository.findAll();
-    }
-
     /**
      * Синхронизирует операции с сервером.
      */
     @Override
-    public void syncOperations() {
+    public boolean syncOperations() {
         int count = 0;
         for (String account : ACCOUNTS) {
-            Instant from = TinkoffSpecialTypeMapper.map(operationRepository.getLastTime().minusMinutes(10));
+            Instant from = TinkoffSpecialTypeMapper.map(operationRepository.getLastTime(account).minusMinutes(10));
             Instant to = TinkoffSpecialTypeMapper.map(OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime());
             GetOperationsByCursorResponse cursor = operationsService.getOperationByCursorSync(account, from, to);
             List<Operation> operationPart = cursor.getItemsList().stream().map(OperationMapper.INST::map).toList();
@@ -65,11 +61,12 @@ public class OperationTinkoffService implements OperationService {
             }
             count = count + operationRepository.saveNew(operations);
         }
+        return count > 0;
+    }
 
-        if (isStartedLoad || count > 0) {
-            isStartedLoad = false;
-            listeners.forEach(it -> it.handle(Event.OPERATION_UPDATED));
-        }
+    @Override
+    public List<Position> getAllPositions() {
+        return positionRepository.findAll();
     }
 
     @Override
@@ -80,12 +77,22 @@ public class OperationTinkoffService implements OperationService {
             List<Position> positionsByAccount = tinkoffPositions.getSecurities().stream().map(PositionMapper.INST::map).toList();
             positions.addAll(positionsByAccount);
         }
+        enrichPositions(positions);
         positionRepository.saveAll(positions);
-        listeners.forEach(it -> it.handle(Event.POSITION_UPDATED));
     }
 
-    @Override
-    public void addListener(EventListener listener) {
-        listeners.add(listener);
+    private void enrichPositions(List<Position> positions) {
+        Map<String, Share> shareByFigi = availableShareRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(Share::figi, Function.identity()));
+        for (Position position: positions) {
+            Share share = shareByFigi.get(position.figi());
+            if (share == null) continue;
+            position.setInstrumentUid(share.uid());
+            position.setName(share.name());
+            position.setTicker(share.ticker());
+            position.setLotBalance(position.balance() / share.lot());
+        }
+
     }
 }

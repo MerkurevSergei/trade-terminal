@@ -5,6 +5,14 @@ import darling.domain.Share;
 import java.util.List;
 
 public interface InstrumentService {
-    void syncAvailableShares();
+
     List<Share> getAvailableShares();
+
+    void syncAvailableShares();
+
+    List<Share> getMainShares();
+
+    void addMainShare(Share share);
+
+    void deleteMainShare(Share share);
 }

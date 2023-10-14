@@ -35,7 +35,7 @@
                   <Insets bottom="5.0" />
                </VBox.margin>
             </HBox>
-            <TableView fx:id="fxmlTableViewAvailableShares" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="800.0">
+            <TableView fx:id="fxmlTableViewAvailableShares" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#onMouseClicked" prefHeight="900.0" prefWidth="800.0">
               <columns>
                 <TableColumn prefWidth="53.5999755859375" text="Тикер" />
                   <TableColumn prefWidth="136.0" text="Наименование" />

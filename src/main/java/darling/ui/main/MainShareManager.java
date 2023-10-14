@@ -1,13 +1,21 @@
 package darling.ui.main;
 
 import darling.context.MarketContext;
+import darling.context.event.Event;
+import darling.context.event.EventListener;
 import darling.domain.Share;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.scene.control.ListCell;
+import javafx.collections.FXCollections;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-public record MainShareManager(TableView<Share> mainSharesTableView, MarketContext marketContext) {
+import java.util.Objects;
+
+import static darling.context.event.Event.CONTEXT_INIT;
+import static darling.context.event.Event.MAIN_SHARES_UPDATED;
+
+public record MainShareManager(TableView<Share> mainSharesTableView,
+                               MarketContext marketContext) implements EventListener {
 
     public MainShareManager {
         TableColumn<Share, String> tableColumnTiker = (TableColumn<Share, String>) mainSharesTableView.getColumns().get(0);
@@ -18,35 +26,15 @@ public record MainShareManager(TableView<Share> mainSharesTableView, MarketConte
         tableColumnLot.setCellValueFactory(p -> new ReadOnlyStringWrapper(p.getValue().lot().toString()));
     }
 
-//    void init() {
-//        shareListView.setCellFactory(param -> new ListCell<>() {
-//            @Override
-//            protected void updateItem(Share t, boolean empty) {
-//                super.updateItem(t, empty);
-//                if (empty) {
-//                    setText(null);
-//                } else {
-//                    setText(t.getName());
-//                }
-//            }
-//        });
-//        shareListView.getItems().setAll(availableShareRepository.findAll());
-//    }
-//
-//    public void addShare(darling.domain.Share share) {
-//
-//        availableShareRepository.save(share);
-//        shareListView.getItems().setAll(availableShareRepository.findAll());
-//    }
-//
-//    public void deleteActiveShare() {
-//        Share selectedItem = shareListView.getSelectionModel().getSelectedItem();
-//        availableShareRepository.deleteById(selectedItem.getFigi());
-//        shareListView.getItems().setAll(availableShareRepository.findAll());
-//    }
-//
-//    public Share getSelectedItem() {
-//        return shareListView.getSelectionModel().getSelectedItem();
-//    }
+    @Override
+    public void handle(Event event) {
+        if (!Objects.equals(event, MAIN_SHARES_UPDATED) && !Objects.equals(event, CONTEXT_INIT)) {
+            return;
+        }
+        mainSharesTableView.setItems(FXCollections.observableArrayList(marketContext.getMainShares()));
+    }
 
+    public void deleteMainShare() {
+        marketContext.deleteMainShare(mainSharesTableView.getSelectionModel().getSelectedItem());
+    }
 }
