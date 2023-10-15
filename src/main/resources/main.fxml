@@ -34,45 +34,55 @@
                       </items>
                   </Menu>
               </menus>
+            <BorderPane.margin>
+               <Insets />
+            </BorderPane.margin>
           </MenuBar>
         </top>
       <center>
          <GridPane minWidth="-Infinity" prefHeight="674.0" prefWidth="1300.0" BorderPane.alignment="CENTER">
            <columnConstraints>
              <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="100.0" />
-             <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="100.0" />
-               <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="515.0" />
+             <ColumnConstraints hgrow="SOMETIMES" maxWidth="600.0" minWidth="600.0" prefWidth="600.0" />
+               <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="470.0" />
            </columnConstraints>
            <rowConstraints>
-               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="23.0" vgrow="SOMETIMES" />
-             <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="893.0" vgrow="SOMETIMES" />
-             <RowConstraints maxHeight="-Infinity" minHeight="0.0" prefHeight="27.999987792968795" vgrow="SOMETIMES" />
-               <RowConstraints maxHeight="-Infinity" minHeight="6.3999755859374545" prefHeight="12.000012207031205" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="23.0" minHeight="23.0" prefHeight="23.0" vgrow="SOMETIMES" />
+             <RowConstraints vgrow="SOMETIMES" />
+             <RowConstraints maxHeight="27.0" minHeight="27.0" prefHeight="27.0" vgrow="SOMETIMES" />
            </rowConstraints>
             <children>
-               <Button maxHeight="-Infinity" mnemonicParsing="false" onAction="#calculateRevenue" text="Button" GridPane.rowIndex="2" />
-               <TableView fx:id="fxmlTableViewRevenue" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="639.0" prefWidth="370.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <TableView fx:id="fxmlTableViewPositions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="892.0" GridPane.rowIndex="1">
                  <columns>
-                   <TableColumn prefWidth="75.0" text="C1" />
-                   <TableColumn prefWidth="75.0" text="C2" />
+                   <TableColumn maxWidth="50.0" minWidth="50.0" prefWidth="50.0" text="Тикер" />
+                     <TableColumn maxWidth="50.0" minWidth="50.0" prefWidth="50.0" text="Кол-во" />
+                     <TableColumn maxWidth="-Infinity" minWidth="-Infinity" prefWidth="90.0" text="Цена, вход" />
+                     <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Стоимость" />
+                     <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Доход" />
+                     <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Доход, %" />
+                     <TableColumn maxWidth="105.0" minWidth="105.0" prefWidth="105.0" text="Время, вход" />
+                 </columns>
+               </TableView>
+               <Button maxHeight="-Infinity" mnemonicParsing="false" onAction="#calculateRevenue" text="Button" GridPane.rowIndex="2" />
+               <TableView fx:id="fxmlTableViewRevenue" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="892.0" prefWidth="600.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                 <columns>
+                   <TableColumn maxWidth="50.0" minWidth="50.0" prefWidth="50.0" text="Тикер" />
+                     <TableColumn maxWidth="105.0" minWidth="105.0" prefWidth="105.0" text="Время, вход" />
+                     <TableColumn maxWidth="105.0" minWidth="105.0" prefWidth="105.0" text="Время, выход" />
+                     <TableColumn maxWidth="20.0" minWidth="20.0" prefWidth="20.0" text="D" />
+                     <TableColumn maxWidth="50.0" minWidth="50.0" prefWidth="50.0" text="Кол-во" />
+                   <TableColumn maxWidth="90.0" minWidth="90.0" prefWidth="90.0" text="Цена, вход" />
+                     <TableColumn maxWidth="90.0" minWidth="90.0" prefWidth="90.0" text="Цена, выход" />
+                     <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Доход" />
                  </columns>
                </TableView>
                <Button maxHeight="-Infinity" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="26.0" prefWidth="341.0" text="Запустить" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-               <TableView fx:id="fxmlTableViewOperations" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="510.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+               <TableView fx:id="fxmlTableViewOperations" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="465.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
                  <columns>
-                   <TableColumn editable="false" maxWidth="125.0" minWidth="125.0" prefWidth="125.0" sortable="false" text="Дата" />
-                   <TableColumn editable="false" maxWidth="275.0" minWidth="275.0" prefWidth="275.0" sortable="false" text="Операция" />
+                   <TableColumn editable="false" maxWidth="105.0" minWidth="105.0" prefWidth="105.0" sortable="false" text="Дата" />
+                   <TableColumn editable="false" maxWidth="250.0" minWidth="250.0" prefWidth="250.0" sortable="false" text="Операция" />
                      <TableColumn editable="false" maxWidth="70.0" minWidth="70.0" prefWidth="70.0" sortable="false" text="Сумма" />
                      <TableColumn editable="false" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" sortable="false" text="A" />
-                 </columns>
-               </TableView>
-               <TableView fx:id="fxmlTableViewPositions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
-                 <columns>
-                   <TableColumn prefWidth="75.0" text="Тикер" />
-                   <TableColumn prefWidth="75.0" text="Наименование" />
-                     <TableColumn prefWidth="75.0" text="Баланс (шт.)" />
-                     <TableColumn prefWidth="75.0" text="Баланс (лот.)" />
-                     <TableColumn prefWidth="75.0" text="Сумма" />
                  </columns>
                </TableView>
                <Label prefHeight="7.0" prefWidth="489.0" text="Активные позиции">
@@ -89,6 +99,14 @@
                   <font>
                      <Font name="System Bold" size="14.0" />
                   </font></Label>
+               <Label text="Закрытые позиции" GridPane.columnIndex="1">
+                  <font>
+                     <Font name="System Bold" size="14.0" />
+                  </font>
+                  <GridPane.margin>
+                     <Insets left="5.0" />
+                  </GridPane.margin>
+               </Label>
             </children>
          </GridPane>
       </center>
@@ -99,18 +117,21 @@
                     <padding>
                         <Insets left="5.0" />
                     </padding>
+                  <HBox.margin>
+                     <Insets />
+                  </HBox.margin>
                 </Label>
                <ToggleButton fx:id="modeSwitcher" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="100.0" style="-fx-background-color: #36D100;" text="Песочница" textAlignment="CENTER" textFill="#070707" />
             </children>
          </HBox>
       </bottom>
       <left>
-         <TableView fx:id="fxmlTableViewMainShares" prefHeight="949.0" prefWidth="308.0" BorderPane.alignment="CENTER">
+         <TableView fx:id="fxmlTableViewMainShares" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="305.0" BorderPane.alignment="CENTER">
            <columns>
-             <TableColumn prefWidth="53.59997636079788" text="Тикер" />
-             <TableColumn prefWidth="121.59997177124023" text="Наименование" />
-               <TableColumn prefWidth="44.0" text="Лот" />
-               <TableColumn prefWidth="83.20002746582031" text="Цена за лот" />
+             <TableColumn maxWidth="45.0" minWidth="45.0" prefWidth="45.0" text="Тикер" />
+             <TableColumn maxWidth="135.0" minWidth="135.0" prefWidth="135.0" text="Наименование" />
+               <TableColumn maxWidth="50.0" minWidth="50.0" prefWidth="50.0" text="Лот" />
+               <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Цена, лот" />
            </columns>
             <contextMenu>
                <ContextMenu>
@@ -120,6 +141,9 @@
                  </items>
                </ContextMenu>
             </contextMenu>
+            <BorderPane.margin>
+               <Insets />
+            </BorderPane.margin>
          </TableView>
       </left>
     </BorderPane>
