@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import ru.tinkoff.piapi.contract.v1.InstrumentStatus;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class InstrumentTinkoffService implements InstrumentService {
@@ -27,6 +30,11 @@ public class InstrumentTinkoffService implements InstrumentService {
     @Override
     public List<Share> getAvailableShares() {
         return availableShareRepository.findAll();
+    }
+
+    @Override
+    public Map<String, Share> getAvailableSharesDict() {
+        return availableShareRepository.findAll().stream().collect(Collectors.toMap(Share::uid, Function.identity()));
     }
 
     @Override

@@ -1,13 +1,11 @@
 package darling.domain;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import static ru.tinkoff.piapi.contract.v1.OperationType.OPERATION_TYPE_BUY;
@@ -15,44 +13,18 @@ import static ru.tinkoff.piapi.contract.v1.OperationType.OPERATION_TYPE_SELL;
 
 public class Portfolio {
 
-    private static final Comparator<Contract> CONTRACT_COMPARATOR = Comparator.comparing(Contract::price).thenComparing(Contract::date);
+    private static final Comparator<OpenDeal> CONTRACT_COMPARATOR = Comparator.comparing(OpenDeal::getPrice).thenComparing(OpenDeal::getDate);
 
-    private final TreeMap<Share, Group> groups = new TreeMap<>(Comparator.comparing(Share::ticker));
-    private final Map<AccountShareKey, TreeSet<Contract>> contractsByKey = new HashMap<>();
+    private final Map<AccountShareKey, TreeSet<OpenDeal>> dealsByKey = new HashMap<>();
 
-    public List<Contract> toPrint() {
-//        for (Map.Entry<AccountShareKey, TreeSet<Contract>> e : contractsByKey.entrySet()) {
-//
-//        }
-        return contractsByKey.values().stream().flatMap(Collection::stream).toList();
-    }
-
-    private void removeUseQuantity(TreeSet<Contract> contracts, Operation operation) {
-        long opQuantity = operation.quantityDone();
-        while (opQuantity > 0) {
-            Contract first = contracts.first();
-            long firstQuantity = first.quantity();
-            if (first.quantity() > opQuantity) {
-                first.setQuantity(first.quantity() - opQuantity);
-            } else {
-                contracts.remove(first);
-            }
-            opQuantity = opQuantity - firstQuantity;
+    public Portfolio(List<OpenDeal> allOpenDeals) {
+        for (OpenDeal openDeal : allOpenDeals) {
+            AccountShareKey key = new AccountShareKey(openDeal.getAccountId(), openDeal.getInstrumentUid());
+            dealsByKey.putIfAbsent(key, new TreeSet<>(CONTRACT_COMPARATOR));
+            TreeSet<OpenDeal> openDeals = dealsByKey.get(key);
+            openDeals.add(openDeal);
         }
-    }
 
-    private void removeReverseUseQuantity(TreeSet<Contract> contracts, Operation operation) {
-        long opQuantity = operation.quantityDone();
-        while (opQuantity > 0) {
-            Contract last = contracts.last();
-            long lastQuantity = last.quantity();
-            if (last.quantity() > opQuantity) {
-                last.setQuantity(last.quantity() - opQuantity);
-            } else {
-                contracts.remove(last);
-            }
-            opQuantity = opQuantity - lastQuantity;
-        }
     }
 
     public void refresh(Operation operation) {
@@ -60,26 +32,55 @@ public class Portfolio {
             return;
         }
         AccountShareKey key = new AccountShareKey(operation.brokerAccountId(), operation.instrumentUid());
-        TreeSet<Contract> contracts = contractsByKey.getOrDefault(key, new TreeSet<>(CONTRACT_COMPARATOR));
-        if (contracts.isEmpty()) {
-            contracts.add(new Contract(operation));
-            contractsByKey.put(key, contracts);
+        TreeSet<OpenDeal> openDeals = dealsByKey.getOrDefault(key, new TreeSet<>(CONTRACT_COMPARATOR));
+        if (openDeals.isEmpty()) {
+            openDeals.add(new OpenDeal(operation));
+            dealsByKey.put(key, openDeals);
             return;
         }
-        Contract firstContract = contracts.first();
-        if (firstContract.type() == operation.type()) {
-            contracts.add(new Contract(operation));
-        } else if (OPERATION_TYPE_BUY.equals(firstContract.type())) {
-            removeUseQuantity(contracts, operation);
+        OpenDeal firstOpenDeal = openDeals.first();
+        if (firstOpenDeal.getType() == operation.type()) {
+            openDeals.add(new OpenDeal(operation));
+        } else if (OPERATION_TYPE_BUY.equals(firstOpenDeal.getType())) {
+            removeUseQuantity(openDeals, operation);
         } else {
-            removeReverseUseQuantity(contracts, operation);
+            removeReverseUseQuantity(openDeals, operation);
         }
     }
 
-    public record Group(String instrumentUid, String figi, BigDecimal price, BigDecimal payment, long quantity,
-                        List<Contract> contracts) {
+    public List<OpenDeal> getDeals() {
+        return dealsByKey.values().stream().flatMap(Collection::stream).toList();
+    }
+
+    private void removeUseQuantity(TreeSet<OpenDeal> openDeals, Operation operation) {
+        long opQuantity = operation.quantityDone();
+        while (opQuantity > 0) {
+            OpenDeal first = openDeals.first();
+            long firstQuantity = first.getQuantity();
+            if (first.getQuantity() > opQuantity) {
+                first.setQuantity(first.getQuantity() - opQuantity);
+            } else {
+                openDeals.remove(first);
+            }
+            opQuantity = opQuantity - firstQuantity;
+        }
+    }
+
+    private void removeReverseUseQuantity(TreeSet<OpenDeal> openDeals, Operation operation) {
+        long opQuantity = operation.quantityDone();
+        while (opQuantity > 0) {
+            OpenDeal last = openDeals.last();
+            long lastQuantity = last.getQuantity();
+            if (last.getQuantity() > opQuantity) {
+                last.setQuantity(last.getQuantity() - opQuantity);
+            } else {
+                openDeals.remove(last);
+            }
+            opQuantity = opQuantity - lastQuantity;
+        }
     }
 
     public record AccountShareKey(String accountId, String instrumentUid) {
     }
+
 }

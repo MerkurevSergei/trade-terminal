@@ -2,8 +2,8 @@ package darling.context;
 
 import darling.context.event.Event;
 import darling.context.event.EventSubscriber;
-import darling.domain.Contract;
 import darling.domain.Operation;
+import darling.domain.PortfolioViewItem;
 import darling.domain.Position;
 import darling.domain.Share;
 import darling.service.HistoryService;
@@ -44,7 +44,7 @@ public class MarketContext extends EventSubscriber {
         this.sandMode = sandMode;
         this.operationService = sandMode ? new OperationSandService() : new OperationTinkoffService(TINKOFF_CLIENT.getOperationsService());
         this.instrumentService = new InstrumentTinkoffService(TINKOFF_CLIENT.getInstrumentsService());
-        this.portfolioService = new PortfolioCommonService(operationService);
+        this.portfolioService = new PortfolioCommonService(operationService, instrumentService);
         this.executorService = Executors.newSingleThreadScheduledExecutor();
     }
 
@@ -107,8 +107,8 @@ public class MarketContext extends EventSubscriber {
     // ==================== ОПЕРАЦИИ, ПОЗИЦИИ, ПОРТФЕЛЬ ==================== //
     // ===================================================================== //
 
-    public List<Contract> getPortfolio() {
-        return portfolioService.getView().toPrint();
+    public List<PortfolioViewItem> getPortfolioView() {
+        return portfolioService.getView();
     }
 
     private void refreshPortfolio() {

@@ -1,8 +1,8 @@
 package darling.ui;
 
 import darling.context.MarketContext;
-import darling.domain.Contract;
 import darling.domain.Operation;
+import darling.domain.PortfolioViewItem;
 import darling.domain.Share;
 import darling.shared.JavaFxUtils;
 import darling.ui.main.MainShareManager;
@@ -34,7 +34,7 @@ public class MainController implements Initializable {
     public TableView<Operation> fxmlTableViewOperations;
 
     @FXML
-    public TableView<Contract> fxmlTableViewPortfolio;
+    public TableView<PortfolioViewItem> fxmlTableViewPortfolio;
 
     // ===================================================================== //
     // ========== БЛОК ИНИЦИАЛИЗАЦИИ И ПЕРЕКЛЮЧЕНИЯ РЕЖИМА РАБОТЫ ========== //
