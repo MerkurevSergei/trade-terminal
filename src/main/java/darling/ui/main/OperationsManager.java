@@ -31,7 +31,7 @@ public record OperationsManager(TableView<Operation> operationsTableView,
     @Override
     public void handle(Event event) {
         boolean notOperationUpdated = !Objects.equals(event, Event.OPERATION_UPDATED);
-        boolean notInit = !Objects.equals(event, Event.CONTEXT_INIT);
+        boolean notInit = !Objects.equals(event, Event.CONTEXT_REFRESHED);
         if (notOperationUpdated && notInit) {
             return;
         }

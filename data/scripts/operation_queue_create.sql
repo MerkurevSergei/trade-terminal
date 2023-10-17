@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS operation (
+CREATE TABLE IF NOT EXISTS operation_queue (
     id VARCHAR PRIMARY KEY,
     broker_account_id VARCHAR,
     parent_operation_id VARCHAR,

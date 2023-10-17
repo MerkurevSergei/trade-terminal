@@ -1,25 +1,12 @@
 package darling.ui.main;
 
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.collections.FXCollections;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import ru.tinkoff.piapi.contract.v1.Share;
 import darling.service.HistoryService;
-import darling.domain.robot.balancer.Balancer;
-import darling.domain.robot.balancer.StatRecord;
-import darling.domain.HistoricPoint;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public record RevenueTableManager(TableView<Map.Entry<String, BigDecimal>> revenueTableView,
                                   HistoryService historyService) {

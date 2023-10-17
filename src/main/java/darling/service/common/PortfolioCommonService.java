@@ -1,13 +1,13 @@
 package darling.service.common;
 
-import darling.domain.OpenDeal;
+import darling.domain.Deal;
 import darling.domain.Operation;
 import darling.domain.Portfolio;
 import darling.domain.PortfolioViewItem;
 import darling.domain.Share;
 import darling.repository.DealRepository;
+import darling.repository.OperationRepository;
 import darling.service.InstrumentService;
-import darling.service.OperationService;
 import darling.service.PortfolioService;
 import darling.shared.Utils;
 import lombok.RequiredArgsConstructor;
@@ -22,31 +22,34 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PortfolioCommonService implements PortfolioService {
 
-    private final OperationService operationService;
-
     private final InstrumentService instrumentService;
 
     private final DealRepository dealRepository = new DealRepository();
+
+    private final OperationRepository operationRepository = new OperationRepository();
 
     private Portfolio portfolio = new Portfolio(List.of());
 
     @Override
     public void refreshPortfolio() {
-        List<OpenDeal> allOpenDeals = dealRepository.findAll();
-        portfolio = new Portfolio(allOpenDeals);
-        // TODO: заменить на получение необработанных операций
-        List<Operation> allOperations = operationService.getAllOperations().stream()
+        List<Deal> allDeals = dealRepository.findAllOpenDeals();
+        portfolio = new Portfolio(allDeals);
+        List<Operation> allOperations = operationRepository.popFromQueue().stream()
                 .sorted(Comparator.comparing(Operation::date))
                 .toList();
         allOperations.forEach(portfolio::refresh);
-        // TODO: убрать заглушку и сохранять в БД
-        dealRepository.saveAll(portfolio.getDeals());
+        dealRepository.refreshOpenDeals(portfolio.getOpenDeals());
+    }
+
+    @Override
+    public Portfolio getPortfolio() {
+        return new Portfolio(dealRepository.findAllOpenDeals());
     }
 
     @Override
     public List<PortfolioViewItem> getView() {
         Map<String, Share> sharesDict = instrumentService.getAvailableSharesDict();
-        List<OpenDeal> deals = portfolio.getDeals();
+        List<Deal> deals = portfolio.getOpenDeals();
         Map<String, List<PortfolioViewItem>> viewItemByTicker = deals
                 .stream()
                 .map(d -> createPortfolioViewItem(d, sharesDict))
@@ -68,7 +71,7 @@ public class PortfolioCommonService implements PortfolioService {
 
     }
 
-    private PortfolioViewItem createPortfolioViewItem(OpenDeal deal, Map<String, Share> sharesDict) {
+    private PortfolioViewItem createPortfolioViewItem(Deal deal, Map<String, Share> sharesDict) {
         Share share = sharesDict.get(deal.getInstrumentUid());
         return PortfolioViewItem.builder()
                 .ticker(share.ticker())

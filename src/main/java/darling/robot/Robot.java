@@ -1,4 +1,4 @@
-package darling.domain.robot;
+package darling.robot;
 
 import darling.domain.HistoricPoint;
 

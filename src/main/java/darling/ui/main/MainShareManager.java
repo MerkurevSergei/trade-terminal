@@ -11,7 +11,7 @@ import javafx.scene.control.TableView;
 
 import java.util.Objects;
 
-import static darling.context.event.Event.CONTEXT_INIT;
+import static darling.context.event.Event.CONTEXT_REFRESHED;
 import static darling.context.event.Event.MAIN_SHARES_UPDATED;
 
 public record MainShareManager(TableView<Share> mainSharesTableView,
@@ -28,7 +28,7 @@ public record MainShareManager(TableView<Share> mainSharesTableView,
 
     @Override
     public void handle(Event event) {
-        if (!Objects.equals(event, MAIN_SHARES_UPDATED) && !Objects.equals(event, CONTEXT_INIT)) {
+        if (!Objects.equals(event, MAIN_SHARES_UPDATED) && !Objects.equals(event, CONTEXT_REFRESHED)) {
             return;
         }
         mainSharesTableView.setItems(FXCollections.observableArrayList(marketContext.getMainShares()));

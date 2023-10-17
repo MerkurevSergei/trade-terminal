@@ -4,6 +4,7 @@ import darling.context.MarketContext;
 import darling.domain.Operation;
 import darling.domain.PortfolioViewItem;
 import darling.domain.Share;
+import darling.robot.balancer.Balancer2;
 import darling.shared.JavaFxUtils;
 import darling.ui.main.MainShareManager;
 import darling.ui.main.OperationsManager;
@@ -69,9 +70,11 @@ public class MainController implements Initializable {
         OperationsManager operationsManager = new OperationsManager(fxmlTableViewOperations, marketContext);
         PortfolioManager portfolioManager = new PortfolioManager(fxmlTableViewPortfolio, marketContext);
         mainShareManager = new MainShareManager(fxmlTableViewMainShares, marketContext);
+        Balancer2 balancer2 = new Balancer2(marketContext);
         marketContext.addListener(operationsManager);
         marketContext.addListener(portfolioManager);
         marketContext.addListener(mainShareManager);
+        marketContext.addListener(balancer2);
         marketContext.start();
     }
 

@@ -16,6 +16,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane fx:id="parentPane" prefHeight="1000.0" prefWidth="1900.0" styleClass="main-style.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="darling.ui.MainController">
@@ -78,14 +79,6 @@
                  </columns>
                </TableView>
                <Button maxHeight="-Infinity" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="26.0" prefWidth="341.0" text="Запустить" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-               <TableView fx:id="fxmlTableViewOperations" maxHeight="1.7976931348623157E308" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                 <columns>
-                   <TableColumn editable="false" maxWidth="105.0" minWidth="105.0" prefWidth="105.0" sortable="false" text="Дата" />
-                   <TableColumn editable="false" maxWidth="250.0" minWidth="250.0" prefWidth="250.0" sortable="false" text="Операция" />
-                     <TableColumn editable="false" maxWidth="70.0" minWidth="70.0" prefWidth="70.0" sortable="false" text="Сумма" />
-                     <TableColumn editable="false" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" sortable="false" text="A" />
-                 </columns>
-               </TableView>
                <Label prefHeight="7.0" prefWidth="489.0" text="Портфель">
                   <font>
                      <Font name="System Bold" size="14.0" />
@@ -108,6 +101,35 @@
                      <Insets left="5.0" />
                   </GridPane.margin>
                </Label>
+               <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                  <children>
+                     <TableView fx:id="fxmlTableViewOperations" maxHeight="1.7976931348623157E308" prefHeight="585.0" prefWidth="450.0">
+                       <columns>
+                         <TableColumn editable="false" maxWidth="105.0" minWidth="105.0" prefWidth="105.0" sortable="false" text="Дата" />
+                         <TableColumn editable="false" maxWidth="250.0" minWidth="250.0" prefWidth="250.0" sortable="false" text="Операция" />
+                           <TableColumn editable="false" maxWidth="70.0" minWidth="70.0" prefWidth="70.0" sortable="false" text="Сумма" />
+                           <TableColumn editable="false" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" sortable="false" text="A" />
+                       </columns>
+                     </TableView>
+                     <Label text="Активные ордера">
+                        <font>
+                           <Font name="System Bold" size="14.0" />
+                        </font>
+                        <opaqueInsets>
+                           <Insets />
+                        </opaqueInsets>
+                        <padding>
+                           <Insets left="5.0" top="5.0" />
+                        </padding>
+                     </Label>
+                     <TableView maxHeight="-Infinity" minHeight="-Infinity" prefHeight="300.0" prefWidth="450.0">
+                       <columns>
+                         <TableColumn prefWidth="75.0" text="C1" />
+                         <TableColumn prefWidth="75.0" text="C2" />
+                       </columns>
+                     </TableView>
+                  </children>
+               </VBox>
             </children>
          </GridPane>
       </center>

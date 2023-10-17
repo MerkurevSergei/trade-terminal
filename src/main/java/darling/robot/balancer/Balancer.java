@@ -1,11 +1,11 @@
-package darling.domain.robot.balancer;
+package darling.robot.balancer;
 
 import darling.service.OrderService;
 import darling.service.sand.OrderSandService;
 import darling.domain.order.OrderDirection;
 import darling.domain.Bet;
 import darling.domain.HistoricPoint;
-import darling.domain.robot.Robot;
+import darling.robot.Robot;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

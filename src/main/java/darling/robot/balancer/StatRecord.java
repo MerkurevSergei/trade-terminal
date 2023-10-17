@@ -1,4 +1,4 @@
-package darling.domain.robot.balancer;
+package darling.robot.balancer;
 
 import darling.domain.Bet;
 

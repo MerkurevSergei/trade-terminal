@@ -1,4 +1,4 @@
-package darling.domain.robot;
+package darling.robot;
 
 public enum RobotList {
     BALANCER
