@@ -43,7 +43,7 @@
       <center>
          <GridPane minWidth="-Infinity" prefHeight="674.0" prefWidth="1300.0" BorderPane.alignment="CENTER">
            <columnConstraints>
-             <ColumnConstraints hgrow="SOMETIMES" maxWidth="545.0" minWidth="545.0" prefWidth="545.0" />
+             <ColumnConstraints hgrow="SOMETIMES" maxWidth="580.0" minWidth="580.0" prefWidth="580.0" />
              <ColumnConstraints hgrow="SOMETIMES" maxWidth="600.0" minWidth="600.0" prefWidth="600.0" />
                <ColumnConstraints hgrow="SOMETIMES" />
            </columnConstraints>
@@ -53,12 +53,13 @@
              <RowConstraints maxHeight="27.0" minHeight="27.0" prefHeight="27.0" vgrow="SOMETIMES" />
            </rowConstraints>
             <children>
-               <TableView fx:id="fxmlTableViewPortfolio" maxHeight="1.7976931348623157E308" maxWidth="545.0" minWidth="545.0" prefWidth="545.0" GridPane.rowIndex="1">
+               <TableView fx:id="fxmlTableViewPortfolio" maxHeight="1.7976931348623157E308" maxWidth="580.0" minWidth="580.0" prefWidth="580.0" GridPane.rowIndex="1">
                  <columns>
                    <TableColumn maxWidth="50.0" minWidth="50.0" prefWidth="50.0" text="Тикер" />
                      <TableColumn maxWidth="20.0" minWidth="20.0" prefWidth="20.0" text="D" />
-                     <TableColumn maxWidth="50.0" minWidth="50.0" prefWidth="50.0" text="Кол-во" />
-                     <TableColumn maxWidth="90.0" minWidth="90.0" prefWidth="90.0" text="Цена, вход" />
+                     <TableColumn maxWidth="35.0" minWidth="35.0" prefWidth="35.0" text="Кол." />
+                     <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Цена, вход" />
+                     <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Стоп" />
                      <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Стоимость" />
                      <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Изм., %" />
                      <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Доход" />
@@ -122,10 +123,12 @@
                            <Insets left="5.0" top="5.0" />
                         </padding>
                      </Label>
-                     <TableView maxHeight="-Infinity" minHeight="-Infinity" prefHeight="300.0" prefWidth="450.0">
+                     <TableView fx:id="fxmlTableViewActiveOrders" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="300.0" prefWidth="450.0">
                        <columns>
-                         <TableColumn prefWidth="75.0" text="C1" />
-                         <TableColumn prefWidth="75.0" text="C2" />
+                         <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Ид." />
+                         <TableColumn maxWidth="105.0" minWidth="100.0" prefWidth="100.0" text="Дата" />
+                           <TableColumn maxWidth="120.0" minWidth="120.0" prefWidth="120.0" text="Статус" />
+                           <TableColumn maxWidth="60.0" minWidth="60.0" prefWidth="60.0" text="Остаток" />
                        </columns>
                      </TableView>
                   </children>

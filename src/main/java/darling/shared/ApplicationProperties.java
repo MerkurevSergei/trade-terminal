@@ -8,9 +8,10 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ApplicationProperties {
 
-    public static final String TINKOFF_TOKEN = "t.FJso6C4iZEPRsPXcYqWdsFxBiCR-h2U7Xr7-1seVP9XhGjj04LNh93QzwiABb3Tl4SUsofVsJS7WtksCzhqaMw";
+    //public static final String TINKOFF_TOKEN = "t.FJso6C4iZEPRsPXcYqWdsFxBiCR-h2U7Xr7-1seVP9XhGjj04LNh93QzwiABb3Tl4SUsofVsJS7WtksCzhqaMw";
+    public static final String TINKOFF_TOKEN = "t.o9D4mxnwV4QBm-fhmxOl9gACPfEyIwFMe9AmV3Gk_XpALtBujc2QDwfYqhs9BXYGLhBZRpD33eD13DMImBf7TA"; // FULL
 
-    // Первый покупки, второй продажи
-    public static final List<String> ACCOUNTS = List.of("2081147399", "2089739601");
+    public static final List<String> ACCOUNTS = List.of(Utils.buyAccountId(), Utils.sellAccountId());
     public static final boolean SAND_MODE = true;
+    public static final boolean TRADE_ON = false;
 }

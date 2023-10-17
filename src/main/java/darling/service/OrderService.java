@@ -1,7 +1,7 @@
 package darling.service;
 
+import darling.domain.order.Order;
 import ru.tinkoff.piapi.contract.v1.OrderDirection;
-import ru.tinkoff.piapi.contract.v1.OrderState;
 import ru.tinkoff.piapi.contract.v1.OrderType;
 
 import java.math.BigDecimal;
@@ -13,5 +13,7 @@ public interface OrderService {
     void postOrder(String instrumentId, long quantity, BigDecimal price, OrderDirection direction, String accountId,
                    OrderType type);
 
-    List<OrderState> getActiveOrders(String instrumentUid);
+    List<Order> getActiveOrders();
+
+    List<Order> getActiveOrders(String instrumentUid);
 }

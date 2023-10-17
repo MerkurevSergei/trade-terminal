@@ -12,6 +12,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import static darling.domain.order.OrderDirection.UP;
 import static java.math.BigDecimal.ZERO;
 
 public final class Balancer implements Robot {
@@ -72,7 +73,7 @@ public final class Balancer implements Robot {
                 if (profit.compareTo(profitDelta) > 0) {
                     BigDecimal takeProfit = bet.getDirection().equals(OrderDirection.DOWN) ? bet.getPrice().subtract(profitDelta) : bet.getPrice().add(profitDelta);
                     bet.setTakeProfit(takeProfit);
-                    unstoppable = bet.getDirection().equals(OrderDirection.UP) ? unstoppable - 1 : unstoppable + 1;
+                    unstoppable = bet.getDirection().equals(UP) ? unstoppable - 1 : unstoppable + 1;
                 }
             }
 
@@ -106,28 +107,26 @@ public final class Balancer implements Robot {
         BigDecimal revenue = currentPoint.price().subtract(lastBet.getPrice());
         revenue = lastDirection.equals(OrderDirection.DOWN) ? revenue.negate() : revenue;
         if (revenue.compareTo(profitDelta) > 0) {
-            if (lastDirection.equals(OrderDirection.UP) && unstoppable > 0) {
+            if (lastDirection.equals(UP) && unstoppable > 0) {
                 lastDirection = OrderDirection.DOWN;
             }
             if (lastDirection.equals(OrderDirection.DOWN) && unstoppable < 0) {
-                lastDirection = OrderDirection.UP;
+                lastDirection = UP;
             }
-            orderService.postOrder(instrumentUid, 1, currentPoint.price(), lastDirection, null);
-            //            Bet newBet = new Bet(currentPoint.time(), currentPoint.price(), lastDirection);
-            //            bets.add(newBet);
-            unstoppable = lastDirection.equals(OrderDirection.UP) ? unstoppable + 1 : unstoppable - 1;
+                        Bet newBet = new Bet(currentPoint.time(), currentPoint.price(), lastDirection);
+                        bets.add(newBet);
+            unstoppable = lastDirection.equals(UP) ? unstoppable + 1 : unstoppable - 1;
         } else if (revenue.compareTo(profitDelta) < 0) {
-            OrderDirection reverseDirection = lastDirection.equals(OrderDirection.UP) ? OrderDirection.DOWN : OrderDirection.UP;
-            if (reverseDirection.equals(OrderDirection.UP) && unstoppable > 0) {
+            OrderDirection reverseDirection = lastDirection.equals(UP) ? OrderDirection.DOWN : UP;
+            if (reverseDirection.equals(UP) && unstoppable > 0) {
                 reverseDirection = OrderDirection.DOWN;
             }
             if (reverseDirection.equals(OrderDirection.DOWN) && unstoppable < 0) {
-                reverseDirection = OrderDirection.UP;
+                reverseDirection = UP;
             }
-            orderService.postOrder(instrumentUid, 1, currentPoint.price(), reverseDirection, null);
-            //            Bet newBet = new Bet(currentPoint.time(), currentPoint.price(), reverseDirection);
-            //            bets.add(newBet);
-            unstoppable = reverseDirection.equals(OrderDirection.UP) ? unstoppable + 1 : unstoppable - 1;
+                        Bet newBet = new Bet(currentPoint.time(), currentPoint.price(), reverseDirection);
+                        bets.add(newBet);
+            unstoppable = reverseDirection.equals(UP) ? unstoppable + 1 : unstoppable - 1;
         }
     }
 
@@ -163,9 +162,8 @@ public final class Balancer implements Robot {
 
     private void makeFirstIsNeed(HistoricPoint historicPoint) {
         if (bets.isEmpty()) {
-            orderService.postOrder(instrumentUid, 1, historicPoint.price(), OrderDirection.UP, null);
-//            Bet bet = new Bet(historicPoint.time(), historicPoint.price(), UP);
-//            bets.add(bet);
+            Bet bet = new Bet(historicPoint.time(), historicPoint.price(), UP);
+            bets.add(bet);
         }
     }
 }

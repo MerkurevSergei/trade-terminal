@@ -73,13 +73,15 @@ public class PortfolioCommonService implements PortfolioService {
 
     private PortfolioViewItem createPortfolioViewItem(Deal deal, Map<String, Share> sharesDict) {
         Share share = sharesDict.get(deal.getInstrumentUid());
+        BigDecimal lotPrice = deal.getPrice().multiply(BigDecimal.valueOf(share.lot()));
+        long lotQuantity = deal.getQuantity() / share.lot();
         return PortfolioViewItem.builder()
                 .ticker(share.ticker())
-                .date(deal.getDate().toString())
+                .date(deal.getDate())
                 .direction(Utils.accountName(deal.getAccountId()))
-                .price(deal.getPrice().multiply(BigDecimal.valueOf(share.lot())).toString())
-                .payment(deal.getPayment().toString())
-                .quantity(deal.getQuantity() / share.lot())
+                .price(lotPrice.toString())
+                .payment(lotPrice.multiply(BigDecimal.valueOf(lotQuantity)).toString())
+                .quantity(lotQuantity)
                 .build();
     }
 }

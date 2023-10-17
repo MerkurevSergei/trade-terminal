@@ -21,8 +21,7 @@ public record OperationsManager(TableView<Operation> operationsTableView,
         TableColumn<Operation, String> tableColumnOperation = (TableColumn<Operation, String>) operationsTableView.getColumns().get(1);
         TableColumn<Operation, String> tableColumnPayment = (TableColumn<Operation, String>) operationsTableView.getColumns().get(2);
         TableColumn<Operation, String> tableColumnDirection = (TableColumn<Operation, String>) operationsTableView.getColumns().get(3);
-        DateTimeFormatter f = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm:ss");
-        tableColumnDate.setCellValueFactory(param -> new ReadOnlyStringWrapper(f.format(param.getValue().date())));
+        tableColumnDate.setCellValueFactory(param -> new ReadOnlyStringWrapper(Utils.formatLDT(param.getValue().date())));
         tableColumnOperation.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().description()));
         tableColumnPayment.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().payment().toString()));
         tableColumnDirection.setCellValueFactory(param -> new ReadOnlyStringWrapper(Utils.accountName(param.getValue().brokerAccountId())));
