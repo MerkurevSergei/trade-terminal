@@ -24,7 +24,7 @@ public record OperationsManager(TableView<Operation> operationsTableView,
         tableColumnDate.setCellValueFactory(param -> new ReadOnlyStringWrapper(Utils.formatLDT(param.getValue().date())));
         tableColumnOperation.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().description()));
         tableColumnPayment.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().payment().toString()));
-        tableColumnDirection.setCellValueFactory(param -> new ReadOnlyStringWrapper(Utils.accountName(param.getValue().brokerAccountId())));
+        tableColumnDirection.setCellValueFactory(param -> new ReadOnlyStringWrapper(Utils.direction(param.getValue().brokerAccountId(), param.getValue().type())));
     }
 
     @Override

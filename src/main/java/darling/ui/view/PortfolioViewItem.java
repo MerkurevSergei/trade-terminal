@@ -1,10 +1,11 @@
-package darling.domain;
+package darling.ui.view;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -19,4 +20,6 @@ public final class PortfolioViewItem {
     private final String takeProfitPrice;
     private final String payment;
     private final long quantity;
+    private final String profitPercent;
+    private final String profitMoney;
 }

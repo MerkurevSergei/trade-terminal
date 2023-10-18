@@ -7122,3 +7122,7 @@ SELECT id, broker_account_id, parent_operation_id, name, date, type, description
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
 	at java.base/java.lang.Thread.run(Thread.java:833)
+2023-10-19 01:58:46.888549+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Таблица "TAKE_PROFIT_PRICE" не найдена
+Table "TAKE_PROFIT_PRICE" not found; SQL statement:
+update take_profit_price = 0 from open_deal [42102-224]

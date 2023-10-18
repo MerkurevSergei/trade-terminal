@@ -2,7 +2,7 @@ package darling.ui;
 
 import darling.context.MarketContext;
 import darling.domain.Operation;
-import darling.domain.PortfolioViewItem;
+import darling.ui.view.PortfolioViewItem;
 import darling.domain.order.Order;
 import darling.robot.balancer.Balancer2;
 import darling.shared.JavaFxUtils;

@@ -5,7 +5,6 @@ import darling.context.event.EventSubscriber;
 import darling.domain.LastPrice;
 import darling.domain.Operation;
 import darling.domain.Portfolio;
-import darling.domain.PortfolioViewItem;
 import darling.domain.Position;
 import darling.domain.Share;
 import darling.domain.order.Order;
@@ -136,10 +135,6 @@ public class MarketContext extends EventSubscriber {
 
     public Portfolio getPortfolio() {
         return portfolioService.getPortfolio();
-    }
-
-    public List<PortfolioViewItem> getPortfolioView() {
-        return portfolioService.getView();
     }
 
     public void savePortfolio(Portfolio portfolio) {
