@@ -3,6 +3,7 @@ package darling.shared;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -13,5 +14,9 @@ public final class ApplicationProperties {
 
     public static final List<String> ACCOUNTS = List.of(Utils.buyAccountId(), Utils.sellAccountId());
     public static final boolean SAND_MODE = true;
-    public static final boolean TRADE_ON = false;
+
+    // BALANCER
+    public static final boolean TRADE_ON = true;
+    public static final BigDecimal PERCENT_DELTA_PROFIT_TRIGGER = new BigDecimal("0.2");
+    public static final BigDecimal PERCENT_DELTA_PROFIT = new BigDecimal("0.2");
 }

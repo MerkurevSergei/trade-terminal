@@ -4,10 +4,12 @@ import darling.domain.LastPrice;
 import darling.domain.Share;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 public interface MarketDataService {
-    Map<String, LastPrice> getLastPrices();
+    Optional<LastPrice> getLastPrice(String instrumentUid);
+
+    List<LastPrice> getLastPrices();
 
     void syncLastPrices(List<Share> shares);
 }

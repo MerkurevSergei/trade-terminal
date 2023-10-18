@@ -2,24 +2,30 @@ package darling.service.tinkoff;
 
 import darling.domain.LastPrice;
 import darling.domain.Share;
+import darling.mapper.LastPriceMapper;
 import darling.repository.LastPriceRepository;
 import darling.service.MarketDataService;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public record MarketDataTinkoffService(LastPriceRepository lastPriceRepository,
                                        ru.tinkoff.piapi.core.MarketDataService marketDataService) implements MarketDataService {
 
     @Override
-    public Map<String, LastPrice> getLastPrices() {
-        return lastPriceRepository.findAll().stream().collect(Collectors.toMap(LastPrice::instrumentUid, Function.identity()));
+    public Optional<LastPrice> getLastPrice(String instrumentUid) {
+        return lastPriceRepository.findByInstrumentUid(instrumentUid);
+    }
+
+    @Override
+    public List<LastPrice> getLastPrices() {
+        return lastPriceRepository.findAll();
     }
 
     @Override
     public void syncLastPrices(List<Share> shares) {
-
+        List<String> shareIds = shares.stream().map(Share::uid).toList();
+        List<LastPrice> lastPrices = marketDataService.getLastPricesSync(shareIds).stream().map(LastPriceMapper.INST::map).toList();
+        lastPriceRepository.saveAll(lastPrices);
     }
 }

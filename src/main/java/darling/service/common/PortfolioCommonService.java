@@ -13,6 +13,7 @@ import darling.shared.Utils;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -38,6 +39,11 @@ public class PortfolioCommonService implements PortfolioService {
                 .sorted(Comparator.comparing(Operation::date))
                 .toList();
         allOperations.forEach(portfolio::refresh);
+        dealRepository.refreshOpenDeals(portfolio.getOpenDeals());
+    }
+
+    @Override
+    public void savePortfolio(Portfolio portfolio) {
         dealRepository.refreshOpenDeals(portfolio.getOpenDeals());
     }
 
@@ -74,13 +80,15 @@ public class PortfolioCommonService implements PortfolioService {
     private PortfolioViewItem createPortfolioViewItem(Deal deal, Map<String, Share> sharesDict) {
         Share share = sharesDict.get(deal.getInstrumentUid());
         BigDecimal lotPrice = deal.getPrice().multiply(BigDecimal.valueOf(share.lot()));
+        BigDecimal takeProfitPrice = deal.getTakeProfitPrice().multiply(BigDecimal.valueOf(share.lot()));
         long lotQuantity = deal.getQuantity() / share.lot();
         return PortfolioViewItem.builder()
                 .ticker(share.ticker())
                 .date(deal.getDate())
                 .direction(Utils.accountName(deal.getAccountId()))
-                .price(lotPrice.toString())
-                .payment(lotPrice.multiply(BigDecimal.valueOf(lotQuantity)).toString())
+                .price(lotPrice.setScale(2, RoundingMode.HALF_UP).toString())
+                .takeProfitPrice(takeProfitPrice.setScale(2, RoundingMode.HALF_UP).toString())
+                .payment(lotPrice.multiply(BigDecimal.valueOf(lotQuantity)).setScale(2, RoundingMode.HALF_UP).toString())
                 .quantity(lotQuantity)
                 .build();
     }

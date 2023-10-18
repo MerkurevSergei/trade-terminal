@@ -4,6 +4,8 @@ import darling.domain.LastPrice;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public record LastPriceRepository(List<LastPrice> lastPrices) {
 
@@ -14,5 +16,11 @@ public record LastPriceRepository(List<LastPrice> lastPrices) {
 
     public List<LastPrice> findAll() {
         return new ArrayList<>(this.lastPrices);
+    }
+
+    public Optional<LastPrice> findByInstrumentUid(String instrumentUid) {
+        return lastPrices.stream()
+                .filter(lastPrice -> Objects.equals(lastPrice.instrumentUid(), instrumentUid))
+                .findFirst();
     }
 }

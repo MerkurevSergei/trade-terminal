@@ -52,7 +52,6 @@ public class OperationTinkoffService implements OperationService {
             Instant to = TinkoffSpecialTypeMapper.map(OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime());
             GetOperationsByCursorResponse cursor = operationsService.getOperationByCursorSync(account, from, to);
             List<Operation> operationPart = cursor.getItemsList().stream().map(OperationMapper.INST::map).toList();
-
             List<Operation> operations = new ArrayList<>(operationPart);
             while (cursor.getHasNext()) {
                 cursor = operationsService.getOperationByCursorSync(account, from, to, cursor.getNextCursor(), null, null, null,

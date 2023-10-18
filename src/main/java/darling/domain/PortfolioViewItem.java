@@ -16,6 +16,7 @@ public final class PortfolioViewItem {
     private final LocalDateTime date;
     private final String direction;
     private final String price;
+    private final String takeProfitPrice;
     private final String payment;
     private final long quantity;
 }

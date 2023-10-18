@@ -3,7 +3,6 @@ package darling.ui;
 import darling.context.MarketContext;
 import darling.domain.Operation;
 import darling.domain.PortfolioViewItem;
-import darling.domain.Share;
 import darling.domain.order.Order;
 import darling.robot.balancer.Balancer2;
 import darling.shared.JavaFxUtils;
@@ -12,6 +11,7 @@ import darling.ui.main.MainShareManager;
 import darling.ui.main.OperationsManager;
 import darling.ui.main.PortfolioManager;
 import darling.ui.main.RevenueTableManager;
+import darling.ui.view.MainShareView;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -34,18 +34,18 @@ import static darling.shared.ApplicationProperties.TRADE_ON;
 public class MainController implements Initializable {
 
     @FXML
-    public TableView<Operation> fxmlTableViewOperations;
+    public TableView<MainShareView> fxmlTableViewMainShares;
+    private MainShareManager mainShareManager;
 
     @FXML
     public TableView<PortfolioViewItem> fxmlTableViewPortfolio;
 
     @FXML
-    public TableView<Share> fxmlTableViewMainShares;
-    private MainShareManager mainShareManager;
-
-    @FXML
     private TableView<Map.Entry<String, BigDecimal>> fxmlTableViewRevenue;
     private RevenueTableManager revenueTableManager;
+
+    @FXML
+    public TableView<Operation> fxmlTableViewOperations;
 
     @FXML
     private TableView<Order> fxmlTableViewActiveOrders;

@@ -5,12 +5,17 @@ import darling.domain.Share;
 import darling.service.MarketDataService;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 public class MarketDataSandService implements MarketDataService {
     @Override
-    public Map<String, LastPrice> getLastPrices() {
-        return Map.of();
+    public Optional<LastPrice> getLastPrice(String instrumentUid) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<LastPrice> getLastPrices() {
+        return List.of();
     }
 
     @Override

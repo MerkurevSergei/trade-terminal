@@ -11,5 +11,7 @@ public interface PortfolioService {
 
     void refreshPortfolio();
 
+    void savePortfolio(Portfolio portfolio);
+
     Portfolio getPortfolio();
 }

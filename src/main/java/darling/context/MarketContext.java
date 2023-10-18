@@ -2,6 +2,7 @@ package darling.context;
 
 import darling.context.event.Event;
 import darling.context.event.EventSubscriber;
+import darling.domain.LastPrice;
 import darling.domain.Operation;
 import darling.domain.Portfolio;
 import darling.domain.PortfolioViewItem;
@@ -30,7 +31,9 @@ import ru.tinkoff.piapi.contract.v1.OrderType;
 import ru.tinkoff.piapi.core.InvestApi;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +46,7 @@ public class MarketContext extends EventSubscriber {
 
     public static final InvestApi TINKOFF_CLIENT = InvestApi.create(TINKOFF_TOKEN);
 
-    private final LastPriceRepository lastPriceRepository = new LastPriceRepository(List.of());
+    private final LastPriceRepository lastPriceRepository = new LastPriceRepository(new ArrayList<>());
 
     private final InstrumentService instrumentService;
     private final OperationService operationService;
@@ -72,14 +75,13 @@ public class MarketContext extends EventSubscriber {
         executorService.scheduleWithFixedDelay(() -> {
             try {
                 syncOperations();
-                syncLastPrices();
-                syncPositions();
+                syncLastPrices(instrumentService.getMainShares());
+                // syncPositions(); - итоговые позиции, понадобятся для сверки портфеля
                 refreshPortfolio();
                 notifyContextRefreshed();
             } catch (Exception e) {
-                log.error(e.getMessage());
+                e.printStackTrace();
             }
-
         }, 100, delay, MILLISECONDS);
         notify(Event.CONTEXT_STARTED);
     }
@@ -140,10 +142,16 @@ public class MarketContext extends EventSubscriber {
         return portfolioService.getView();
     }
 
+    public void savePortfolio(Portfolio portfolio) {
+        portfolioService.savePortfolio(portfolio);
+        notify(Event.PORTFOLIO_REFRESHED);
+    }
+
     private void refreshPortfolio() {
         portfolioService.refreshPortfolio();
         notify(Event.PORTFOLIO_REFRESHED);
     }
+
 
     public List<Position> getPositions() {
         return operationService.getAllPositions();
@@ -195,9 +203,18 @@ public class MarketContext extends EventSubscriber {
     }
 
     // ===================================================================== //
-    // ======================== ПОЛУЧЕНИЕ КОТИРОВОК ======================== //
+    // ============================= КОТИРОВКИ ============================= //
     // ===================================================================== //
 
-    private void syncLastPrices() {
+    private void syncLastPrices(List<Share> shares) {
+        marketDataService.syncLastPrices(shares);
+    }
+
+    public List<LastPrice> getLastPrices() {
+        return marketDataService.getLastPrices();
+    }
+
+    public Optional<LastPrice> getLastPrice(String instrumentUid) {
+        return marketDataService.getLastPrice(instrumentUid);
     }
 }

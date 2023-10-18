@@ -22,7 +22,7 @@ public class DealRepository {
         List<Deal> deals = new ArrayList<>();
         String selectSql = "SELECT id, broker_account_id, parent_operation_id, name, date, type, description, state, " +
                 "instrument_uid, instrument_type, payment, price, commission, operation.quantity, quantity_rest, " +
-                "quantity_done, open_deal.quantity quantity_deal " +
+                "quantity_done, open_deal.take_profit_price, open_deal.quantity quantity_deal " +
                 "FROM open_deal LEFT JOIN operation ON open_deal.operation_id = operation.id";
         try (Connection connection = DriverManager.getConnection("jdbc:h2:./data/darling", "sa", "")) {
             try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(selectSql)) {
@@ -45,7 +45,7 @@ public class DealRepository {
                             .quantityRest(rs.getLong("quantity_rest"))
                             .quantityDone(rs.getLong("quantity_done"))
                             .build();
-                    Deal deal = new Deal(operation, rs.getLong("quantity_deal"));
+                    Deal deal = new Deal(operation, rs.getLong("quantity_deal"), rs.getBigDecimal("take_profit_price"));
                     deals.add(deal);
                 }
             }
@@ -63,11 +63,12 @@ public class DealRepository {
                     ps.executeUpdate();
                 }
 
-                String insertQueueSql = "INSERT INTO open_deal (operation_id, quantity) VALUES (?,?)";
+                String insertQueueSql = "INSERT INTO open_deal (operation_id, quantity, take_profit_price) VALUES (?,?,?)";
                 try (PreparedStatement ps = connection.prepareStatement(insertQueueSql)) {
                     for (Deal d : deals) {
                         ps.setString(1, d.getOpenOperationId());
                         ps.setLong(2, d.getQuantity());
+                        ps.setBigDecimal(3, d.getTakeProfitPrice());
                         ps.addBatch();
                     }
                     ps.executeBatch();

@@ -1,5 +1,6 @@
 package darling.domain;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -10,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static java.math.BigDecimal.ZERO;
 import static ru.tinkoff.piapi.contract.v1.OperationType.OPERATION_TYPE_BUY;
 import static ru.tinkoff.piapi.contract.v1.OperationType.OPERATION_TYPE_SELL;
 
@@ -36,14 +38,14 @@ public class Portfolio {
         AccountShareKey key = new AccountShareKey(operation.brokerAccountId(), operation.instrumentUid());
         TreeSet<Deal> deals = dealsByKey.getOrDefault(key, new TreeSet<>(CONTRACT_COMPARATOR));
         if (deals.isEmpty()) {
-            Deal deal = new Deal(operation, operation.quantityDone());
+            Deal deal = new Deal(operation, operation.quantityDone(), ZERO);
             deals.add(deal);
             dealsByKey.put(key, deals);
             return List.of(deal);
         }
         Deal firstDeal = deals.first();
         if (firstDeal.getType() == operation.type()) {
-            Deal deal = new Deal(operation, operation.quantityDone());
+            Deal deal = new Deal(operation, operation.quantityDone(), ZERO);
             deals.add(deal);
             return List.of(deal);
         } else if (OPERATION_TYPE_BUY.equals(firstDeal.getType())) {
@@ -64,12 +66,22 @@ public class Portfolio {
                 .toList();
     }
 
+    public void updateDealsWithCalculatedData(List<Deal> updatedDeals) {
+        updatedDeals.forEach(deal -> {
+            AccountShareKey key = new AccountShareKey(deal.getAccountId(), deal.getInstrumentUid());
+            TreeSet<Deal> deals = dealsByKey.get(key);
+            if (deals == null) return;
+            deals.remove(deal);
+            deals.add(deal);
+        });
+    }
+
     private List<Deal> removeUseQuantity(TreeSet<Deal> deals, Operation operation) {
         List<Deal> forClosed = new ArrayList<>();
         long opQuantity = operation.quantityDone();
         while (opQuantity > 0) {
             if (deals.isEmpty()) {
-                Deal newDeal = new Deal(operation, opQuantity);
+                Deal newDeal = new Deal(operation, opQuantity, ZERO);
                 deals.add(newDeal);
                 forClosed.add(newDeal);
                 return forClosed;
@@ -92,7 +104,7 @@ public class Portfolio {
         long opQuantity = operation.quantityDone();
         while (opQuantity > 0) {
             if (deals.isEmpty()) {
-                Deal newDeal = new Deal(operation, opQuantity);
+                Deal newDeal = new Deal(operation, opQuantity, ZERO);
                 deals.add(newDeal);
                 forClosed.add(newDeal);
                 return forClosed;
