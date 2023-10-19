@@ -45,8 +45,6 @@ public class MarketContext extends EventSubscriber {
 
     public static final InvestApi TINKOFF_CLIENT = InvestApi.create(TINKOFF_TOKEN);
 
-    private final LastPriceRepository lastPriceRepository = new LastPriceRepository(new ArrayList<>());
-
     private final InstrumentService instrumentService;
     private final OperationService operationService;
     private final OrderService orderService;
@@ -60,6 +58,9 @@ public class MarketContext extends EventSubscriber {
 
     public MarketContext(boolean sandMode) {
         this.sandMode = sandMode;
+
+        LastPriceRepository lastPriceRepository = new LastPriceRepository(new ArrayList<>());
+
         this.operationService = sandMode ? new OperationSandService() : new OperationTinkoffService(TINKOFF_CLIENT.getOperationsService());
         this.instrumentService = new InstrumentTinkoffService(TINKOFF_CLIENT.getInstrumentsService());
         this.portfolioService = new PortfolioCommonService(instrumentService);

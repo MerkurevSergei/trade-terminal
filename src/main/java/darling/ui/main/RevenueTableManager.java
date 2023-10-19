@@ -1,15 +1,17 @@
 package darling.ui.main;
 
+import darling.context.MarketContext;
+import darling.context.event.Event;
+import darling.context.event.EventListener;
 import javafx.scene.control.TableView;
 import ru.tinkoff.piapi.contract.v1.Share;
-import darling.service.HistoryService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
 
 public record RevenueTableManager(TableView<Map.Entry<String, BigDecimal>> revenueTableView,
-                                  HistoryService historyService) {
+                                  MarketContext marketContext) implements EventListener {
 
     public RevenueTableManager {
 //        revenueTableView.getColumns().clear();
@@ -56,13 +58,8 @@ public record RevenueTableManager(TableView<Map.Entry<String, BigDecimal>> reven
 //        revenueTableView.setItems(FXCollections.observableArrayList(profitByDay.entrySet()));
     }
 
-    private BigDecimal getProfitDelta(BigDecimal price, BigDecimal percent) {
-        int scale = price.scale();
-        BigDecimal ratio = percent.divide(BigDecimal.valueOf(100), scale, RoundingMode.HALF_UP);
-        return price.multiply(ratio);
-    }
+    @Override
+    public void handle(Event event) {
 
-    private BigDecimal levelGap(BigDecimal profitDelta) {
-        return profitDelta.divide(BigDecimal.valueOf(10), profitDelta.scale(), RoundingMode.HALF_UP);
     }
 }

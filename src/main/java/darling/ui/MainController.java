@@ -2,7 +2,6 @@ package darling.ui;
 
 import darling.context.MarketContext;
 import darling.domain.Operation;
-import darling.ui.view.PortfolioViewItem;
 import darling.domain.order.Order;
 import darling.robot.balancer.Balancer2;
 import darling.shared.JavaFxUtils;
@@ -12,6 +11,7 @@ import darling.ui.main.OperationsManager;
 import darling.ui.main.PortfolioManager;
 import darling.ui.main.RevenueTableManager;
 import darling.ui.view.MainShareView;
+import darling.ui.view.PortfolioViewItem;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -42,7 +42,6 @@ public class MainController implements Initializable {
 
     @FXML
     private TableView<Map.Entry<String, BigDecimal>> fxmlTableViewRevenue;
-    private RevenueTableManager revenueTableManager;
 
     @FXML
     public TableView<Operation> fxmlTableViewOperations;
@@ -60,7 +59,6 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         modeSwitcher.setOnAction(event -> initMarket(modeSwitcher.isSelected()));
         initMarket(SAND_MODE);
-        this.revenueTableManager = new RevenueTableManager(fxmlTableViewRevenue, MarketContext.HISTORY_SERVICE);
         Thread.setDefaultUncaughtExceptionHandler(
                 (thread, exception) -> {
                     exception.printStackTrace();
@@ -83,11 +81,13 @@ public class MainController implements Initializable {
         OperationsManager operationsManager = new OperationsManager(fxmlTableViewOperations, marketContext);
         PortfolioManager portfolioManager = new PortfolioManager(fxmlTableViewPortfolio, marketContext);
         ActiveOrderManager activeOrderManager = new ActiveOrderManager(fxmlTableViewActiveOrders, marketContext);
+        RevenueTableManager revenueTableManager = new RevenueTableManager(fxmlTableViewRevenue, marketContext);
         mainShareManager = new MainShareManager(fxmlTableViewMainShares, marketContext);
         marketContext.addListener(operationsManager);
         marketContext.addListener(portfolioManager);
         marketContext.addListener(mainShareManager);
         marketContext.addListener(activeOrderManager);
+        marketContext.addListener(revenueTableManager);
         if (TRADE_ON) {
             Balancer2 balancer2 = new Balancer2(marketContext);
             marketContext.addListener(balancer2);
@@ -102,11 +102,6 @@ public class MainController implements Initializable {
     public void deleteMainShare() {
         mainShareManager.deleteMainShare();
     }
-
-    public void calculateRevenue() {
-        //revenueTableManager.calculateRevenue(ShareMapper.INST.map(mainShareManager.getSelectedItem()));
-    }
-
 
     // ===================================================================== //
     // =============================== ОКНА ================================ //

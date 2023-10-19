@@ -21,8 +21,8 @@ public final class ApplicationProperties {
 
     // BALANCER
     public static final boolean TRADE_ON = true;
-    public static final BigDecimal PERCENT_DELTA_PROFIT_TRIGGER = new BigDecimal("0.1");
+    public static final BigDecimal PERCENT_DELTA_PROFIT_TRIGGER = new BigDecimal("0.04");
     public static final BigDecimal PERCENT_DELTA_PROFIT = new BigDecimal("0.2");
-    public static final BigDecimal PERCENT_PROFIT_LAG = new BigDecimal("20");
+    public static final BigDecimal PERCENT_PROFIT_LAG = new BigDecimal("10");
     public static final long TIME_TO_FROZEN_SECOND = 30;
 }

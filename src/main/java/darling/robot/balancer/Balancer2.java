@@ -10,6 +10,7 @@ import darling.domain.order.Order;
 import darling.shared.FinUtils;
 import lombok.RequiredArgsConstructor;
 import ru.tinkoff.piapi.contract.v1.OrderDirection;
+import ru.tinkoff.piapi.contract.v1.OrderType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -45,6 +46,7 @@ public class Balancer2 implements EventListener {
 
     private static final String INSTRUMENT_UID = "8e2b0325-0292-4654-8a18-4f63ed3b0e09";
     private static final Long LOT_COUNT = 10000L;
+    private LocalDateTime lastAction = LocalDateTime.now(ZoneOffset.UTC);
 
     @Override
     public void handle(Event event) {
@@ -89,13 +91,14 @@ public class Balancer2 implements EventListener {
                     .multiply(BigDecimal.valueOf(i))
                     .add(triggerMoneyDelta);
             BigDecimal testTakeProfitPrice = isSell ? dealPrice.subtract(testMoneyDelta) : dealPrice.add(testMoneyDelta);
-            if (!isSell && testTakeProfitPrice.compareTo(lastPrice) > 0) break;
-            if (isSell && testTakeProfitPrice.compareTo(lastPrice) < 0) break;
+            if (!isSell && testTakeProfitPrice.compareTo(lastPrice) >= 0) break;
+            if (isSell && testTakeProfitPrice.compareTo(lastPrice) <= 0) break;
             newTakeProfitPrice = isSell ? testTakeProfitPrice.add(triggerMoneyDelta) : testTakeProfitPrice.subtract(triggerMoneyDelta);
         }
 
         BigDecimal oldSellTakeProfitPrice = deal.getTakeProfitPrice().compareTo(ZERO) == 0 ? newTakeProfitPrice : deal.getTakeProfitPrice();
         newTakeProfitPrice = isSell ? min(newTakeProfitPrice, oldSellTakeProfitPrice) : max(newTakeProfitPrice, deal.getTakeProfitPrice());
+        if (newTakeProfitPrice.compareTo(ZERO) == 0) return;
         deal.setTakeProfitPrice(newTakeProfitPrice);
     }
 
@@ -116,14 +119,20 @@ public class Balancer2 implements EventListener {
         if (deal.getTakeProfitPrice().compareTo(ZERO) == 0) {
             return;
         }
+
+        boolean isBuy = deal.getType().equals(OPERATION_TYPE_BUY);
+        boolean takeProfitNotBrakeIsBuy = isBuy && lastPrice.compareTo(deal.getTakeProfitPrice()) > 0;
+        if (takeProfitNotBrakeIsBuy) {
+            return;
+        }
+
         boolean isSell = deal.getType().equals(OPERATION_TYPE_SELL);
-        boolean takeProfitNotBrake = lastPrice.compareTo(deal.getTakeProfitPrice()) >= 0;
-        takeProfitNotBrake = isSell != takeProfitNotBrake;
-        if (takeProfitNotBrake) {
+        boolean takeProfitNotBrakeIsSell = isSell && lastPrice.compareTo(deal.getTakeProfitPrice()) < 0;
+        if (takeProfitNotBrakeIsSell) {
             return;
         }
         OrderDirection direction = deal.getType().equals(OPERATION_TYPE_SELL) ? ORDER_DIRECTION_BUY : ORDER_DIRECTION_SELL;
-        marketContext.postOrder(INSTRUMENT_UID, deal.getQuantity() / LOT_COUNT, lastPrice, direction, deal.getAccountId(), ORDER_TYPE_LIMIT);
+        postOrderWithRepeatProtected(INSTRUMENT_UID, deal.getQuantity() / LOT_COUNT, lastPrice, direction, deal.getAccountId(), ORDER_TYPE_LIMIT);
     }
 
     private void closeFrozenOrders(List<Order> activeOrders) {
@@ -140,7 +149,7 @@ public class Balancer2 implements EventListener {
 
     private void postOrder(List<Deal> deals) {
         if (deals.isEmpty()) {
-            marketContext.postOrder(INSTRUMENT_UID, 1L, ZERO, ORDER_DIRECTION_BUY, ACCOUNT_BUY, ORDER_TYPE_MARKET);
+            postOrderWithRepeatProtected(INSTRUMENT_UID, 1L, ZERO, ORDER_DIRECTION_BUY, ACCOUNT_BUY, ORDER_TYPE_MARKET);
         }
         long unbalancedDeal = deals.stream()
                 .filter(deal -> deal.getTakeProfitPrice().compareTo(ZERO) == 0)
@@ -148,9 +157,18 @@ public class Balancer2 implements EventListener {
                 .mapToLong(value -> value)
                 .sum();
         if (unbalancedDeal > 0) {
-            marketContext.postOrder(INSTRUMENT_UID, unbalancedDeal / LOT_COUNT, ZERO, ORDER_DIRECTION_SELL, ACCOUNT_SELL, ORDER_TYPE_MARKET);
+            postOrderWithRepeatProtected(INSTRUMENT_UID, unbalancedDeal / LOT_COUNT, ZERO, ORDER_DIRECTION_SELL, ACCOUNT_SELL, ORDER_TYPE_MARKET);
         } else if (unbalancedDeal < 0) {
-            marketContext.postOrder(INSTRUMENT_UID, -1 * unbalancedDeal / LOT_COUNT, ZERO, ORDER_DIRECTION_BUY, ACCOUNT_BUY, ORDER_TYPE_MARKET);
+            postOrderWithRepeatProtected(INSTRUMENT_UID, -1 * unbalancedDeal / LOT_COUNT, ZERO, ORDER_DIRECTION_BUY, ACCOUNT_BUY, ORDER_TYPE_MARKET);
         }
+    }
+
+    public void postOrderWithRepeatProtected(String instrumentId, long lot, BigDecimal price, OrderDirection direction,
+                                             String accountId, OrderType type) {
+        if (ChronoUnit.SECONDS.between(lastAction, LocalDateTime.now(ZoneOffset.UTC)) < 15) {
+            return;
+        }
+        marketContext.postOrder(instrumentId, lot, price, direction, accountId, type);
+        lastAction = LocalDateTime.now(ZoneOffset.UTC);
     }
 }
