@@ -212,4 +212,8 @@ public class MarketContext extends EventSubscriber {
     public Optional<LastPrice> getLastPrice(String instrumentUid) {
         return marketDataService.getLastPrice(instrumentUid);
     }
+
+    public void cancelOrder(String orderId, String accountId) {
+        orderService.cancelOrder(orderId, accountId);
+    }
 }

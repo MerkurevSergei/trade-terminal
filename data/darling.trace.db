@@ -7126,3 +7126,7 @@ SELECT id, broker_account_id, parent_operation_id, name, date, type, description
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Таблица "TAKE_PROFIT_PRICE" не найдена
 Table "TAKE_PROFIT_PRICE" not found; SQL statement:
 update take_profit_price = 0 from open_deal [42102-224]
+2023-10-19 18:44:44.636668+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Синтаксическая ошибка в выражении SQL "UPDATE [*]SET TAKE_PROFIT_PRICE = 0.026 WHERE TAKE_PROFIT_PRICE = 0"; ожидалось "identifier"
+Syntax error in SQL statement "UPDATE [*]SET TAKE_PROFIT_PRICE = 0.026 WHERE TAKE_PROFIT_PRICE = 0"; expected "identifier"; SQL statement:
+UPDATE SET TAKE_PROFIT_PRICE = 0.026 WHERE TAKE_PROFIT_PRICE = 0 [42001-224]

@@ -4,13 +4,12 @@ import darling.context.MarketContext;
 import darling.context.event.Event;
 import darling.context.event.EventListener;
 import darling.domain.Operation;
-import darling.shared.Utils;
+import darling.shared.CommonUtils;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public record OperationsManager(TableView<Operation> operationsTableView,
@@ -21,10 +20,10 @@ public record OperationsManager(TableView<Operation> operationsTableView,
         TableColumn<Operation, String> tableColumnOperation = (TableColumn<Operation, String>) operationsTableView.getColumns().get(1);
         TableColumn<Operation, String> tableColumnPayment = (TableColumn<Operation, String>) operationsTableView.getColumns().get(2);
         TableColumn<Operation, String> tableColumnDirection = (TableColumn<Operation, String>) operationsTableView.getColumns().get(3);
-        tableColumnDate.setCellValueFactory(param -> new ReadOnlyStringWrapper(Utils.formatLDT(param.getValue().date())));
+        tableColumnDate.setCellValueFactory(param -> new ReadOnlyStringWrapper(CommonUtils.formatLDT(param.getValue().date())));
         tableColumnOperation.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().description()));
         tableColumnPayment.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().payment().toString()));
-        tableColumnDirection.setCellValueFactory(param -> new ReadOnlyStringWrapper(Utils.direction(param.getValue().brokerAccountId(), param.getValue().type())));
+        tableColumnDirection.setCellValueFactory(param -> new ReadOnlyStringWrapper(CommonUtils.direction(param.getValue().brokerAccountId(), param.getValue().type())));
     }
 
     @Override

@@ -6,7 +6,8 @@ import darling.context.event.EventListener;
 import darling.domain.Deal;
 import darling.domain.LastPrice;
 import darling.domain.Share;
-import darling.shared.Utils;
+import darling.shared.CommonUtils;
+import darling.shared.FinUtils;
 import darling.ui.view.PortfolioViewItem;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -22,9 +23,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static darling.shared.Constants.HUNDRED;
 import static java.math.BigDecimal.ZERO;
-import static ru.tinkoff.piapi.contract.v1.OperationType.OPERATION_TYPE_SELL;
 
 public record PortfolioManager(TableView<PortfolioViewItem> portfolioTableView,
                                MarketContext marketContext) implements EventListener {
@@ -47,7 +46,7 @@ public record PortfolioManager(TableView<PortfolioViewItem> portfolioTableView,
         tableColumnPayment.setCellValueFactory(p -> new ReadOnlyStringWrapper(p.getValue().getPayment()));
         tableColumnProfitPercent.setCellValueFactory(p -> new ReadOnlyStringWrapper(p.getValue().getProfitPercent()));
         tableColumnProfitMoney.setCellValueFactory(p -> new ReadOnlyStringWrapper(p.getValue().getProfitMoney()));
-        tableColumnDate.setCellValueFactory(p -> new ReadOnlyStringWrapper(Utils.formatLDT(p.getValue().getDate())));
+        tableColumnDate.setCellValueFactory(p -> new ReadOnlyStringWrapper(CommonUtils.formatLDT(p.getValue().getDate())));
     }
 
     @Override
@@ -92,7 +91,7 @@ public record PortfolioManager(TableView<PortfolioViewItem> portfolioTableView,
         PortfolioViewItem.PortfolioViewItemBuilder viewItemBuilder = PortfolioViewItem.builder()
                 .ticker(share.ticker())
                 .date(deal.getDate())
-                .direction(Utils.direction(deal.getAccountId(), deal.getType()))
+                .direction(CommonUtils.direction(deal.getAccountId(), deal.getType()))
                 .price(dealLotPrice.setScale(2, RoundingMode.HALF_UP).toString())
                 .takeProfitPrice(takeProfitPrice.setScale(2, RoundingMode.HALF_UP).toString())
                 .quantity(lotQuantity);
@@ -100,12 +99,9 @@ public record PortfolioManager(TableView<PortfolioViewItem> portfolioTableView,
         if (!lastPrice.equals(ZERO)) {
             BigDecimal currentPayment = lastPrice.multiply(BigDecimal.valueOf(share.lot())).multiply(BigDecimal.valueOf(lotQuantity));
             BigDecimal dealPayment = dealLotPrice.multiply(BigDecimal.valueOf(lotQuantity));
-            BigDecimal profitMoney = deal.getType().equals(OPERATION_TYPE_SELL) ? currentPayment.subtract(dealPayment).negate() : currentPayment.subtract(dealPayment);
-            BigDecimal profitPercent = profitMoney.divide(dealPayment, 9, RoundingMode.HALF_UP).multiply(HUNDRED);
-
             viewItemBuilder.payment(currentPayment.setScale(2, RoundingMode.HALF_UP).toString())
-                    .profitPercent(profitPercent.setScale(2, RoundingMode.HALF_UP) + "%")
-                    .profitMoney(profitMoney.setScale(2, RoundingMode.HALF_UP).toString());
+                    .profitPercent(FinUtils.getProfitPercentFormat(dealPayment, currentPayment, deal.getType()))
+                    .profitMoney(FinUtils.getProfitMoneyFormat(dealPayment, currentPayment, deal.getType()));
         }
         return viewItemBuilder.build();
     }

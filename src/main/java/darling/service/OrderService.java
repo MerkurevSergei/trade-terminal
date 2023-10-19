@@ -16,4 +16,6 @@ public interface OrderService {
     List<Order> getActiveOrders();
 
     List<Order> getActiveOrders(String instrumentUid);
+
+    void cancelOrder(String orderId, String accountId);
 }

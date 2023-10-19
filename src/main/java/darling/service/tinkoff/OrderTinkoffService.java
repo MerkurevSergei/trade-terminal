@@ -14,7 +14,7 @@ import ru.tinkoff.piapi.core.OrdersService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -47,17 +47,27 @@ public class OrderTinkoffService implements OrderService {
     @Override
     public List<Order> getActiveOrders(String instrumentUid) {
         Map<String, Share> sharesDict = instrumentService.getAvailableSharesDict();
-        return ACCOUNTS.stream()
-                .map(ordersService::getOrdersSync)
-                .flatMap(Collection::stream)
-                .filter(order -> instrumentUid == null || order.getInstrumentUid().equals(instrumentUid))
-                .map(it -> createOrder(it, sharesDict))
-                .toList();
+        List<Order> activeOrders = new ArrayList<>();
+        for (String accountId : ACCOUNTS) {
+            List<Order> activeOrdersByAccount = ordersService.getOrdersSync(accountId)
+                    .stream()
+                    .filter(order -> instrumentUid == null || order.getInstrumentUid().equals(instrumentUid))
+                    .map(it -> createOrder(it, sharesDict, accountId))
+                    .toList();
+            activeOrders.addAll(activeOrdersByAccount);
+        }
+        return activeOrders;
     }
 
-    private Order createOrder(OrderState os, Map<String, Share> sharesDict) {
+    @Override
+    public void cancelOrder(String orderId, String accountId) {
+        ordersService.cancelOrder(accountId, orderId);
+    }
+
+    private Order createOrder(OrderState os, Map<String, Share> sharesDict, String accountId) {
         LocalDateTime date = TinkoffSpecialTypeMapper.map(os.getOrderDate());
         Share share = sharesDict.get(os.getInstrumentUid());
-        return new Order(os.getOrderId(), date, share, os.getExecutionReportStatus(), os.getLotsRequested(), os.getLotsExecuted());
+        return new Order(os.getOrderId(), accountId, date, share, os.getExecutionReportStatus(), os.getLotsRequested(),
+                         os.getLotsExecuted());
     }
 }

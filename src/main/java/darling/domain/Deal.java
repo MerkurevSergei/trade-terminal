@@ -61,14 +61,14 @@ public final class Deal {
         return quantity;
     }
 
+    public void setQuantity(long quantity) {
+        this.quantity = quantity;
+    }
 
     public void setCloseOperation(Operation operation) {
         this.closeOperation = operation;
     }
 
-    public void setQuantity(long quantity) {
-        this.quantity = quantity;
-    }
 
 
     public BigDecimal getTakeProfitPrice() {
