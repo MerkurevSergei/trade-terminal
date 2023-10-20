@@ -1,7 +1,7 @@
 package darling.service.tinkoff;
 
 import darling.domain.LastPrice;
-import darling.domain.Share;
+import darling.domain.MainShare;
 import darling.mapper.LastPriceMapper;
 import darling.repository.LastPriceRepository;
 import darling.service.MarketDataService;
@@ -23,8 +23,8 @@ public record MarketDataTinkoffService(LastPriceRepository lastPriceRepository,
     }
 
     @Override
-    public void syncLastPrices(List<Share> shares) {
-        List<String> shareIds = shares.stream().map(Share::uid).toList();
+    public void syncLastPrices(List<MainShare> shares) {
+        List<String> shareIds = shares.stream().map(MainShare::uid).toList();
         List<LastPrice> lastPrices = marketDataService.getLastPricesSync(shareIds).stream().map(LastPriceMapper.INST::map).toList();
         lastPriceRepository.saveAll(lastPrices);
     }

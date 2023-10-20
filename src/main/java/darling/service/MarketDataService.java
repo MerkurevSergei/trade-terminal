@@ -1,7 +1,7 @@
 package darling.service;
 
 import darling.domain.LastPrice;
-import darling.domain.Share;
+import darling.domain.MainShare;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,5 +11,5 @@ public interface MarketDataService {
 
     List<LastPrice> getLastPrices();
 
-    void syncLastPrices(List<Share> shares);
+    void syncLastPrices(List<MainShare> shares);
 }

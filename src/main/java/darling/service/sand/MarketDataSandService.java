@@ -1,7 +1,7 @@
 package darling.service.sand;
 
 import darling.domain.LastPrice;
-import darling.domain.Share;
+import darling.domain.MainShare;
 import darling.service.MarketDataService;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class MarketDataSandService implements MarketDataService {
     }
 
     @Override
-    public void syncLastPrices(List<Share> shares) {
+    public void syncLastPrices(List<MainShare> shares) {
 
     }
 }

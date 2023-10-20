@@ -5,28 +5,29 @@ import darling.domain.Operation;
 import darling.domain.Portfolio;
 import darling.repository.DealRepository;
 import darling.repository.OperationRepository;
-import darling.service.InstrumentService;
 import darling.service.PortfolioService;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.List;
 
 @RequiredArgsConstructor
 public class PortfolioCommonService implements PortfolioService {
 
-    private final InstrumentService instrumentService;
-
     private final DealRepository dealRepository = new DealRepository();
 
     private final OperationRepository operationRepository = new OperationRepository();
 
-    private Portfolio portfolio = new Portfolio(List.of());
-
+    /**
+     * Возвращает признак наличия закрытых сделок на шаге.
+     */
     @Override
-    public void refreshPortfolio() {
+    public boolean refreshPortfolio() {
         List<Deal> allDeals = dealRepository.findAllOpenDeals();
-        portfolio = new Portfolio(allDeals);
+        Portfolio portfolio = new Portfolio(allDeals);
         List<Operation> allOperations = operationRepository.popFromQueue().stream()
                 .sorted(Comparator.comparing(Operation::date))
                 .toList();
@@ -36,6 +37,8 @@ public class PortfolioCommonService implements PortfolioService {
                 .filter(deal -> deal.getQuantity() != 0)
                 .toList();
         dealRepository.refreshOpenDeals(deals);
+        dealRepository.saveClosedDeals(portfolio.getClosedDeals());
+        return !portfolio.getClosedDeals().isEmpty();
     }
 
     @Override
@@ -46,5 +49,11 @@ public class PortfolioCommonService implements PortfolioService {
     @Override
     public Portfolio getPortfolio() {
         return new Portfolio(dealRepository.findAllOpenDeals());
+    }
+
+    @Override
+    public List<Deal> getClosedDeals() {
+        LocalDateTime currentDay = LocalDateTime.now(ZoneOffset.UTC);
+        return dealRepository.getClosedDeals(currentDay.with(LocalTime.MIN), currentDay.with(LocalTime.MAX));
     }
 }

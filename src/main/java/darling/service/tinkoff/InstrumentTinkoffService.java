@@ -1,5 +1,6 @@
 package darling.service.tinkoff;
 
+import darling.domain.MainShare;
 import darling.domain.Share;
 import darling.mapper.ShareMapper;
 import darling.repository.AvailableShareRepository;
@@ -38,17 +39,17 @@ public class InstrumentTinkoffService implements InstrumentService {
     }
 
     @Override
-    public void addMainShare(Share share) {
+    public void addMainShare(MainShare share) {
         mainShareRepository.save(share);
     }
 
     @Override
-    public void deleteMainShare(Share share) {
+    public void deleteMainShare(MainShare share) {
         mainShareRepository.deleteById(share.uid());
     }
 
     @Override
-    public List<Share> getMainShares() {
+    public List<MainShare> getMainShares() {
         return mainShareRepository.getSharesAndSort();
     }
 }

@@ -1,6 +1,7 @@
 package darling.ui;
 
 import darling.context.MarketContext;
+import darling.domain.MainShare;
 import darling.domain.Operation;
 import darling.domain.order.Order;
 import darling.robot.balancer.Balancer2;
@@ -12,6 +13,7 @@ import darling.ui.main.PortfolioManager;
 import darling.ui.main.RevenueTableManager;
 import darling.ui.view.MainShareView;
 import darling.ui.view.PortfolioViewItem;
+import darling.ui.view.RevenueViewItem;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -22,9 +24,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.util.Duration;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.net.URL;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import static darling.shared.ApplicationProperties.SAND_MODE;
@@ -41,7 +41,7 @@ public class MainController implements Initializable {
     public TableView<PortfolioViewItem> fxmlTableViewPortfolio;
 
     @FXML
-    private TableView<Map.Entry<String, BigDecimal>> fxmlTableViewRevenue;
+    private TableView<RevenueViewItem> fxmlTableViewRevenue;
 
     @FXML
     public TableView<Operation> fxmlTableViewOperations;
@@ -89,8 +89,10 @@ public class MainController implements Initializable {
         marketContext.addListener(activeOrderManager);
         marketContext.addListener(revenueTableManager);
         if (TRADE_ON) {
-            Balancer2 balancer2 = new Balancer2(marketContext);
-            marketContext.addListener(balancer2);
+            marketContext.getMainShares()
+                    .stream()
+                    .filter(MainShare::isTrade)
+                    .forEach(it -> marketContext.addListener(new Balancer2(marketContext, it)));
         }
         marketContext.start();
     }

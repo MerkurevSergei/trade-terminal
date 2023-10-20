@@ -25,6 +25,14 @@ public final class Deal {
         this.takeProfitPrice = takeProfitPrice;
     }
 
+
+    public Deal(Operation openOperation, Operation closeOperation, Long quantity, BigDecimal takeProfitPrice) {
+        this.openOperation = openOperation;
+        this.closeOperation = closeOperation;
+        this.quantity = quantity;
+        this.takeProfitPrice = takeProfitPrice;
+    }
+
     public String getInstrumentUid() {
         return openOperation.instrumentUid();
     }
@@ -33,8 +41,12 @@ public final class Deal {
         return openOperation.brokerAccountId();
     }
 
-    public LocalDateTime getDate() {
+    public LocalDateTime getOpenDate() {
         return openOperation.date();
+    }
+
+    public LocalDateTime getCloseDate() {
+        return closeOperation.date();
     }
 
     public OperationType getType() {
@@ -43,6 +55,10 @@ public final class Deal {
 
     public String getOpenOperationId() {
         return openOperation.id();
+    }
+
+    public String getCloseOperationId() {
+        return closeOperation.id();
     }
 
     public boolean isClosed() {
@@ -77,5 +93,9 @@ public final class Deal {
 
     public void setTakeProfitPrice(BigDecimal takeProfitPrice) {
         this.takeProfitPrice = takeProfitPrice;
+    }
+
+    public Operation getOpenOperation() {
+        return openOperation;
     }
 }

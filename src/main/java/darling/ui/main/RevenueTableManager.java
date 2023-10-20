@@ -3,14 +3,19 @@ package darling.ui.main;
 import darling.context.MarketContext;
 import darling.context.event.Event;
 import darling.context.event.EventListener;
+import darling.domain.Deal;
+import darling.ui.view.RevenueViewItem;
+import javafx.collections.FXCollections;
 import javafx.scene.control.TableView;
 import ru.tinkoff.piapi.contract.v1.Share;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Map;
+import java.util.List;
+import java.util.Objects;
 
-public record RevenueTableManager(TableView<Map.Entry<String, BigDecimal>> revenueTableView,
+import static darling.context.event.Event.CLOSED_DEALS_UPDATED;
+import static darling.context.event.Event.CONTEXT_STARTED;
+
+public record RevenueTableManager(TableView<RevenueViewItem> revenueTableView,
                                   MarketContext marketContext) implements EventListener {
 
     public RevenueTableManager {
@@ -21,6 +26,19 @@ public record RevenueTableManager(TableView<Map.Entry<String, BigDecimal>> reven
 //        tableColumn2.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getValue().setScale(2, RoundingMode.HALF_UP) + "%"));
 //        revenueTableView.getColumns().add(tableColumn);
 //        revenueTableView.getColumns().add(tableColumn2);
+    }
+
+    @Override
+    public void handle(Event event) {
+        if (!Objects.equals(event, CLOSED_DEALS_UPDATED) && !Objects.equals(event, CONTEXT_STARTED)) {
+            return;
+        }
+        List<Deal> closedDeals = marketContext.getClosedDeals();
+        revenueTableView.setItems(FXCollections.observableArrayList(getView(closedDeals)));
+    }
+
+    private List<RevenueViewItem> getView(List<Deal> closedDeals) {
+        return List.of();
     }
 
     public void calculateRevenue(Share selectedItem) {
@@ -56,10 +74,5 @@ public record RevenueTableManager(TableView<Map.Entry<String, BigDecimal>> reven
 //        //Optional<BigDecimal> optSum = profitByDay.values().stream().reduce(BigDecimal::add);
 //        //profitByDay.put(LocalDate.MAX, optSum.orElse(BigDecimal.ZERO));
 //        revenueTableView.setItems(FXCollections.observableArrayList(profitByDay.entrySet()));
-    }
-
-    @Override
-    public void handle(Event event) {
-
     }
 }

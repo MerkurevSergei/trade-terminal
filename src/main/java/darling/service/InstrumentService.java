@@ -1,5 +1,6 @@
 package darling.service;
 
+import darling.domain.MainShare;
 import darling.domain.Share;
 
 import java.util.List;
@@ -13,9 +14,9 @@ public interface InstrumentService {
 
     void syncAvailableShares();
 
-    List<Share> getMainShares();
+    List<MainShare> getMainShares();
 
-    void addMainShare(Share share);
+    void addMainShare(MainShare share);
 
-    void deleteMainShare(Share share);
+    void deleteMainShare(MainShare share);
 }

@@ -5,10 +5,12 @@ import darling.context.event.Event;
 import darling.context.event.EventListener;
 import darling.domain.Deal;
 import darling.domain.LastPrice;
+import darling.domain.MainShare;
 import darling.domain.Portfolio;
 import darling.domain.order.Order;
 import darling.shared.FinUtils;
 import lombok.RequiredArgsConstructor;
+import ru.tinkoff.piapi.contract.v1.OperationType;
 import ru.tinkoff.piapi.contract.v1.OrderDirection;
 import ru.tinkoff.piapi.contract.v1.OrderType;
 
@@ -24,6 +26,7 @@ import static com.google.common.collect.Comparators.min;
 import static darling.context.event.Event.CONTEXT_REFRESHED;
 import static darling.shared.ApplicationProperties.ACCOUNT_BUY;
 import static darling.shared.ApplicationProperties.ACCOUNT_SELL;
+import static darling.shared.ApplicationProperties.EMPTY_LEVEL_LAG;
 import static darling.shared.ApplicationProperties.PERCENT_DELTA_PROFIT;
 import static darling.shared.ApplicationProperties.PERCENT_DELTA_PROFIT_TRIGGER;
 import static darling.shared.ApplicationProperties.PERCENT_PROFIT_LAG;
@@ -43,34 +46,34 @@ import static ru.tinkoff.piapi.contract.v1.OrderType.ORDER_TYPE_MARKET;
 public class Balancer2 implements EventListener {
 
     private final MarketContext marketContext;
+    private final MainShare mainShare;
 
-    private static final String INSTRUMENT_UID = "8e2b0325-0292-4654-8a18-4f63ed3b0e09";
-    private static final Long LOT_COUNT = 10000L;
     private LocalDateTime lastAction = LocalDateTime.now(ZoneOffset.UTC);
+    private OrderDirection lastProfitOrderDirection = ORDER_DIRECTION_BUY;
 
     @Override
     public void handle(Event event) {
         if (!CONTEXT_REFRESHED.equals(event)) {
             return;
         }
-        List<Order> activeOrders = marketContext.getActiveOrders(INSTRUMENT_UID);
+        List<Order> activeOrders = marketContext.getActiveOrders(mainShare.uid());
         closeFrozenOrders(activeOrders);
         if (!activeOrders.isEmpty()) {
             return;
         }
 
-        Optional<LastPrice> optLastPrices = marketContext.getLastPrice(INSTRUMENT_UID);
+        Optional<LastPrice> optLastPrices = marketContext.getLastPrice(mainShare.uid());
         if (optLastPrices.isEmpty()) return;
         BigDecimal lastPrice = optLastPrices.get().price();
         Portfolio portfolio = marketContext.getPortfolio();
-        List<Deal> instrumentDeals = marketContext.getPortfolio().getOpenDeals(INSTRUMENT_UID);
+        List<Deal> instrumentDeals = marketContext.getPortfolio().getOpenDeals(mainShare.uid());
 
         instrumentDeals.forEach(deal -> {
             setTakeProfit(deal, lastPrice);
             clearTakeProfit(deal, lastPrice);
             closeProfitDeal(deal, lastPrice);
         });
-        postOrder(instrumentDeals);
+        postOrder(instrumentDeals, lastPrice);
         portfolio.updateDealsWithCalculatedData(instrumentDeals);
         marketContext.savePortfolio(portfolio);
     }
@@ -79,7 +82,7 @@ public class Balancer2 implements EventListener {
 
     private void setTakeProfit(Deal deal, BigDecimal lastPrice) {
         BigDecimal standardMoneyDelta = deal.getPrice().multiply(PERCENT_DELTA_PROFIT).divide(HUNDRED, 9, HALF_UP);
-        BigDecimal currentPercentDelta = FinUtils.getProfitPercent(deal.getPrice(), lastPrice, OPERATION_TYPE_SELL);
+        BigDecimal currentPercentDelta = FinUtils.getProfitPercent(deal.getPrice(), lastPrice, deal.getType());
         int deltaCountInCurrentPrice = currentPercentDelta.divide(PERCENT_DELTA_PROFIT, 0, DOWN).intValue();
         BigDecimal triggerMoneyDelta = deal.getPrice().multiply(PERCENT_DELTA_PROFIT_TRIGGER).divide(HUNDRED, 9, HALF_UP);
 
@@ -132,7 +135,8 @@ public class Balancer2 implements EventListener {
             return;
         }
         OrderDirection direction = deal.getType().equals(OPERATION_TYPE_SELL) ? ORDER_DIRECTION_BUY : ORDER_DIRECTION_SELL;
-        postOrderWithRepeatProtected(INSTRUMENT_UID, deal.getQuantity() / LOT_COUNT, lastPrice, direction, deal.getAccountId(), ORDER_TYPE_LIMIT);
+        lastProfitOrderDirection = direction;
+        postOrderWithRepeatProtected(mainShare.uid(), deal.getQuantity() / mainShare.lot(), lastPrice, direction, deal.getAccountId(), ORDER_TYPE_LIMIT);
     }
 
     private void closeFrozenOrders(List<Order> activeOrders) {
@@ -147,9 +151,9 @@ public class Balancer2 implements EventListener {
         }
     }
 
-    private void postOrder(List<Deal> deals) {
-        if (deals.isEmpty()) {
-            postOrderWithRepeatProtected(INSTRUMENT_UID, 1L, ZERO, ORDER_DIRECTION_BUY, ACCOUNT_BUY, ORDER_TYPE_MARKET);
+    private void postOrder(List<Deal> deals, BigDecimal lastPrice) {
+        if (!isEmptyLevel(deals, lastPrice)) {
+            return;
         }
         long unbalancedDeal = deals.stream()
                 .filter(deal -> deal.getTakeProfitPrice().compareTo(ZERO) == 0)
@@ -157,14 +161,34 @@ public class Balancer2 implements EventListener {
                 .mapToLong(value -> value)
                 .sum();
         if (unbalancedDeal > 0) {
-            postOrderWithRepeatProtected(INSTRUMENT_UID, unbalancedDeal / LOT_COUNT, ZERO, ORDER_DIRECTION_SELL, ACCOUNT_SELL, ORDER_TYPE_MARKET);
+            postOrderWithRepeatProtected(mainShare.uid(), unbalancedDeal / mainShare.lot(), ZERO, ORDER_DIRECTION_SELL, ACCOUNT_SELL, ORDER_TYPE_MARKET);
         } else if (unbalancedDeal < 0) {
-            postOrderWithRepeatProtected(INSTRUMENT_UID, -1 * unbalancedDeal / LOT_COUNT, ZERO, ORDER_DIRECTION_BUY, ACCOUNT_BUY, ORDER_TYPE_MARKET);
+            postOrderWithRepeatProtected(mainShare.uid(), -1 * unbalancedDeal / mainShare.lot(), ZERO, ORDER_DIRECTION_BUY, ACCOUNT_BUY, ORDER_TYPE_MARKET);
+        } else {
+            String accountId = lastProfitOrderDirection.equals(ORDER_DIRECTION_SELL) ? ACCOUNT_SELL : ACCOUNT_BUY;
+            postOrderWithRepeatProtected(mainShare.uid(), 1L, ZERO, lastProfitOrderDirection, accountId, ORDER_TYPE_MARKET);
         }
     }
 
-    public void postOrderWithRepeatProtected(String instrumentId, long lot, BigDecimal price, OrderDirection direction,
-                                             String accountId, OrderType type) {
+    private boolean isEmptyLevel(List<Deal> deals, BigDecimal lastPrice) {
+        BigDecimal standardMoneyDelta = lastPrice.multiply(PERCENT_DELTA_PROFIT).divide(HUNDRED, 9, HALF_UP);
+        BigDecimal lagMoney = standardMoneyDelta.multiply(EMPTY_LEVEL_LAG).divide(HUNDRED, 9, HALF_UP);
+        BigDecimal boundUp = lastPrice.add(standardMoneyDelta).subtract(lagMoney);
+        BigDecimal boundDown = lastPrice.subtract(standardMoneyDelta).subtract(lagMoney);
+        OperationType lastProfitType = lastProfitOrderDirection.equals(ORDER_DIRECTION_SELL) ? OPERATION_TYPE_SELL : OPERATION_TYPE_BUY;
+        List<Deal> directedDeals = deals.stream()
+                .filter(deal -> deal.getType().equals(lastProfitType))
+                .toList();
+        for (Deal deal : directedDeals) {
+            if (boundUp.compareTo(deal.getPrice()) > 0 && boundDown.compareTo(deal.getPrice()) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void postOrderWithRepeatProtected(String instrumentId, long lot, BigDecimal price, OrderDirection direction,
+                                              String accountId, OrderType type) {
         if (ChronoUnit.SECONDS.between(lastAction, LocalDateTime.now(ZoneOffset.UTC)) < 15) {
             return;
         }

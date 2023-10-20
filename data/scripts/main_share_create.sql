@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS main_share (
     figi VARCHAR,
     ticker VARCHAR,
     name VARCHAR,
-    lot INTEGER
+    lot INTEGER,
+    is_trade boolean default false
 )

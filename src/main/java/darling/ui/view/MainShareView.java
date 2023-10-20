@@ -1,7 +1,7 @@
 package darling.ui.view;
 
 import darling.domain.LastPrice;
-import darling.domain.Share;
+import darling.domain.MainShare;
 
-public record MainShareView(Share share, LastPrice lastPrice) {
+public record MainShareView(MainShare share, LastPrice lastPrice) {
 }

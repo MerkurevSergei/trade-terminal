@@ -2,6 +2,7 @@ package darling.ui.availablestock;
 
 import darling.context.MarketContext;
 import darling.domain.Share;
+import darling.mapper.MainShareMapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.scene.control.TableColumn;
@@ -39,6 +40,7 @@ public record AvailableStockManager(TableView<Share> availableShareTableView, Ma
     }
 
     public void addToMainShares() {
-        marketContext.addMainShare(availableShareTableView.getSelectionModel().getSelectedItem());
+        Share selectedItem = availableShareTableView.getSelectionModel().getSelectedItem();
+        marketContext.addMainShare(MainShareMapper.INST.map(selectedItem));
     }
 }

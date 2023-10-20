@@ -44,7 +44,7 @@
          <GridPane minWidth="-Infinity" prefHeight="674.0" prefWidth="1300.0" BorderPane.alignment="CENTER">
            <columnConstraints>
              <ColumnConstraints hgrow="SOMETIMES" maxWidth="580.0" minWidth="580.0" prefWidth="580.0" />
-             <ColumnConstraints hgrow="SOMETIMES" maxWidth="600.0" minWidth="600.0" prefWidth="600.0" />
+             <ColumnConstraints hgrow="SOMETIMES" maxWidth="545.0" minWidth="545.0" prefWidth="545.0" />
                <ColumnConstraints hgrow="SOMETIMES" />
            </columnConstraints>
            <rowConstraints>
@@ -66,14 +66,14 @@
                      <TableColumn maxWidth="105.0" minWidth="105.0" prefWidth="105.0" text="Время, вход" />
                  </columns>
                </TableView>
-               <Button maxHeight="-Infinity" mnemonicParsing="false" onAction="#calculateRevenue" text="Button" GridPane.rowIndex="2" />
-               <TableView fx:id="fxmlTableViewRevenue" maxHeight="1.7976931348623157E308" maxWidth="600.0" minWidth="600.0" prefHeight="892.0" prefWidth="600.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <Button maxHeight="-Infinity" mnemonicParsing="false" text="Button" GridPane.rowIndex="2" />
+               <TableView fx:id="fxmlTableViewRevenue" maxHeight="1.7976931348623157E308" maxWidth="545.0" minWidth="545.0" prefHeight="892.0" prefWidth="545.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                  <columns>
                    <TableColumn maxWidth="50.0" minWidth="50.0" prefWidth="50.0" text="Тикер" />
                      <TableColumn maxWidth="20.0" minWidth="20.0" prefWidth="20.0" text="D" />
-                     <TableColumn maxWidth="50.0" minWidth="50.0" prefWidth="50.0" text="Кол-во" />
-                   <TableColumn maxWidth="90.0" minWidth="90.0" prefWidth="90.0" text="Цена, вход" />
-                     <TableColumn maxWidth="90.0" minWidth="90.0" prefWidth="90.0" text="Цена, выход" />
+                     <TableColumn maxWidth="35.0" minWidth="35.0" prefWidth="35.0" text="Кол." />
+                   <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Цена, вход" />
+                     <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Цена, выход" />
                      <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Доход" />
                      <TableColumn maxWidth="105.0" minWidth="105.0" prefWidth="105.0" text="Время, вход" />
                      <TableColumn maxWidth="105.0" minWidth="105.0" prefWidth="105.0" text="Время, выход" />

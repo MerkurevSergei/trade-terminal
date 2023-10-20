@@ -2,7 +2,9 @@ package darling.context;
 
 import darling.context.event.Event;
 import darling.context.event.EventSubscriber;
+import darling.domain.Deal;
 import darling.domain.LastPrice;
+import darling.domain.MainShare;
 import darling.domain.Operation;
 import darling.domain.Portfolio;
 import darling.domain.Position;
@@ -63,7 +65,7 @@ public class MarketContext extends EventSubscriber {
 
         this.operationService = sandMode ? new OperationSandService() : new OperationTinkoffService(TINKOFF_CLIENT.getOperationsService());
         this.instrumentService = new InstrumentTinkoffService(TINKOFF_CLIENT.getInstrumentsService());
-        this.portfolioService = new PortfolioCommonService(instrumentService);
+        this.portfolioService = new PortfolioCommonService();
         this.orderService = sandMode ? new OrderSandService() : new OrderTinkoffService(instrumentService, TINKOFF_CLIENT.getOrdersService());
         this.marketDataService = sandMode ? new MarketDataSandService() : new MarketDataTinkoffService(lastPriceRepository, TINKOFF_CLIENT.getMarketDataService());
         this.executorService = Executors.newSingleThreadScheduledExecutor();
@@ -116,16 +118,16 @@ public class MarketContext extends EventSubscriber {
     // ============= ОТОБРАННЫЕ ПОЛЬЗОВАТЕЛЕМ ДЛЯ РАБОТЫ АКЦИЙ ============= //
     // ===================================================================== //
 
-    public void addMainShare(Share share) {
+    public void addMainShare(MainShare share) {
         instrumentService.addMainShare(share);
         notify(Event.MAIN_SHARES_UPDATED);
     }
 
-    public List<Share> getMainShares() {
+    public List<MainShare> getMainShares() {
         return instrumentService.getMainShares();
     }
 
-    public void deleteMainShare(Share share) {
+    public void deleteMainShare(MainShare share) {
         instrumentService.deleteMainShare(share);
         notify(Event.MAIN_SHARES_UPDATED);
     }
@@ -143,11 +145,15 @@ public class MarketContext extends EventSubscriber {
         notify(Event.PORTFOLIO_REFRESHED);
     }
 
-    private void refreshPortfolio() {
-        portfolioService.refreshPortfolio();
-        notify(Event.PORTFOLIO_REFRESHED);
+    public List<Deal> getClosedDeals() {
+        return portfolioService.getClosedDeals();
     }
 
+    private void refreshPortfolio() {
+        boolean hasClosedDeals = portfolioService.refreshPortfolio();
+        notify(Event.PORTFOLIO_REFRESHED);
+        if (hasClosedDeals) notify(Event.CLOSED_DEALS_UPDATED);
+    }
 
     public List<Position> getPositions() {
         return operationService.getAllPositions();
@@ -202,7 +208,7 @@ public class MarketContext extends EventSubscriber {
     // ============================= КОТИРОВКИ ============================= //
     // ===================================================================== //
 
-    private void syncLastPrices(List<Share> shares) {
+    private void syncLastPrices(List<MainShare> shares) {
         marketDataService.syncLastPrices(shares);
     }
 

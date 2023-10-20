@@ -90,7 +90,7 @@ public record PortfolioManager(TableView<PortfolioViewItem> portfolioTableView,
         BigDecimal lastPrice = lastPrices.getOrDefault(deal.getInstrumentUid(), ZERO);
         PortfolioViewItem.PortfolioViewItemBuilder viewItemBuilder = PortfolioViewItem.builder()
                 .ticker(share.ticker())
-                .date(deal.getDate())
+                .date(deal.getOpenDate())
                 .direction(CommonUtils.direction(deal.getAccountId(), deal.getType()))
                 .price(dealLotPrice.setScale(2, RoundingMode.HALF_UP).toString())
                 .takeProfitPrice(takeProfitPrice.setScale(2, RoundingMode.HALF_UP).toString())
