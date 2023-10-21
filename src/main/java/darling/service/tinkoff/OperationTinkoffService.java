@@ -28,12 +28,9 @@ import static darling.shared.ApplicationProperties.ACCOUNTS;
 @RequiredArgsConstructor
 public class OperationTinkoffService implements OperationService {
 
-    private final OperationRepository operationRepository = new OperationRepository();
-
-    private final PositionRepository positionRepository = new PositionRepository();
-
-    private final AvailableShareRepository availableShareRepository = new AvailableShareRepository();
-
+    private final AvailableShareRepository availableShareRepository;
+    private final OperationRepository operationRepository;
+    private final PositionRepository positionRepository;
     private final ru.tinkoff.piapi.core.OperationsService operationsService;
 
     @Override

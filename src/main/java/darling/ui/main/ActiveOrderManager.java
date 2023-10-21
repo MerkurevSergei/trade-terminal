@@ -33,7 +33,7 @@ public record ActiveOrderManager(TableView<Order> activeOrdersTableView,
 
     @Override
     public void handle(Event event) {
-        if (!Set.of(CONTEXT_REFRESHED, ORDER_POSTED).contains(event)) {
+        if (!Set.of(ORDER_POSTED, CONTEXT_REFRESHED).contains(event)) {
             return;
         }
         activeOrdersTableView.setItems(FXCollections.observableArrayList(marketContext.getActiveOrders()));

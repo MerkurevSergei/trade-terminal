@@ -1,12 +1,12 @@
 package darling.service.tinkoff;
 
-import darling.context.MarketContext;
 import darling.domain.HistoricPoint;
 import darling.mapper.TinkoffSpecialTypeMapper;
 import darling.service.HistoryService;
+import darling.service.MarketDataService;
+import lombok.RequiredArgsConstructor;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
-import ru.tinkoff.piapi.core.InvestApi;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -15,15 +15,16 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 public class HistoryTinkoffService implements HistoryService {
 
-    private static final InvestApi tinkoffClient = MarketContext.TINKOFF_CLIENT;
+    private final MarketDataService marketDataService;
 
     @Override
     public List<HistoricCandle> getDailyCandles(String figi, LocalDateTime start, LocalDateTime end) {
         Instant from = Instant.ofEpochSecond(start.toEpochSecond(ZoneOffset.UTC));
         Instant to = Instant.ofEpochSecond(end.toEpochSecond(ZoneOffset.UTC));
-        return tinkoffClient.getMarketDataService().getCandles(figi, from, to, CandleInterval.CANDLE_INTERVAL_DAY).join();
+        return marketDataService.getCandles(figi, from, to, CandleInterval.CANDLE_INTERVAL_DAY);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class HistoryTinkoffService implements HistoryService {
         for (LocalDateTime i = start; i.isBefore(end); i = i.plusDays(1L)) {
             Instant from = Instant.ofEpochSecond(i.toEpochSecond(ZoneOffset.UTC));
             Instant to = Instant.ofEpochSecond(i.plusDays(1L).toEpochSecond(ZoneOffset.UTC));
-            List<HistoricCandle> mins = tinkoffClient.getMarketDataService().getCandles(figi, from, to, CandleInterval.CANDLE_INTERVAL_1_MIN).join();
+            List<HistoricCandle> mins = marketDataService.getCandles(figi, from, to, CandleInterval.CANDLE_INTERVAL_1_MIN);
             candles.addAll(mins);
         }
         return candles;

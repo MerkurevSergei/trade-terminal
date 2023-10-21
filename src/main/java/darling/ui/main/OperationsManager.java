@@ -10,7 +10,10 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-import java.util.Objects;
+import java.util.Set;
+
+import static darling.context.event.Event.CONTEXT_INITIALIZED;
+import static darling.context.event.Event.OPERATION_UPDATED;
 
 public record OperationsManager(TableView<Operation> operationsTableView,
                                 MarketContext marketContext) implements EventListener {
@@ -28,9 +31,7 @@ public record OperationsManager(TableView<Operation> operationsTableView,
 
     @Override
     public void handle(Event event) {
-        boolean notOperationUpdated = !Objects.equals(event, Event.OPERATION_UPDATED);
-        boolean notInit = !Objects.equals(event, Event.CONTEXT_REFRESHED);
-        if (notOperationUpdated && notInit) {
+        if (!Set.of(OPERATION_UPDATED, CONTEXT_INITIALIZED).contains(event)) {
             return;
         }
         operationsTableView.setItems(FXCollections.observableArrayList(marketContext.getOperations()));

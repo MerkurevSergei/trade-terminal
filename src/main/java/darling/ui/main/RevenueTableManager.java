@@ -21,14 +21,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static darling.context.event.Event.CLOSED_DEALS_UPDATED;
-import static darling.context.event.Event.CONTEXT_STARTED;
+import static darling.context.event.Event.CONTEXT_INITIALIZED;
 import static java.time.LocalTime.MAX;
 import static java.time.ZoneOffset.UTC;
 
@@ -63,7 +63,7 @@ public record RevenueTableManager(TableView<RevenueViewItem> revenueTableView,
 
     @Override
     public void handle(Event event) {
-        if (!Objects.equals(event, CLOSED_DEALS_UPDATED) && !Objects.equals(event, CONTEXT_STARTED)) {
+        if (!Set.of(CLOSED_DEALS_UPDATED, CONTEXT_INITIALIZED).contains(event)) {
             return;
         }
         calculateRevenue(true);
@@ -170,7 +170,7 @@ public record RevenueTableManager(TableView<RevenueViewItem> revenueTableView,
             }
         }
 
-        // почистим
+        // Почистим
         view.sort(Comparator.comparing(RevenueViewItem::getTicker).thenComparing(RevenueViewItem::getCloseDateView));
         view.forEach(item -> {
                          item.setOpenDate(null);
@@ -180,7 +180,28 @@ public record RevenueTableManager(TableView<RevenueViewItem> revenueTableView,
                          item.setClosePrice(null);
                      }
         );
-        return view;
+
+        // Итоги
+        Map<String, List<RevenueViewItem>> groupByTicker = view.stream()
+                .collect(Collectors.groupingBy(RevenueViewItem::getTickerView, () -> new TreeMap<>(String::compareTo), Collectors.toList()));
+
+        List<RevenueViewItem> viewTotal = new ArrayList<>();
+        for (Map.Entry<String, List<RevenueViewItem>> groups : groupByTicker.entrySet()) {
+            List<RevenueViewItem> group = groups.getValue();
+            BigDecimal profitMoneyTotal = group.stream().map(RevenueViewItem::getProfitMoney).reduce(BigDecimal::add).orElse(null);
+            BigDecimal commission = group.stream().map(RevenueViewItem::getCommission).reduce(BigDecimal::add).orElse(null);
+            BigDecimal revenue = group.stream().map(RevenueViewItem::getRevenue).reduce(BigDecimal::add).orElse(null);
+            RevenueViewItem head = RevenueViewItem.builder()
+                    .ticker(groups.getKey())
+                    .profitMoney(profitMoneyTotal)
+                    .commission(commission)
+                    .revenue(revenue)
+                    .build();
+            group.forEach(portfolioViewItem -> portfolioViewItem.setTicker(""));
+            viewTotal.add(head);
+            viewTotal.addAll(group);
+        }
+        return viewTotal;
     }
 
     private RevenueViewItem createClosedViewItemTotalByDays(Deal d, Map<String, Share> sharesDict) {

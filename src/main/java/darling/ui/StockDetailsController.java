@@ -1,6 +1,7 @@
 package darling.ui;
 
 import darling.context.MarketContext;
+import darling.ui.availablestock.AvailableStockManager;
 import darling.ui.stockdetail.VolatilityTableManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -11,7 +12,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class StockDetailsController implements Initializable {
+public class StockDetailsController extends AbstractController {
 
     @FXML
     private TableView<List<String>> fxmlTableViewVolatility;
@@ -19,7 +20,12 @@ public class StockDetailsController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        volatilityTableManager = new VolatilityTableManager(fxmlTableViewVolatility, MarketContext.HISTORY_SERVICE);
+    }
+
+    @Override
+    public void setContextAndInit(MarketContext marketContext) {
+        this.marketContext = marketContext;
+        this.volatilityTableManager = new VolatilityTableManager(fxmlTableViewVolatility, marketContext);
     }
 
     public void initData(Share share) {

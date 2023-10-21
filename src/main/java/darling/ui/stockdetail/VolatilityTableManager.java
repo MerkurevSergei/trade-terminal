@@ -1,12 +1,12 @@
 package darling.ui.stockdetail;
 
+import darling.context.MarketContext;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 import ru.tinkoff.piapi.contract.v1.Share;
-import darling.service.HistoryService;
 import darling.mapper.TinkoffSpecialTypeMapper;
 
 import java.math.BigDecimal;
@@ -22,7 +22,7 @@ import static java.math.RoundingMode.HALF_UP;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 
-public record VolatilityTableManager(TableView<List<String>> volatilityTableView, HistoryService historyService) {
+public record VolatilityTableManager(TableView<List<String>> volatilityTableView, MarketContext marketContext) {
 
     public VolatilityTableManager {
         volatilityTableView.getColumns().clear();
@@ -44,7 +44,7 @@ public record VolatilityTableManager(TableView<List<String>> volatilityTableView
         BigDecimal volatility02 = BigDecimal.ZERO;
         BigDecimal volatility03 = BigDecimal.ZERO;
         BigDecimal volatilityByDay;
-        List<HistoricCandle> historicCandles = historyService.getDailyCandles(selectedItem.getFigi(), start.atStartOfDay(), start.plusDays(120).atStartOfDay());
+        List<HistoricCandle> historicCandles = marketContext.getDailyCandles(selectedItem.getFigi(), start.atStartOfDay(), start.plusDays(120).atStartOfDay());
         for (HistoricCandle candle : historicCandles) {
             LocalDateTime currentDate = Instant.ofEpochSecond(candle.getTime().getSeconds(), candle.getTime().getNanos())
                     .atOffset(ZoneOffset.UTC)

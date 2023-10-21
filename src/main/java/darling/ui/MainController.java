@@ -99,7 +99,7 @@ public class MainController implements Initializable {
             marketContext.getMainShares()
                     .stream()
                     .filter(MainShare::isTrade)
-                    .forEach(it -> marketContext.addListener(new Balancer2(marketContext, it)));
+                    .forEach(tradingShare -> marketContext.addListener(new Balancer2(marketContext, tradingShare)));
         }
         marketContext.start();
     }

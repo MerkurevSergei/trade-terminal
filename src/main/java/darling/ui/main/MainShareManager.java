@@ -13,7 +13,7 @@ import javafx.scene.control.TableView;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,7 +42,7 @@ public record MainShareManager(TableView<MainShareView> mainSharesTableView,
 
     @Override
     public void handle(Event event) {
-        if (!Objects.equals(event, MAIN_SHARES_UPDATED) && !Objects.equals(event, CONTEXT_REFRESHED)) {
+        if (!Set.of(MAIN_SHARES_UPDATED, CONTEXT_REFRESHED).contains(event)) {
             return;
         }
         Map<String, LastPrice> lastPriceDict = marketContext.getLastPrices()

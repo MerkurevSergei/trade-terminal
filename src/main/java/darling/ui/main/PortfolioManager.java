@@ -19,11 +19,13 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static darling.context.event.Event.CONTEXT_INITIALIZED;
+import static darling.context.event.Event.PORTFOLIO_REFRESHED;
 import static java.math.BigDecimal.ZERO;
 
 public record PortfolioManager(TableView<PortfolioViewItem> portfolioTableView,
@@ -52,7 +54,7 @@ public record PortfolioManager(TableView<PortfolioViewItem> portfolioTableView,
 
     @Override
     public void handle(Event event) {
-        if (!Objects.equals(event, Event.PORTFOLIO_REFRESHED)) {
+        if (!Set.of(PORTFOLIO_REFRESHED, CONTEXT_INITIALIZED).contains(event)) {
             return;
         }
         portfolioTableView.setItems(FXCollections.observableArrayList(getView()));
