@@ -81,14 +81,14 @@ public class Balancer2 implements EventListener {
     // ====================== ФУНКЦИИ ОСНОВНОГО ЦИКЛА ====================== //
 
     private void setTakeProfit(Deal deal, BigDecimal lastPrice) {
-        BigDecimal standardMoneyDelta = deal.getPrice().multiply(PERCENT_DELTA_PROFIT).divide(HUNDRED, 9, HALF_UP);
-        BigDecimal currentPercentDelta = FinUtils.getProfitPercent(deal.getPrice(), lastPrice, deal.getType());
+        BigDecimal standardMoneyDelta = deal.getOpenPrice().multiply(PERCENT_DELTA_PROFIT).divide(HUNDRED, 9, HALF_UP);
+        BigDecimal currentPercentDelta = FinUtils.getProfitPercent(deal.getOpenPrice(), lastPrice, deal.getType());
         int deltaCountInCurrentPrice = currentPercentDelta.divide(PERCENT_DELTA_PROFIT, 0, DOWN).intValue();
-        BigDecimal triggerMoneyDelta = deal.getPrice().multiply(PERCENT_DELTA_PROFIT_TRIGGER).divide(HUNDRED, 9, HALF_UP);
+        BigDecimal triggerMoneyDelta = deal.getOpenPrice().multiply(PERCENT_DELTA_PROFIT_TRIGGER).divide(HUNDRED, 9, HALF_UP);
 
         boolean isSell = deal.getType().equals(OPERATION_TYPE_SELL);
         BigDecimal newTakeProfitPrice = ZERO;
-        BigDecimal dealPrice = deal.getPrice();
+        BigDecimal dealPrice = deal.getOpenPrice();
         for (int i = 1; i <= deltaCountInCurrentPrice; i++) {
             BigDecimal testMoneyDelta = standardMoneyDelta
                     .multiply(BigDecimal.valueOf(i))
@@ -108,10 +108,10 @@ public class Balancer2 implements EventListener {
     private void clearTakeProfit(Deal deal, BigDecimal lastPrice) {
         boolean isSell = deal.getType().equals(OPERATION_TYPE_SELL);
         boolean isBuy = deal.getType().equals(OPERATION_TYPE_BUY);
-        BigDecimal standardMoneyDelta = deal.getPrice().multiply(PERCENT_DELTA_PROFIT).divide(HUNDRED, 9, HALF_UP);
+        BigDecimal standardMoneyDelta = deal.getOpenPrice().multiply(PERCENT_DELTA_PROFIT).divide(HUNDRED, 9, HALF_UP);
         BigDecimal lagMoney = standardMoneyDelta.multiply(PERCENT_PROFIT_LAG).divide(HUNDRED, 9, HALF_UP);
         BigDecimal standardMoneyDeltaWithLag = standardMoneyDelta.subtract(lagMoney);
-        BigDecimal dealPriceWithMinTakeProfit = isSell ? deal.getPrice().subtract(standardMoneyDeltaWithLag) : deal.getPrice().add(standardMoneyDeltaWithLag);
+        BigDecimal dealPriceWithMinTakeProfit = isSell ? deal.getOpenPrice().subtract(standardMoneyDeltaWithLag) : deal.getOpenPrice().add(standardMoneyDeltaWithLag);
         int compareProfit = lastPrice.compareTo(dealPriceWithMinTakeProfit);
         if ((isBuy && compareProfit < 0) || (isSell && compareProfit > 0)) {
             deal.setTakeProfitPrice(ZERO);
@@ -180,7 +180,7 @@ public class Balancer2 implements EventListener {
                 .filter(deal -> deal.getType().equals(lastProfitType))
                 .toList();
         for (Deal deal : directedDeals) {
-            if (boundUp.compareTo(deal.getPrice()) > 0 && boundDown.compareTo(deal.getPrice()) < 0) {
+            if (boundUp.compareTo(deal.getOpenPrice()) > 0 && boundDown.compareTo(deal.getOpenPrice()) < 0) {
                 return false;
             }
         }

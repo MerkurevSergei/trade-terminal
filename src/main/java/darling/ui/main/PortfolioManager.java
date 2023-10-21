@@ -61,6 +61,8 @@ public record PortfolioManager(TableView<PortfolioViewItem> portfolioTableView,
         Map<String, Share> sharesDict = marketContext.getAvailableShares().stream().collect(Collectors.toMap(Share::uid, Function.identity()));
         Map<String, BigDecimal> lastPrices = marketContext.getLastPrices().stream().collect(Collectors.toMap(LastPrice::instrumentUid, LastPrice::price));
         List<Deal> deals = marketContext.getPortfolio().getOpenDeals();
+
+        // список в группе
         Map<String, List<PortfolioViewItem>> viewItemByTicker = deals
                 .stream()
                 .map(d -> createPortfolioViewItem(d, sharesDict, lastPrices))
@@ -84,7 +86,7 @@ public record PortfolioManager(TableView<PortfolioViewItem> portfolioTableView,
 
     private PortfolioViewItem createPortfolioViewItem(Deal deal, Map<String, Share> sharesDict, Map<String, BigDecimal> lastPrices) {
         Share share = sharesDict.get(deal.getInstrumentUid());
-        BigDecimal dealLotPrice = deal.getPrice().multiply(BigDecimal.valueOf(share.lot()));
+        BigDecimal dealLotPrice = deal.getOpenPrice().multiply(BigDecimal.valueOf(share.lot()));
         BigDecimal takeProfitPrice = deal.getTakeProfitPrice().multiply(BigDecimal.valueOf(share.lot()));
         long lotQuantity = deal.getQuantity() / share.lot();
         BigDecimal lastPrice = lastPrices.getOrDefault(deal.getInstrumentUid(), ZERO);

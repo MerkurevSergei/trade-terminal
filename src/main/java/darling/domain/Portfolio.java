@@ -16,7 +16,7 @@ import static ru.tinkoff.piapi.contract.v1.OperationType.OPERATION_TYPE_SELL;
 
 public class Portfolio {
 
-    private static final Comparator<Deal> CONTRACT_COMPARATOR = Comparator.comparing(Deal::getPrice).thenComparing(Deal::getOpenDate);
+    private static final Comparator<Deal> CONTRACT_COMPARATOR = Comparator.comparing(Deal::getOpenPrice).thenComparing(Deal::getOpenDate);
 
     private final Map<AccountShareKey, TreeSet<Deal>> dealsByKey = new HashMap<>();
 
