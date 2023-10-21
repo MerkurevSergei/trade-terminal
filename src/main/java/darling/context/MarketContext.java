@@ -32,6 +32,7 @@ import ru.tinkoff.piapi.contract.v1.OrderType;
 import ru.tinkoff.piapi.core.InvestApi;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -145,8 +146,8 @@ public class MarketContext extends EventSubscriber {
         notify(Event.PORTFOLIO_REFRESHED);
     }
 
-    public List<Deal> getClosedDeals() {
-        return portfolioService.getClosedDeals();
+    public List<Deal> getClosedDeals(LocalDateTime start, LocalDateTime end) {
+        return portfolioService.getClosedDeals(start, end);
     }
 
     private void refreshPortfolio() {

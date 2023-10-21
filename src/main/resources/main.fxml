@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -44,7 +45,7 @@
          <GridPane minWidth="-Infinity" prefHeight="674.0" prefWidth="1300.0" BorderPane.alignment="CENTER">
            <columnConstraints>
              <ColumnConstraints hgrow="SOMETIMES" maxWidth="560.0" minWidth="560.0" prefWidth="560.0" />
-             <ColumnConstraints hgrow="SOMETIMES" maxWidth="625.0" minWidth="625.0" prefWidth="625.0" />
+             <ColumnConstraints hgrow="SOMETIMES" maxWidth="590.0" minWidth="590.0" prefWidth="590.0" />
                <ColumnConstraints hgrow="SOMETIMES" />
            </columnConstraints>
            <rowConstraints>
@@ -67,7 +68,7 @@
                  </columns>
                </TableView>
                <Button maxHeight="-Infinity" mnemonicParsing="false" text="Button" GridPane.rowIndex="2" />
-               <TableView fx:id="fxmlTableViewRevenue" maxHeight="1.7976931348623157E308" maxWidth="625.0" minWidth="625.0" prefHeight="892.0" prefWidth="625.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <TableView fx:id="fxmlTableViewRevenue" maxHeight="1.7976931348623157E308" maxWidth="590.0" minWidth="590.0" prefHeight="892.0" prefWidth="590.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                  <columns>
                    <TableColumn maxWidth="50.0" minWidth="50.0" prefWidth="50.0" text="Тикер" />
                      <TableColumn maxWidth="20.0" minWidth="20.0" prefWidth="20.0" text="D" />
@@ -77,11 +78,11 @@
                      <TableColumn maxWidth="55.0" minWidth="55.0" prefWidth="55.0" text="Прибыль" />
                    <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Цена, вход" />
                      <TableColumn maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Цена, выход" />
-                     <TableColumn maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Время, вход" />
-                     <TableColumn maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Время, выход" />
+                     <TableColumn maxWidth="80.0" minWidth="80.0" text="T вх." />
+                     <TableColumn maxWidth="80.0" minWidth="80.0" text="T вых." />
                  </columns>
                </TableView>
-               <Button maxHeight="-Infinity" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="26.0" prefWidth="341.0" text="Запустить" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+               <Button maxHeight="-Infinity" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="26.0" prefWidth="341.0" text="Запустить" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                <Label prefHeight="7.0" prefWidth="489.0" text="Портфель">
                   <font>
                      <Font name="System Bold" size="14.0" />
@@ -96,7 +97,7 @@
                   <font>
                      <Font name="System Bold" size="14.0" />
                   </font></Label>
-               <Label text="Закрытые позиции" GridPane.columnIndex="1">
+               <Label text="Закрытые сделки" GridPane.columnIndex="1">
                   <font>
                      <Font name="System Bold" size="14.0" />
                   </font>
@@ -135,13 +136,23 @@
                      </TableView>
                   </children>
                </VBox>
+               <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                  <children>
+                     <DatePicker fx:id="fxmlDatePickerOnDay" maxWidth="120.0" minWidth="120.0" onAction="#showClosedDealsOnDay" prefWidth="120.0" />
+                     <Button fx:id="fxmlButtonOnPeriod" mnemonicParsing="false" onAction="#showClosedDealsTotalByDays" text="По дням">
+                        <HBox.margin>
+                           <Insets left="5.0" />
+                        </HBox.margin>
+                     </Button>
+                  </children>
+               </HBox>
             </children>
          </GridPane>
       </center>
       <bottom>
-         <HBox maxHeight="-Infinity" minHeight="-Infinity" prefHeight="25.0" prefWidth="1094.0" BorderPane.alignment="CENTER">
+         <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="26.0">
             <children>
-                <Label fx:id="mainTradeStatusBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="29.0" prefWidth="1177.0" style="-fx-border-style: solid; -fx-border-color: #828282;" stylesheets="@main-style.css" text="StatusBar">
+                <Label fx:id="mainTradeStatusBar" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="26.0" prefWidth="2000.0" style="-fx-border-style: solid; -fx-border-color: #828282;" stylesheets="@main-style.css" text="Запущен">
                     <padding>
                         <Insets left="5.0" />
                     </padding>
@@ -149,7 +160,7 @@
                      <Insets />
                   </HBox.margin>
                 </Label>
-               <ToggleButton fx:id="modeSwitcher" maxHeight="-Infinity" minHeight="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="100.0" style="-fx-background-color: #36D100;" text="Песочница" textAlignment="CENTER" textFill="#070707" />
+               <ToggleButton fx:id="modeSwitcher" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="100.0" minHeight="-Infinity" minWidth="100.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="100.0" style="-fx-background-color: #36D100;" text="Песочница" textAlignment="CENTER" textFill="#070707" />
             </children>
          </HBox>
       </bottom>

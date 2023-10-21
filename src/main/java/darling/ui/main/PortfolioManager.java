@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,8 @@ public record PortfolioManager(TableView<PortfolioViewItem> portfolioTableView,
         Map<String, List<PortfolioViewItem>> viewItemByTicker = deals
                 .stream()
                 .map(d -> createPortfolioViewItem(d, sharesDict, lastPrices))
-                .collect(Collectors.groupingBy(PortfolioViewItem::getTicker));
+                .collect(Collectors.groupingBy(PortfolioViewItem::getTicker,
+                                               () -> new TreeMap<>(String::compareTo), Collectors.toList()));
 
         List<PortfolioViewItem> view = new ArrayList<>();
         for (Map.Entry<String, List<PortfolioViewItem>> groups : viewItemByTicker.entrySet()) {

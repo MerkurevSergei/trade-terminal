@@ -9,8 +9,6 @@ import darling.service.PortfolioService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.List;
 
@@ -52,8 +50,7 @@ public class PortfolioCommonService implements PortfolioService {
     }
 
     @Override
-    public List<Deal> getClosedDeals() {
-        LocalDateTime currentDay = LocalDateTime.now(ZoneOffset.UTC);
-        return dealRepository.getClosedDeals(currentDay.with(LocalTime.MIN), currentDay.with(LocalTime.MAX));
+    public List<Deal> getClosedDeals(LocalDateTime start, LocalDateTime end) {
+        return dealRepository.getClosedDeals(start, end);
     }
 }

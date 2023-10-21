@@ -18,6 +18,8 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
@@ -42,6 +44,11 @@ public class MainController implements Initializable {
 
     @FXML
     private TableView<RevenueViewItem> fxmlTableViewRevenue;
+    @FXML
+    private DatePicker fxmlDatePickerOnDay;
+    @FXML
+    private Button fxmlButtonOnPeriod;
+    private RevenueTableManager revenueTableManager;
 
     @FXML
     public TableView<Operation> fxmlTableViewOperations;
@@ -81,7 +88,7 @@ public class MainController implements Initializable {
         OperationsManager operationsManager = new OperationsManager(fxmlTableViewOperations, marketContext);
         PortfolioManager portfolioManager = new PortfolioManager(fxmlTableViewPortfolio, marketContext);
         ActiveOrderManager activeOrderManager = new ActiveOrderManager(fxmlTableViewActiveOrders, marketContext);
-        RevenueTableManager revenueTableManager = new RevenueTableManager(fxmlTableViewRevenue, marketContext);
+        revenueTableManager = new RevenueTableManager(fxmlTableViewRevenue, fxmlDatePickerOnDay, fxmlButtonOnPeriod, marketContext);
         mainShareManager = new MainShareManager(fxmlTableViewMainShares, marketContext);
         marketContext.addListener(operationsManager);
         marketContext.addListener(portfolioManager);
@@ -101,8 +108,25 @@ public class MainController implements Initializable {
     // ================= ДОСТУПНЫЕ ДЕЙСТВИЯ В ОСНОВНОМ ОКНЕ ================ //
     // ===================================================================== //
 
+    /**
+     * Удалить акцию из списка.
+     */
     public void deleteMainShare() {
         mainShareManager.deleteMainShare();
+    }
+
+    /**
+     * Показать список закрытых сделок за выбранный день.
+     */
+    public void showClosedDealsOnDay() {
+        revenueTableManager.calculateRevenue(true);
+    }
+
+    /**
+     * Показать прибыль по дням.
+     */
+    public void showClosedDealsTotalByDays() {
+        revenueTableManager.calculateRevenue(false);
     }
 
     // ===================================================================== //

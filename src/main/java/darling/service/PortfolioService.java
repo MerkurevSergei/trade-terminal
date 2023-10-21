@@ -3,6 +3,7 @@ package darling.service;
 import darling.domain.Deal;
 import darling.domain.Portfolio;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PortfolioService {
@@ -13,5 +14,5 @@ public interface PortfolioService {
 
     Portfolio getPortfolio();
 
-    List<Deal> getClosedDeals();
+    List<Deal> getClosedDeals(LocalDateTime start, LocalDateTime end);
 }
