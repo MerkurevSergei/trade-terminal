@@ -16,11 +16,7 @@ public final class ApplicationProperties {
     public static final String ACCOUNT_SELL = "2089739601";
     public static final List<String> ACCOUNTS = List.of(ACCOUNT_BUY, ACCOUNT_SELL);
 
-    // APPLICATION
-    public static final boolean SAND_MODE = true;
-
     // BALANCER
-    public static final boolean TRADE_ON = false;
     public static final BigDecimal PERCENT_DELTA_PROFIT_TRIGGER = new BigDecimal("0.06");
     public static final BigDecimal PERCENT_DELTA_PROFIT = new BigDecimal("0.18");
     public static final BigDecimal PERCENT_PROFIT_LAG = new BigDecimal("25");

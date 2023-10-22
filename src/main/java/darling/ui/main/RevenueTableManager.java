@@ -28,7 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static darling.context.event.Event.CLOSED_DEALS_UPDATED;
-import static darling.context.event.Event.CONTEXT_INITIALIZED;
+import static darling.context.event.Event.CONTEXT_INIT;
 import static java.time.LocalTime.MAX;
 import static java.time.ZoneOffset.UTC;
 
@@ -63,7 +63,7 @@ public record RevenueTableManager(TableView<RevenueViewItem> revenueTableView,
 
     @Override
     public void handle(Event event) {
-        if (!Set.of(CLOSED_DEALS_UPDATED, CONTEXT_INITIALIZED).contains(event)) {
+        if (!Set.of(CLOSED_DEALS_UPDATED, CONTEXT_INIT).contains(event)) {
             return;
         }
         calculateRevenue(true);

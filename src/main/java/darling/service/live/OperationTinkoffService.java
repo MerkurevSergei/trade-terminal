@@ -1,4 +1,4 @@
-package darling.service.tinkoff;
+package darling.service.live;
 
 import darling.domain.Operation;
 import darling.domain.Position;
@@ -6,9 +6,9 @@ import darling.domain.Share;
 import darling.mapper.OperationMapper;
 import darling.mapper.PositionMapper;
 import darling.mapper.TinkoffSpecialTypeMapper;
-import darling.repository.AvailableShareRepository;
-import darling.repository.OperationRepository;
-import darling.repository.PositionRepository;
+import darling.repository.db.AvailableShareRepository;
+import darling.repository.db.OperationRepository;
+import darling.repository.memory.PositionRepository;
 import darling.service.OperationService;
 import lombok.RequiredArgsConstructor;
 import ru.tinkoff.piapi.contract.v1.GetOperationsByCursorResponse;

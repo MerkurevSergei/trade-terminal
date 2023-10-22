@@ -3,18 +3,15 @@ package darling.ui.main;
 import darling.context.MarketContext;
 import darling.context.event.Event;
 import darling.context.event.EventListener;
-import darling.domain.Share;
 import darling.domain.order.Order;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-import java.util.Objects;
 import java.util.Set;
 
 import static darling.context.event.Event.CONTEXT_REFRESHED;
-import static darling.context.event.Event.MAIN_SHARES_UPDATED;
 import static darling.context.event.Event.ORDER_POSTED;
 
 public record ActiveOrderManager(TableView<Order> activeOrdersTableView,

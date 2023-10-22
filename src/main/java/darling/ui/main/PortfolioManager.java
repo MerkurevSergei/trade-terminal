@@ -24,7 +24,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static darling.context.event.Event.CONTEXT_INITIALIZED;
+import static darling.context.event.Event.CONTEXT_INIT;
 import static darling.context.event.Event.PORTFOLIO_REFRESHED;
 import static java.math.BigDecimal.ZERO;
 
@@ -54,7 +54,7 @@ public record PortfolioManager(TableView<PortfolioViewItem> portfolioTableView,
 
     @Override
     public void handle(Event event) {
-        if (!Set.of(PORTFOLIO_REFRESHED, CONTEXT_INITIALIZED).contains(event)) {
+        if (!Set.of(PORTFOLIO_REFRESHED, CONTEXT_INIT).contains(event)) {
             return;
         }
         portfolioTableView.setItems(FXCollections.observableArrayList(getView()));

@@ -1,4 +1,4 @@
-package darling.service.tinkoff;
+package darling.service.live;
 
 import darling.domain.Share;
 import darling.domain.order.Order;

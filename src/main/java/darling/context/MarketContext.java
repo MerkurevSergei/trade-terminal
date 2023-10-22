@@ -12,7 +12,7 @@ import darling.domain.Share;
 import darling.domain.order.Order;
 import darling.service.HistoryService;
 import darling.service.InstrumentService;
-import darling.service.MarketDataService;
+import darling.service.LastPriceService;
 import darling.service.OperationService;
 import darling.service.OrderService;
 import darling.service.PortfolioService;
@@ -37,54 +37,61 @@ public class MarketContext extends EventSubscriber {
     private final ScheduledExecutorService executorService;
     private final HistoryService historyService;
     private final InstrumentService instrumentService;
-    private final MarketDataService marketDataService;
+    private final LastPriceService lastPriceService;
     private final OperationService operationService;
     private final OrderService orderService;
     private final PortfolioService portfolioService;
-    private final boolean sandMode;
 
     public MarketContext(boolean sandMode) {
-        super(sandMode);
-        this.sandMode = sandMode;
         BeanFactory beanFactory = new BeanFactory(sandMode);
         this.executorService = Executors.newSingleThreadScheduledExecutor();
         this.historyService = beanFactory.getHistoryService();
         this.instrumentService = beanFactory.getInstrumentService();
-        this.marketDataService = beanFactory.getMarketDataService();
+        this.lastPriceService = beanFactory.getLastPriceService();
         this.operationService = beanFactory.getOperationService();
         this.orderService = beanFactory.getOrderService();
         this.portfolioService = beanFactory.getPortfolioService();
     }
 
-    public void start() {
-        notifyLive(Event.CONTEXT_INITIALIZED);
-        if (sandMode) startSandMode();
-        else startLiveMode();
+    public void start(boolean sandMode, boolean robotOn) {
+        notify(Event.CONTEXT_INIT);
+        if (sandMode) {
+            startSandMode(robotOn);
+        } else {
+            startLiveMode();
+        }
     }
 
-    private void startSandMode() {
+    private void startSandMode(boolean robotOn) {
+        executorService.scheduleWithFixedDelay(() -> {
+            try {
+                syncLiveLastPrices(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, 100, 5000, MILLISECONDS);
+
         //while (syncLastPrices()) {
-            //syncOperations();
-            //refreshPortfolio();
+        //syncOperations();
+        //refreshPortfolio();
         //}
-        notifySand(Event.CONTEXT_REFRESHED);
     }
 
     private void startLiveMode() {
         executorService.scheduleWithFixedDelay(() -> {
             try {
-                syncOperations();
-                syncLastPrices();
+                syncOperations(true);
+                syncLiveLastPrices(true);
                 // syncPositions(); - итоговые позиции, понадобятся для сверки портфеля
-                refreshPortfolio();
-                notifyLive(Event.CONTEXT_REFRESHED);
+                refreshPortfolio(true);
+                notify(Event.CONTEXT_REFRESHED);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }, 100, 2500, MILLISECONDS);
     }
 
-    public void stop() {
+    public void stop(boolean sandMode) {
         if (sandMode) return;
         executorService.shutdown();
         try {
@@ -117,7 +124,7 @@ public class MarketContext extends EventSubscriber {
 
     public void addMainShare(MainShare share) {
         instrumentService.addMainShare(share);
-        notifyLive(Event.MAIN_SHARES_UPDATED);
+        notify(Event.MAIN_SHARES_UPDATED);
     }
 
     public List<MainShare> getMainShares() {
@@ -126,7 +133,7 @@ public class MarketContext extends EventSubscriber {
 
     public void deleteMainShare(MainShare share) {
         instrumentService.deleteMainShare(share);
-        notifyLive(Event.MAIN_SHARES_UPDATED);
+        notify(Event.MAIN_SHARES_UPDATED);
     }
 
     // ===================================================================== //
@@ -139,17 +146,18 @@ public class MarketContext extends EventSubscriber {
 
     public void savePortfolio(Portfolio portfolio) {
         portfolioService.savePortfolio(portfolio);
-        notifyLive(Event.PORTFOLIO_REFRESHED);
+        notify(Event.PORTFOLIO_REFRESHED);
     }
 
     public List<Deal> getClosedDeals(LocalDateTime start, LocalDateTime end) {
         return portfolioService.getClosedDeals(start, end);
     }
 
-    private void refreshPortfolio() {
+    private void refreshPortfolio(boolean needNotify) {
         boolean hasClosedDeals = portfolioService.refreshPortfolio();
-        notifyLive(Event.PORTFOLIO_REFRESHED);
-        if (hasClosedDeals) notifyLive(Event.CLOSED_DEALS_UPDATED);
+        if (!needNotify) return;
+        notify(Event.PORTFOLIO_REFRESHED);
+        if (hasClosedDeals) notify(Event.CLOSED_DEALS_UPDATED);
     }
 
     public List<Position> getPositions() {
@@ -158,7 +166,7 @@ public class MarketContext extends EventSubscriber {
 
     public void syncPositions() {
         operationService.syncPositions();
-        notifyLive(Event.POSITION_UPDATED);
+        notify(Event.POSITION_UPDATED);
     }
 
     // ===================================================================== //
@@ -169,9 +177,10 @@ public class MarketContext extends EventSubscriber {
         return operationService.getAllOperations();
     }
 
-    public void syncOperations() {
+    public void syncOperations(boolean needNotify) {
         boolean haveNew = operationService.syncOperations();
-        if (haveNew) notifyLive(Event.OPERATION_UPDATED);
+        if (!needNotify) return;
+        if (haveNew) notify(Event.OPERATION_UPDATED);
     }
 
     // ===================================================================== //
@@ -189,23 +198,25 @@ public class MarketContext extends EventSubscriber {
     public void postOrder(String instrumentId, long quantity, BigDecimal price, OrderDirection direction,
                           String accountId, OrderType type) {
         orderService.postOrder(instrumentId, quantity, price, direction, accountId, type);
-        notifyLive(Event.ORDER_POSTED);
+        notify(Event.ORDER_POSTED);
     }
 
     // ===================================================================== //
     // ============================= КОТИРОВКИ ============================= //
     // ===================================================================== //
 
-    private void syncLastPrices() {
-        marketDataService.syncLastPrices(instrumentService.getMainShares());
+    private void syncLiveLastPrices(boolean needNotify) {
+        lastPriceService.syncLastPrices(instrumentService.getMainShares());
+        if (!needNotify) return;
+        notify(Event.LAST_PRICES_UPDATED);
     }
 
     public List<LastPrice> getLastPrices() {
-        return marketDataService.getLastPrices();
+        return lastPriceService.getLastPrices();
     }
 
     public Optional<LastPrice> getLastPrice(String instrumentUid) {
-        return marketDataService.getLastPrice(instrumentUid);
+        return lastPriceService.getLastPrice(instrumentUid);
     }
 
     public void cancelOrder(String orderId, String accountId) {

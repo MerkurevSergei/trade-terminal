@@ -1,4 +1,4 @@
-package darling.repository;
+package darling.repository.memory;
 
 import darling.domain.LastPrice;
 
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public record LastPriceRepository(List<LastPrice> lastPrices) {
+public record LastPriceMemoryRepository(List<LastPrice> lastPrices) {
 
     public void saveAll(List<LastPrice> lastPrices) {
         this.lastPrices.clear();

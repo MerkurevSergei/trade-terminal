@@ -1,12 +1,12 @@
-package darling.service.tinkoff;
+package darling.service.common;
 
 import darling.domain.HistoricPoint;
 import darling.mapper.TinkoffSpecialTypeMapper;
 import darling.service.HistoryService;
-import darling.service.MarketDataService;
 import lombok.RequiredArgsConstructor;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
+import ru.tinkoff.piapi.core.MarketDataService;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -21,10 +21,15 @@ public class HistoryTinkoffService implements HistoryService {
     private final MarketDataService marketDataService;
 
     @Override
+    public List<HistoricCandle> getCandles(String instrumentUid, Instant from, Instant to, CandleInterval candleIntervalDay) {
+        return marketDataService.getCandles(instrumentUid, from, to, CandleInterval.CANDLE_INTERVAL_DAY).join();
+    }
+
+    @Override
     public List<HistoricCandle> getDailyCandles(String figi, LocalDateTime start, LocalDateTime end) {
         Instant from = Instant.ofEpochSecond(start.toEpochSecond(ZoneOffset.UTC));
         Instant to = Instant.ofEpochSecond(end.toEpochSecond(ZoneOffset.UTC));
-        return marketDataService.getCandles(figi, from, to, CandleInterval.CANDLE_INTERVAL_DAY);
+        return getCandles(figi, from, to, CandleInterval.CANDLE_INTERVAL_DAY);
     }
 
     @Override
@@ -50,7 +55,7 @@ public class HistoryTinkoffService implements HistoryService {
         for (LocalDateTime i = start; i.isBefore(end); i = i.plusDays(1L)) {
             Instant from = Instant.ofEpochSecond(i.toEpochSecond(ZoneOffset.UTC));
             Instant to = Instant.ofEpochSecond(i.plusDays(1L).toEpochSecond(ZoneOffset.UTC));
-            List<HistoricCandle> mins = marketDataService.getCandles(figi, from, to, CandleInterval.CANDLE_INTERVAL_1_MIN);
+            List<HistoricCandle> mins = getCandles(figi, from, to, CandleInterval.CANDLE_INTERVAL_1_MIN);
             candles.addAll(mins);
         }
         return candles;
@@ -72,4 +77,5 @@ public class HistoryTinkoffService implements HistoryService {
         }
         return points;
     }
+
 }

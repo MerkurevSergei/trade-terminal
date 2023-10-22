@@ -12,7 +12,7 @@ import javafx.scene.control.TableView;
 
 import java.util.Set;
 
-import static darling.context.event.Event.CONTEXT_INITIALIZED;
+import static darling.context.event.Event.CONTEXT_INIT;
 import static darling.context.event.Event.OPERATION_UPDATED;
 
 public record OperationsManager(TableView<Operation> operationsTableView,
@@ -31,7 +31,7 @@ public record OperationsManager(TableView<Operation> operationsTableView,
 
     @Override
     public void handle(Event event) {
-        if (!Set.of(OPERATION_UPDATED, CONTEXT_INITIALIZED).contains(event)) {
+        if (!Set.of(OPERATION_UPDATED, CONTEXT_INIT).contains(event)) {
             return;
         }
         operationsTableView.setItems(FXCollections.observableArrayList(marketContext.getOperations()));

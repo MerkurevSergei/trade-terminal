@@ -3,8 +3,8 @@ package darling.service.common;
 import darling.domain.Deal;
 import darling.domain.Operation;
 import darling.domain.Portfolio;
-import darling.repository.DealRepository;
-import darling.repository.OperationRepository;
+import darling.repository.db.DealRepository;
+import darling.repository.db.OperationRepository;
 import darling.service.PortfolioService;
 import lombok.RequiredArgsConstructor;
 
@@ -15,9 +15,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PortfolioCommonService implements PortfolioService {
 
-    private final DealRepository dealRepository = new DealRepository();
+    private final DealRepository dealRepository;
 
-    private final OperationRepository operationRepository = new OperationRepository();
+    private final OperationRepository operationRepository;
 
     /**
      * Возвращает признак наличия закрытых сделок на шаге.

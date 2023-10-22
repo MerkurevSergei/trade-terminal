@@ -1,4 +1,4 @@
-package darling.repository;
+package darling.repository.memory;
 
 import darling.domain.Position;
 

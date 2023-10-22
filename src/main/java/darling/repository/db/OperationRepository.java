@@ -1,4 +1,4 @@
-package darling.repository;
+package darling.repository.db;
 
 import darling.domain.Operation;
 import lombok.Synchronized;

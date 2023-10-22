@@ -1,8 +1,9 @@
 package darling.context.event;
 
 public enum Event {
-    CONTEXT_INITIALIZED,
+    CONTEXT_INIT,
     CONTEXT_REFRESHED,
+    LAST_PRICES_UPDATED,
     MAIN_SHARES_UPDATED,
     OPERATION_UPDATED,
     ORDER_POSTED,

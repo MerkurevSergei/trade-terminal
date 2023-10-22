@@ -1,10 +1,10 @@
-package darling.service.tinkoff;
+package darling.service.live;
 
 import darling.domain.MainShare;
 import darling.domain.Share;
 import darling.mapper.ShareMapper;
-import darling.repository.AvailableShareRepository;
-import darling.repository.MainShareRepository;
+import darling.repository.db.AvailableShareRepository;
+import darling.repository.db.MainShareRepository;
 import darling.service.InstrumentService;
 import lombok.RequiredArgsConstructor;
 import ru.tinkoff.piapi.contract.v1.InstrumentStatus;

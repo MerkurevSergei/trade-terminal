@@ -17,7 +17,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static darling.context.event.Event.CONTEXT_REFRESHED;
+import static darling.context.event.Event.CONTEXT_INIT;
+import static darling.context.event.Event.LAST_PRICES_UPDATED;
 import static darling.context.event.Event.MAIN_SHARES_UPDATED;
 import static java.math.RoundingMode.HALF_UP;
 
@@ -42,7 +43,7 @@ public record MainShareManager(TableView<MainShareView> mainSharesTableView,
 
     @Override
     public void handle(Event event) {
-        if (!Set.of(MAIN_SHARES_UPDATED, CONTEXT_REFRESHED).contains(event)) {
+        if (!Set.of(MAIN_SHARES_UPDATED, LAST_PRICES_UPDATED, CONTEXT_INIT).contains(event)) {
             return;
         }
         Map<String, LastPrice> lastPriceDict = marketContext.getLastPrices()

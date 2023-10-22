@@ -27,10 +27,11 @@ import javafx.util.Duration;
 import lombok.Getter;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
-
-import static darling.shared.ApplicationProperties.SAND_MODE;
-import static darling.shared.ApplicationProperties.TRADE_ON;
 
 @Getter
 public class MainController implements Initializable {
@@ -57,15 +58,15 @@ public class MainController implements Initializable {
     private TableView<Order> fxmlTableViewActiveOrders;
 
     // ===================================================================== //
-    // ========== БЛОК ИНИЦИАЛИЗАЦИИ И ПЕРЕКЛЮЧЕНИЯ РЕЖИМА РАБОТЫ ========== //
+    // ======================== БЛОК ИНИЦИАЛИЗАЦИИ ========================= //
     // ===================================================================== //
 
     private MarketContext marketContext;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        modeSwitcher.setOnAction(event -> initMarket(modeSwitcher.isSelected()));
-        initMarket(SAND_MODE);
+        fxmlDatePickerEmulateEnd.setValue(LocalDate.now(ZoneOffset.UTC));
+        initMarket(true, false);
         Thread.setDefaultUncaughtExceptionHandler(
                 (thread, exception) -> {
                     exception.printStackTrace();
@@ -78,11 +79,11 @@ public class MainController implements Initializable {
      * Настраивает и запускает контекст приложения, красит кнопочку.
      *
      * @param sandMode true - режим тестирования / false - режим торговли на бирже.
+     * @param robotOn  true - робот может торговать, false - робот не может торговать.
      */
-    private void initMarket(boolean sandMode) {
-        changeUiModeSwitcher(sandMode);
+    private void initMarket(boolean sandMode, boolean robotOn) {
         if (marketContext != null) {
-            marketContext.stop();
+            marketContext.stop(sandMode);
         }
         marketContext = new MarketContext(sandMode);
         OperationsManager operationsManager = new OperationsManager(fxmlTableViewOperations, marketContext);
@@ -95,13 +96,91 @@ public class MainController implements Initializable {
         marketContext.addListener(mainShareManager);
         marketContext.addListener(activeOrderManager);
         marketContext.addListener(revenueTableManager);
-        if (TRADE_ON) {
-            marketContext.getMainShares()
-                    .stream()
-                    .filter(MainShare::isTrade)
-                    .forEach(tradingShare -> marketContext.addListener(new Balancer2(marketContext, tradingShare)));
+        robotOnOff(sandMode, robotOn);
+        marketContext.start(sandMode, robotOn);
+    }
+
+    private void robotOnOff(boolean sandMode, boolean robotOn) {
+        if (!robotOn) {
+            robots.forEach(marketContext::removeListener);
+            robots.clear();
+            return;
         }
-        marketContext.start();
+        List<MainShare> tradingShares = new ArrayList<>();
+        if (sandMode) {
+            MainShare selectedItem = fxmlTableViewMainShares.getSelectionModel().getSelectedItem().share();
+            tradingShares.add(selectedItem);
+        } else {
+            tradingShares = marketContext.getMainShares().stream().filter(MainShare::isTrade).toList();
+        }
+        for (MainShare tradingShare : tradingShares) {
+            Balancer2 balancer2 = new Balancer2(marketContext, tradingShare);
+            robots.add(balancer2);
+            marketContext.addListener(balancer2);
+        }
+    }
+
+    // ===================================================================== //
+    // ==================== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ РАБОТЫ ==================== //
+    // ===================================================================== //
+
+    @FXML
+    public ToggleButton fxmlModeSwitcher;
+    @FXML
+    public ToggleButton fxmlToggleOnOffRobot;
+    @FXML
+    public Button fxmlButtonStartEmulateOnHistory;
+    @FXML
+    public DatePicker fxmlDatePickerEmulateEnd;
+
+    private final List<Balancer2> robots = new ArrayList<>();
+
+    /**
+     * Переключение режима песочница / торговля.
+     */
+    public void fxmlSwitchSandLive() {
+        boolean isSandMode = !fxmlModeSwitcher.isSelected();
+        initMarket(isSandMode, false);
+        if (isSandMode) {
+            fxmlModeSwitcher.setText("Песочница");
+            fxmlModeSwitcher.setStyle("-fx-background-color:#36D100");
+
+            fxmlToggleOnOffRobot.setDisable(true);
+            fxmlToggleOnOffRobot.setSelected(false);
+            fxmlToggleOnOffRobot.setText("Запустить робота");
+
+            fxmlButtonStartEmulateOnHistory.setDisable(false);
+            fxmlDatePickerEmulateEnd.setDisable(false);
+        } else {
+            fxmlModeSwitcher.setText("Торговля");
+            fxmlModeSwitcher.setStyle("-fx-background-color:red");
+
+            fxmlToggleOnOffRobot.setDisable(false);
+
+            fxmlButtonStartEmulateOnHistory.setDisable(true);
+            fxmlDatePickerEmulateEnd.setDisable(true);
+        }
+    }
+
+    /**
+     * Запустить робота для торговли в режиме реального времени.
+     */
+    public void fxmlRobotOnOff() {
+        boolean isSandMode = !fxmlModeSwitcher.isSelected();
+        boolean robotTradeOn = fxmlToggleOnOffRobot.isSelected();
+        initMarket(isSandMode, robotTradeOn);
+        if (robotTradeOn) {
+            fxmlToggleOnOffRobot.setText("Остановить робота");
+        } else {
+            fxmlToggleOnOffRobot.setText("Запустить робота");
+        }
+    }
+
+    /**
+     * Запустить расчет на исторических данных.
+     */
+    public void fxmlStartEmulationOnHistory() {
+        initMarket(true, true);
     }
 
     // ===================================================================== //
@@ -111,21 +190,21 @@ public class MainController implements Initializable {
     /**
      * Удалить акцию из списка.
      */
-    public void deleteMainShare() {
+    public void fxmlDeleteMainShare() {
         mainShareManager.deleteMainShare();
     }
 
     /**
      * Показать список закрытых сделок за выбранный день.
      */
-    public void showClosedDealsOnDay() {
+    public void fxmlShowClosedDealsOnDay() {
         revenueTableManager.calculateRevenue(true);
     }
 
     /**
      * Показать прибыль по дням.
      */
-    public void showClosedDealsTotalByDays() {
+    public void fxmlShowClosedDealsTotalByDays() {
         revenueTableManager.calculateRevenue(false);
     }
 
@@ -164,20 +243,6 @@ public class MainController implements Initializable {
             mainTradeStatusBar.getStyleClass().remove("error-status");
         });
         pause.play();
-    }
-
-    @FXML
-    public ToggleButton modeSwitcher;
-
-    private void changeUiModeSwitcher(boolean sandMode) {
-        modeSwitcher.setSelected(sandMode);
-        if (sandMode) {
-            modeSwitcher.setText("Песочница");
-            modeSwitcher.setStyle("-fx-background-color:#36D100");
-        } else {
-            modeSwitcher.setText("Торговля");
-            modeSwitcher.setStyle("-fx-background-color:red");
-        }
     }
 
     private Throwable getRootCause(Throwable throwable) {

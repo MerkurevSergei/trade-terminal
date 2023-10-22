@@ -1,11 +1,11 @@
 package darling.robot.balancer;
 
-import darling.service.OrderService;
-import darling.service.sand.OrderSandService;
-import darling.domain.order.OrderDirection;
 import darling.domain.Bet;
 import darling.domain.HistoricPoint;
+import darling.domain.order.OrderDirection;
 import darling.robot.Robot;
+import darling.service.OrderService;
+import darling.service.sand.OrderSandService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -23,8 +23,6 @@ public final class Balancer implements Robot {
 
     private final List<Bet> bets = new ArrayList<>();
 
-    private final List<StatRecord> stat = new ArrayList<>();
-
     private final BigDecimal profitDelta;
 
     private final BigDecimal levelGap;
@@ -35,16 +33,6 @@ public final class Balancer implements Robot {
         this.instrumentUid = instrumentUid;
         this.profitDelta = profitDelta;
         this.levelGap = levelGap;
-    }
-
-    public List<StatRecord> getProfitSum(List<HistoricPoint> points) {
-        if (points.isEmpty()) {
-            return stat;
-        }
-
-        points.forEach(this::doStep);
-        closeMarket(points.get(points.size() - 1));
-        return stat;
     }
 
     /**
@@ -87,7 +75,6 @@ public final class Balancer implements Robot {
                 if (currentProfit.compareTo(profitBetIfPriceBit) < 0) {
                     profitList.add(bet);
                     BigDecimal profitPercent = profitBetIfPriceBit.divide(bet.getPrice(), bet.getPrice().scale(), RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
-                    stat.add(new StatRecord(bet, currentPoint.time(), profitPercent));
                     continue;
                 }
 
@@ -113,8 +100,8 @@ public final class Balancer implements Robot {
             if (lastDirection.equals(OrderDirection.DOWN) && unstoppable < 0) {
                 lastDirection = UP;
             }
-                        Bet newBet = new Bet(currentPoint.time(), currentPoint.price(), lastDirection);
-                        bets.add(newBet);
+            Bet newBet = new Bet(currentPoint.time(), currentPoint.price(), lastDirection);
+            bets.add(newBet);
             unstoppable = lastDirection.equals(UP) ? unstoppable + 1 : unstoppable - 1;
         } else if (revenue.compareTo(profitDelta) < 0) {
             OrderDirection reverseDirection = lastDirection.equals(UP) ? OrderDirection.DOWN : UP;
@@ -124,18 +111,9 @@ public final class Balancer implements Robot {
             if (reverseDirection.equals(OrderDirection.DOWN) && unstoppable < 0) {
                 reverseDirection = UP;
             }
-                        Bet newBet = new Bet(currentPoint.time(), currentPoint.price(), reverseDirection);
-                        bets.add(newBet);
+            Bet newBet = new Bet(currentPoint.time(), currentPoint.price(), reverseDirection);
+            bets.add(newBet);
             unstoppable = reverseDirection.equals(UP) ? unstoppable + 1 : unstoppable - 1;
-        }
-    }
-
-    private void closeMarket(HistoricPoint lastPoint) {
-        for (Bet bet : bets) {
-            BigDecimal profit = lastPoint.price().subtract(bet.getPrice());
-            profit = bet.getDirection().equals(OrderDirection.DOWN) ? profit.negate() : profit;
-            BigDecimal profitPercent = profit.divide(bet.getPrice(), bet.getPrice().scale(), RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
-            stat.add(new StatRecord(bet, lastPoint.time(), profitPercent));
         }
     }
 
