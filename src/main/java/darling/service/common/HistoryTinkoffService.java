@@ -1,7 +1,9 @@
 package darling.service.common;
 
 import darling.domain.HistoricPoint;
+import darling.domain.LastPrice;
 import darling.mapper.TinkoffSpecialTypeMapper;
+import darling.repository.memory.LastPriceMemoryRepository;
 import darling.service.HistoryService;
 import lombok.RequiredArgsConstructor;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
@@ -17,6 +19,8 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class HistoryTinkoffService implements HistoryService {
+
+    private final LastPriceMemoryRepository lastPriceRepository;
 
     private final MarketDataService marketDataService;
 
@@ -76,6 +80,11 @@ public class HistoryTinkoffService implements HistoryService {
             points.add(new HistoricPoint(time.plusSeconds(3), low, volume / 3));
         }
         return points;
+    }
+
+    @Override
+    public void updateLastPrice(LastPrice lastPrice) {
+        lastPriceRepository.saveAll(List.of(lastPrice));
     }
 
 }

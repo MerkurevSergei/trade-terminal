@@ -66,7 +66,7 @@ public class Balancer2 implements EventListener {
         if (optLastPrices.isEmpty()) return;
         BigDecimal lastPrice = optLastPrices.get().price();
         Portfolio portfolio = marketContext.getPortfolio();
-        List<Deal> instrumentDeals = marketContext.getPortfolio().getOpenDeals(mainShare.uid());
+        List<Deal> instrumentDeals = portfolio.getOpenDeals(mainShare.uid());
 
         instrumentDeals.forEach(deal -> {
             setTakeProfit(deal, lastPrice);

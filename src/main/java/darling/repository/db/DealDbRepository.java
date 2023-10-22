@@ -2,6 +2,7 @@ package darling.repository.db;
 
 import darling.domain.Deal;
 import darling.domain.Operation;
+import darling.repository.DealRepository;
 import ru.tinkoff.piapi.contract.v1.InstrumentType;
 import ru.tinkoff.piapi.contract.v1.OperationState;
 import ru.tinkoff.piapi.contract.v1.OperationType;
@@ -19,8 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class DealRepository {
+public class DealDbRepository implements DealRepository {
 
+    @Override
     public List<Deal> findAllOpenDeals() {
         List<Deal> deals = new ArrayList<>();
         String selectSql = "SELECT id, broker_account_id, parent_operation_id, name, date, type, description, state, " +
@@ -58,6 +60,7 @@ public class DealRepository {
         return deals;
     }
 
+    @Override
     public void refreshOpenDeals(List<Deal> deals) {
         try (Connection connection = DriverManager.getConnection("jdbc:h2:./data/darling", "sa", "")) {
             try {
@@ -85,6 +88,7 @@ public class DealRepository {
         }
     }
 
+    @Override
     public List<Deal> getClosedDeals(LocalDateTime start, LocalDateTime end) {
         List<Deal> deals = new ArrayList<>();
         String selectSql = "SELECT cd.id cd_id, cd.quantity cd_quantity, cd.take_profit_price cd_take_profit_price, " +
@@ -151,6 +155,7 @@ public class DealRepository {
         return deals;
     }
 
+    @Override
     public void saveClosedDeals(List<Deal> closedDeals) {
         try (Connection connection = DriverManager.getConnection("jdbc:h2:./data/darling", "sa", "")) {
             String insertQueueSql = "INSERT INTO closed_deal (id, open_operation_id, close_operation_id, open_date, close_date, quantity, take_profit_price) " +

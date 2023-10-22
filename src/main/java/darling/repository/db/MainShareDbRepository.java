@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class MainShareRepository {
+public class MainShareDbRepository {
 
     @Synchronized
     public void save(MainShare share) {

@@ -5,7 +5,7 @@ import darling.domain.Position;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PositionRepository {
+public class PositionMemoryRepository {
 
     private final List<Position> positions = new ArrayList<>();
 

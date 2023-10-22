@@ -3,6 +3,7 @@ package darling.context;
 import darling.context.event.Event;
 import darling.context.event.EventSubscriber;
 import darling.domain.Deal;
+import darling.domain.HistoricPoint;
 import darling.domain.LastPrice;
 import darling.domain.MainShare;
 import darling.domain.Operation;
@@ -34,15 +35,17 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 @Slf4j
 public class MarketContext extends EventSubscriber {
 
-    private final ScheduledExecutorService executorService;
+    private ScheduledExecutorService executorService;
     private final HistoryService historyService;
     private final InstrumentService instrumentService;
-    private final LastPriceService lastPriceService;
     private final OperationService operationService;
     private final OrderService orderService;
     private final PortfolioService portfolioService;
+    private final boolean sandMode;
+    private final LastPriceService lastPriceService;
 
     public MarketContext(boolean sandMode) {
+        this.sandMode = sandMode;
         BeanFactory beanFactory = new BeanFactory(sandMode);
         this.executorService = Executors.newSingleThreadScheduledExecutor();
         this.historyService = beanFactory.getHistoryService();
@@ -53,37 +56,15 @@ public class MarketContext extends EventSubscriber {
         this.portfolioService = beanFactory.getPortfolioService();
     }
 
-    public void start(boolean sandMode, boolean robotOn) {
+    public void start() {
         notify(Event.CONTEXT_INIT);
-        if (sandMode) {
-            startSandMode(robotOn);
-        } else {
-            startLiveMode();
-        }
-    }
-
-    private void startSandMode(boolean robotOn) {
-        executorService.scheduleWithFixedDelay(() -> {
+        this.executorService = Executors.newSingleThreadScheduledExecutor();
+        this.executorService.scheduleWithFixedDelay(() -> {
             try {
-                syncLiveLastPrices(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }, 100, 5000, MILLISECONDS);
-
-        //while (syncLastPrices()) {
-        //syncOperations();
-        //refreshPortfolio();
-        //}
-    }
-
-    private void startLiveMode() {
-        executorService.scheduleWithFixedDelay(() -> {
-            try {
-                syncOperations(true);
-                syncLiveLastPrices(true);
+                syncOperations();
+                syncLiveLastPrices();
                 // syncPositions(); - итоговые позиции, понадобятся для сверки портфеля
-                refreshPortfolio(true);
+                refreshPortfolio();
                 notify(Event.CONTEXT_REFRESHED);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -91,8 +72,21 @@ public class MarketContext extends EventSubscriber {
         }, 100, 2500, MILLISECONDS);
     }
 
-    public void stop(boolean sandMode) {
-        if (sandMode) return;
+    public void rewindHistory(String instrumentUid, LocalDateTime start, LocalDateTime end) {
+        if (instrumentUid == null) throw new IllegalStateException("Не выбрана акция для загрузки истории");
+        if (!sandMode) return;
+        stop();
+        List<HistoricPoint> historicPoints = historyService.getMinutePointsByDay(instrumentUid, start, end);
+        for (HistoricPoint point : historicPoints) {
+            historyService.updateLastPrice(new LastPrice(instrumentUid, point.price(), point.time()));
+            syncOperations();
+            refreshPortfolio();
+            notify(Event.CONTEXT_REFRESHED);
+        }
+        start();
+    }
+
+    public void stop() {
         executorService.shutdown();
         try {
             boolean isCompleted = executorService.awaitTermination(1, TimeUnit.MINUTES);
@@ -153,9 +147,9 @@ public class MarketContext extends EventSubscriber {
         return portfolioService.getClosedDeals(start, end);
     }
 
-    private void refreshPortfolio(boolean needNotify) {
+    private void refreshPortfolio() {
         boolean hasClosedDeals = portfolioService.refreshPortfolio();
-        if (!needNotify) return;
+        if (sandMode) return;
         notify(Event.PORTFOLIO_REFRESHED);
         if (hasClosedDeals) notify(Event.CLOSED_DEALS_UPDATED);
     }
@@ -177,9 +171,9 @@ public class MarketContext extends EventSubscriber {
         return operationService.getAllOperations();
     }
 
-    public void syncOperations(boolean needNotify) {
+    public void syncOperations() {
         boolean haveNew = operationService.syncOperations();
-        if (!needNotify) return;
+        if (sandMode) return;
         if (haveNew) notify(Event.OPERATION_UPDATED);
     }
 
@@ -205,9 +199,8 @@ public class MarketContext extends EventSubscriber {
     // ============================= КОТИРОВКИ ============================= //
     // ===================================================================== //
 
-    private void syncLiveLastPrices(boolean needNotify) {
+    private void syncLiveLastPrices() {
         lastPriceService.syncLastPrices(instrumentService.getMainShares());
-        if (!needNotify) return;
         notify(Event.LAST_PRICES_UPDATED);
     }
 

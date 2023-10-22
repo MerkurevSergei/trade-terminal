@@ -19,6 +19,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
@@ -32,6 +33,8 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import static java.time.LocalTime.MAX;
 
 @Getter
 public class MainController implements Initializable {
@@ -65,6 +68,7 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        fxmlDatePickerEmulateStart.setValue(LocalDate.now(ZoneOffset.UTC).minusDays(30));
         fxmlDatePickerEmulateEnd.setValue(LocalDate.now(ZoneOffset.UTC));
         initMarket(true, false);
         Thread.setDefaultUncaughtExceptionHandler(
@@ -83,24 +87,30 @@ public class MainController implements Initializable {
      */
     private void initMarket(boolean sandMode, boolean robotOn) {
         if (marketContext != null) {
-            marketContext.stop(sandMode);
+            marketContext.stop();
         }
         marketContext = new MarketContext(sandMode);
+        ActiveOrderManager activeOrderManager = new ActiveOrderManager(fxmlTableViewActiveOrders, marketContext);
         OperationsManager operationsManager = new OperationsManager(fxmlTableViewOperations, marketContext);
         PortfolioManager portfolioManager = new PortfolioManager(fxmlTableViewPortfolio, marketContext);
-        ActiveOrderManager activeOrderManager = new ActiveOrderManager(fxmlTableViewActiveOrders, marketContext);
         revenueTableManager = new RevenueTableManager(fxmlTableViewRevenue, fxmlDatePickerOnDay, fxmlButtonOnPeriod, marketContext);
         mainShareManager = new MainShareManager(fxmlTableViewMainShares, marketContext);
+        marketContext.addListener(activeOrderManager);
         marketContext.addListener(operationsManager);
         marketContext.addListener(portfolioManager);
         marketContext.addListener(mainShareManager);
-        marketContext.addListener(activeOrderManager);
         marketContext.addListener(revenueTableManager);
-        robotOnOff(sandMode, robotOn);
-        marketContext.start(sandMode, robotOn);
+        addRobotToMarketContext(sandMode, robotOn);
+        marketContext.start();
+        if (sandMode && robotOn) {
+            marketContext.rewindHistory(fxmlChoiceTestShare.getValue().uid(),
+                                        fxmlDatePickerEmulateStart.getValue().atStartOfDay(),
+                                        fxmlDatePickerEmulateEnd.getValue().atTime(MAX));
+        }
+        fxmlChoiceTestShare.getItems().addAll(marketContext.getMainShares().stream().toList());
     }
 
-    private void robotOnOff(boolean sandMode, boolean robotOn) {
+    private void addRobotToMarketContext(boolean sandMode, boolean robotOn) {
         if (!robotOn) {
             robots.forEach(marketContext::removeListener);
             robots.clear();
@@ -108,8 +118,9 @@ public class MainController implements Initializable {
         }
         List<MainShare> tradingShares = new ArrayList<>();
         if (sandMode) {
-            MainShare selectedItem = fxmlTableViewMainShares.getSelectionModel().getSelectedItem().share();
-            tradingShares.add(selectedItem);
+            if (fxmlChoiceTestShare.getValue() == null)
+                throw new IllegalStateException("Не выбрана акция для загрузки истории");
+            tradingShares.add(fxmlChoiceTestShare.getValue());
         } else {
             tradingShares = marketContext.getMainShares().stream().filter(MainShare::isTrade).toList();
         }
@@ -129,9 +140,11 @@ public class MainController implements Initializable {
     @FXML
     public ToggleButton fxmlToggleOnOffRobot;
     @FXML
-    public Button fxmlButtonStartEmulateOnHistory;
+    public DatePicker fxmlDatePickerEmulateStart;
     @FXML
     public DatePicker fxmlDatePickerEmulateEnd;
+    @FXML
+    public ChoiceBox<MainShare> fxmlChoiceTestShare;
 
     private final List<Balancer2> robots = new ArrayList<>();
 
@@ -145,25 +158,22 @@ public class MainController implements Initializable {
             fxmlModeSwitcher.setText("Песочница");
             fxmlModeSwitcher.setStyle("-fx-background-color:#36D100");
 
-            fxmlToggleOnOffRobot.setDisable(true);
             fxmlToggleOnOffRobot.setSelected(false);
             fxmlToggleOnOffRobot.setText("Запустить робота");
 
-            fxmlButtonStartEmulateOnHistory.setDisable(false);
+            fxmlDatePickerEmulateStart.setDisable(false);
             fxmlDatePickerEmulateEnd.setDisable(false);
         } else {
             fxmlModeSwitcher.setText("Торговля");
             fxmlModeSwitcher.setStyle("-fx-background-color:red");
 
-            fxmlToggleOnOffRobot.setDisable(false);
-
-            fxmlButtonStartEmulateOnHistory.setDisable(true);
+            fxmlDatePickerEmulateStart.setDisable(true);
             fxmlDatePickerEmulateEnd.setDisable(true);
         }
     }
 
     /**
-     * Запустить робота для торговли в режиме реального времени.
+     * Запустить робота.
      */
     public void fxmlRobotOnOff() {
         boolean isSandMode = !fxmlModeSwitcher.isSelected();
@@ -174,13 +184,6 @@ public class MainController implements Initializable {
         } else {
             fxmlToggleOnOffRobot.setText("Запустить робота");
         }
-    }
-
-    /**
-     * Запустить расчет на исторических данных.
-     */
-    public void fxmlStartEmulationOnHistory() {
-        initMarket(true, true);
     }
 
     // ===================================================================== //

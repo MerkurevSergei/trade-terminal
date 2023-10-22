@@ -6,9 +6,9 @@ import darling.domain.Share;
 import darling.mapper.OperationMapper;
 import darling.mapper.PositionMapper;
 import darling.mapper.TinkoffSpecialTypeMapper;
-import darling.repository.db.AvailableShareRepository;
-import darling.repository.db.OperationRepository;
-import darling.repository.memory.PositionRepository;
+import darling.repository.OperationRepository;
+import darling.repository.db.AvailableShareDbRepository;
+import darling.repository.memory.PositionMemoryRepository;
 import darling.service.OperationService;
 import lombok.RequiredArgsConstructor;
 import ru.tinkoff.piapi.contract.v1.GetOperationsByCursorResponse;
@@ -28,9 +28,9 @@ import static darling.shared.ApplicationProperties.ACCOUNTS;
 @RequiredArgsConstructor
 public class OperationTinkoffService implements OperationService {
 
-    private final AvailableShareRepository availableShareRepository;
+    private final AvailableShareDbRepository availableShareDbRepository;
     private final OperationRepository operationRepository;
-    private final PositionRepository positionRepository;
+    private final PositionMemoryRepository positionMemoryRepository;
     private final ru.tinkoff.piapi.core.OperationsService operationsService;
 
     @Override
@@ -45,7 +45,7 @@ public class OperationTinkoffService implements OperationService {
     public boolean syncOperations() {
         int count = 0;
         for (String account : ACCOUNTS) {
-            Instant from = TinkoffSpecialTypeMapper.map(operationRepository.getLastTime(account).minusMinutes(10));
+            Instant from = TinkoffSpecialTypeMapper.map(operationRepository.getLastOperationTime(account).minusMinutes(10));
             Instant to = TinkoffSpecialTypeMapper.map(OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime());
             GetOperationsByCursorResponse cursor = operationsService.getOperationByCursorSync(account, from, to);
             List<Operation> operationPart = cursor.getItemsList().stream().map(OperationMapper.INST::map).toList();
@@ -62,7 +62,7 @@ public class OperationTinkoffService implements OperationService {
 
     @Override
     public List<Position> getAllPositions() {
-        return positionRepository.findAll();
+        return positionMemoryRepository.findAll();
     }
 
     @Override
@@ -74,11 +74,11 @@ public class OperationTinkoffService implements OperationService {
             positions.addAll(positionsByAccount);
         }
         enrichPositions(positions);
-        positionRepository.saveAll(positions);
+        positionMemoryRepository.saveAll(positions);
     }
 
     private void enrichPositions(List<Position> positions) {
-        Map<String, Share> shareByFigi = availableShareRepository.findAll()
+        Map<String, Share> shareByFigi = availableShareDbRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(Share::figi, Function.identity()));
         for (Position position: positions) {

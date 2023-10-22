@@ -3,8 +3,8 @@ package darling.service.live;
 import darling.domain.MainShare;
 import darling.domain.Share;
 import darling.mapper.ShareMapper;
-import darling.repository.db.AvailableShareRepository;
-import darling.repository.db.MainShareRepository;
+import darling.repository.db.AvailableShareDbRepository;
+import darling.repository.db.MainShareDbRepository;
 import darling.service.InstrumentService;
 import lombok.RequiredArgsConstructor;
 import ru.tinkoff.piapi.contract.v1.InstrumentStatus;
@@ -17,39 +17,39 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InstrumentTinkoffService implements InstrumentService {
 
-    private final AvailableShareRepository availableShareRepository = new AvailableShareRepository();
-    private final MainShareRepository mainShareRepository = new MainShareRepository();
+    private final AvailableShareDbRepository availableShareDbRepository = new AvailableShareDbRepository();
+    private final MainShareDbRepository mainShareDbRepository = new MainShareDbRepository();
     private final ru.tinkoff.piapi.core.InstrumentsService instrumentsService;
 
     @Override
     public void syncAvailableShares() {
-        availableShareRepository.deleteAll();
+        availableShareDbRepository.deleteAll();
         List<Share> shares = ShareMapper.INST.map(instrumentsService.getSharesSync(InstrumentStatus.INSTRUMENT_STATUS_BASE));
-        availableShareRepository.saveAll(shares);
+        availableShareDbRepository.saveAll(shares);
     }
 
     @Override
     public List<Share> getAvailableShares() {
-        return availableShareRepository.findAll();
+        return availableShareDbRepository.findAll();
     }
 
     @Override
     public Map<String, Share> getAvailableSharesDict() {
-        return availableShareRepository.findAll().stream().collect(Collectors.toMap(Share::uid, Function.identity()));
+        return availableShareDbRepository.findAll().stream().collect(Collectors.toMap(Share::uid, Function.identity()));
     }
 
     @Override
     public void addMainShare(MainShare share) {
-        mainShareRepository.save(share);
+        mainShareDbRepository.save(share);
     }
 
     @Override
     public void deleteMainShare(MainShare share) {
-        mainShareRepository.deleteById(share.uid());
+        mainShareDbRepository.deleteById(share.uid());
     }
 
     @Override
     public List<MainShare> getMainShares() {
-        return mainShareRepository.getSharesAndSort();
+        return mainShareDbRepository.getSharesAndSort();
     }
 }

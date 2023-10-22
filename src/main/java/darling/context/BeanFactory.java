@@ -1,10 +1,14 @@
 package darling.context;
 
-import darling.repository.db.AvailableShareRepository;
-import darling.repository.db.DealRepository;
-import darling.repository.db.OperationRepository;
+import darling.repository.DealRepository;
+import darling.repository.OperationRepository;
+import darling.repository.db.AvailableShareDbRepository;
+import darling.repository.db.DealDbRepository;
+import darling.repository.db.OperationDbRepository;
+import darling.repository.memory.DealMemoryRepository;
 import darling.repository.memory.LastPriceMemoryRepository;
-import darling.repository.memory.PositionRepository;
+import darling.repository.memory.OperationMemoryRepository;
+import darling.repository.memory.PositionMemoryRepository;
 import darling.service.HistoryService;
 import darling.service.InstrumentService;
 import darling.service.LastPriceService;
@@ -12,16 +16,20 @@ import darling.service.OperationService;
 import darling.service.OrderService;
 import darling.service.PortfolioService;
 import darling.service.common.HistoryTinkoffService;
-import darling.service.common.PortfolioCommonService;
-import darling.service.live.InstrumentTinkoffService;
 import darling.service.common.LastPriceTinkoffService;
+import darling.service.live.InstrumentTinkoffService;
 import darling.service.live.OperationTinkoffService;
 import darling.service.live.OrderTinkoffService;
+import darling.service.live.PortfolioLiveService;
 import darling.service.sand.OperationSandService;
 import darling.service.sand.OrderSandService;
+import darling.service.sand.PortfolioSandService;
 import lombok.Getter;
+import ru.tinkoff.piapi.core.InstrumentsService;
 import ru.tinkoff.piapi.core.InvestApi;
 import ru.tinkoff.piapi.core.MarketDataService;
+import ru.tinkoff.piapi.core.OperationsService;
+import ru.tinkoff.piapi.core.OrdersService;
 
 import java.util.ArrayList;
 
@@ -36,22 +44,26 @@ public final class BeanFactory {
     private final PortfolioService portfolioService;
     private final LastPriceService lastPriceService;
 
-    public static final InvestApi TINKOFF_CLIENT = InvestApi.create(TINKOFF_TOKEN);
+    private static final InvestApi TINKOFF_CLIENT = InvestApi.create(TINKOFF_TOKEN);
 
     public BeanFactory(boolean sandMode) {
+        InstrumentsService instrumentsService = TINKOFF_CLIENT.getInstrumentsService();
         MarketDataService marketDataGrpcTinkoffService = TINKOFF_CLIENT.getMarketDataService();
+        OperationsService operationsService = TINKOFF_CLIENT.getOperationsService();
+        OrdersService ordersService = TINKOFF_CLIENT.getOrdersService();
 
-        AvailableShareRepository availableShareRepository = new AvailableShareRepository();
-        DealRepository dealRepository = new DealRepository();
+        AvailableShareDbRepository availableShareDbRepository = new AvailableShareDbRepository();
         LastPriceMemoryRepository lastPriceRepository = new LastPriceMemoryRepository(new ArrayList<>());
-        OperationRepository operationRepository = new OperationRepository();
-        PositionRepository positionRepository = new PositionRepository();
+        PositionMemoryRepository positionMemoryRepository = new PositionMemoryRepository();
+        DealRepository dealRepository = sandMode ? new DealMemoryRepository() : new DealDbRepository();
+        OperationRepository operationRepository = sandMode ? new OperationMemoryRepository() : new OperationDbRepository();
 
-        historyService = new HistoryTinkoffService(TINKOFF_CLIENT.getMarketDataService());
-        lastPriceService = new LastPriceTinkoffService(lastPriceRepository, marketDataGrpcTinkoffService);
-        instrumentService = new InstrumentTinkoffService(TINKOFF_CLIENT.getInstrumentsService());
-        operationService = sandMode ? new OperationSandService() : new OperationTinkoffService(availableShareRepository, operationRepository, positionRepository, TINKOFF_CLIENT.getOperationsService());
-        orderService = sandMode ? new OrderSandService() : new OrderTinkoffService(instrumentService, TINKOFF_CLIENT.getOrdersService());
-        portfolioService = new PortfolioCommonService(dealRepository, operationRepository);
+        this.historyService = new HistoryTinkoffService(lastPriceRepository, marketDataGrpcTinkoffService);
+        this.lastPriceService = new LastPriceTinkoffService(lastPriceRepository, marketDataGrpcTinkoffService);
+        this.instrumentService = new InstrumentTinkoffService(instrumentsService);
+        this.operationService = sandMode ? new OperationSandService() : new OperationTinkoffService(availableShareDbRepository, operationRepository,
+                                                                                                    positionMemoryRepository, operationsService);
+        this.orderService = sandMode ? new OrderSandService() : new OrderTinkoffService(this.instrumentService, ordersService);
+        this.portfolioService = sandMode ? new PortfolioSandService(dealRepository) : new PortfolioLiveService(dealRepository, operationRepository);
     }
 }

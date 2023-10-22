@@ -1,6 +1,7 @@
 package darling.repository.db;
 
 import darling.domain.Operation;
+import darling.repository.OperationRepository;
 import lombok.Synchronized;
 import ru.tinkoff.piapi.contract.v1.InstrumentType;
 import ru.tinkoff.piapi.contract.v1.OperationState;
@@ -21,10 +22,11 @@ import java.util.List;
 
 import static java.time.Month.JANUARY;
 
-public class OperationRepository {
+public class OperationDbRepository implements OperationRepository {
 
+    @Override
     @Synchronized
-    public LocalDateTime getLastTime(String account) {
+    public LocalDateTime getLastOperationTime(String account) {
         LocalDateTime lastTime = LocalDateTime.of(2020, JANUARY, 1, 0, 0, 0);
         try (Connection connection = DriverManager.getConnection("jdbc:h2:./data/darling", "sa", "")) {
             try (PreparedStatement ps = connection.prepareStatement("SELECT max(date) date FROM operation where broker_account_id = ?")) {
@@ -41,6 +43,7 @@ public class OperationRepository {
         return lastTime;
     }
 
+    @Override
     @Synchronized
     public int saveNew(List<Operation> operations) {
         List<String> newIds = operations.stream().map(Operation::id).toList();
@@ -131,6 +134,7 @@ public class OperationRepository {
         return newIds.size() - existIds.size();
     }
 
+    @Override
     public List<Operation> findAll() {
         List<Operation> operations = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection("jdbc:h2:./data/darling", "sa", "")) {
@@ -165,6 +169,7 @@ public class OperationRepository {
         return operations;
     }
 
+    @Override
     public List<Operation> popFromQueue() {
         List<Operation> operations = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection("jdbc:h2:./data/darling", "sa", "")) {
