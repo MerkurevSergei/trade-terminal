@@ -4,7 +4,7 @@ import darling.context.MarketContext;
 import darling.domain.MainShare;
 import darling.domain.Operation;
 import darling.domain.order.Order;
-import darling.robot.balancer.Balancer2;
+import darling.robot.Balancer2;
 import darling.shared.JavaFxUtils;
 import darling.ui.main.ActiveOrderManager;
 import darling.ui.main.MainShareManager;

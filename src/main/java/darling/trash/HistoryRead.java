@@ -1,7 +1,6 @@
 package darling.trash;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import darling.domain.MarketCalculator;
 import darling.trash.fromfiletrash.Quote;
 
 import java.io.BufferedReader;

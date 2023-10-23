@@ -17,6 +17,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.tinkoff.piapi.contract.v1.OperationType.OPERATION_TYPE_BUY;
+import static ru.tinkoff.piapi.contract.v1.OperationType.OPERATION_TYPE_SELL;
+
 @RequiredArgsConstructor
 public class OrderSandService implements OrderService {
 
@@ -32,9 +35,11 @@ public class OrderSandService implements OrderService {
     public void postOrder(String instrumentId, long quantity, BigDecimal price, ru.tinkoff.piapi.contract.v1.OrderDirection direction, String accountId, ru.tinkoff.piapi.contract.v1.OrderType type) {
         LastPrice lastPrice = lastPriceService.getLastPrice(instrumentId).orElseThrow();
         price = type.equals(OrderType.ORDER_TYPE_MARKET) ? lastPrice.price() : price;
+        OperationType operationType = direction.equals(OrderDirection.ORDER_DIRECTION_BUY) ? OPERATION_TYPE_BUY : OPERATION_TYPE_SELL;
+
         if (mainShare == null) {
             mainShare = instrumentService.getMainShares().stream()
-                    .filter(mainShare -> mainShare.uid().equals(instrumentId))
+                    .filter(s -> s.uid().equals(instrumentId))
                     .findAny().orElseThrow();
         }
         long quantityPieces = quantity * mainShare.lot();
@@ -42,12 +47,12 @@ public class OrderSandService implements OrderService {
                 .id(UUID.randomUUID().toString())
                 .brokerAccountId(accountId)
                 .date(lastPrice.time())
-                .type(direction.equals(OrderDirection.ORDER_DIRECTION_BUY) ? OperationType.OPERATION_TYPE_BUY : OperationType.OPERATION_TYPE_SELL)
+                .type(operationType)
                 .description(direction + " " + quantityPieces)
                 .instrumentUid(instrumentId)
                 .payment(price.multiply(BigDecimal.valueOf(quantityPieces)))
                 .price(price)
-                .commission(price.multiply(BigDecimal.valueOf(quantityPieces)).multiply(new BigDecimal("0.0005")).negate())
+                .commission(price.multiply(BigDecimal.valueOf(quantityPieces)).multiply(new BigDecimal("0.0005")).abs().negate())
                 .quantity(quantityPieces)
                 .quantityRest(0)
                 .quantityDone(quantityPieces)

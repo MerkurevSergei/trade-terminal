@@ -1,4 +1,4 @@
-package darling.domain;
+package darling.trash.v1;
 
 import darling.domain.order.OrderDirection;
 import lombok.Getter;

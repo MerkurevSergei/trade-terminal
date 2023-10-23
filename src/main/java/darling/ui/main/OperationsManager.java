@@ -10,10 +10,12 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
+import java.math.RoundingMode;
 import java.util.Set;
 
 import static darling.context.event.Event.CONTEXT_INIT;
 import static darling.context.event.Event.OPERATION_UPDATED;
+import static java.math.RoundingMode.HALF_UP;
 
 public record OperationsManager(TableView<Operation> operationsTableView,
                                 MarketContext marketContext) implements EventListener {
@@ -25,7 +27,7 @@ public record OperationsManager(TableView<Operation> operationsTableView,
         TableColumn<Operation, String> tableColumnDirection = (TableColumn<Operation, String>) operationsTableView.getColumns().get(3);
         tableColumnDate.setCellValueFactory(param -> new ReadOnlyStringWrapper(CommonUtils.formatLDT(param.getValue().date())));
         tableColumnOperation.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().description()));
-        tableColumnPayment.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().payment().toString()));
+        tableColumnPayment.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().payment().setScale(2, HALF_UP).toString()));
         tableColumnDirection.setCellValueFactory(param -> new ReadOnlyStringWrapper(CommonUtils.direction(param.getValue().brokerAccountId(), param.getValue().type())));
     }
 

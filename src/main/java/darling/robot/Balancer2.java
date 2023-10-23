@@ -1,4 +1,4 @@
-package darling.robot.balancer;
+package darling.robot;
 
 import darling.context.MarketContext;
 import darling.context.event.Event;
@@ -15,6 +15,7 @@ import ru.tinkoff.piapi.contract.v1.OrderDirection;
 import ru.tinkoff.piapi.contract.v1.OrderType;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -50,6 +51,7 @@ public class Balancer2 implements EventListener {
 
     private final boolean enableDelay;
     private LocalDateTime lastAction = LocalDateTime.now(ZoneOffset.UTC);
+    private LocalDate currentDay = LocalDate.MIN;
     private OrderDirection lastProfitOrderDirection = ORDER_DIRECTION_BUY;
 
     @Override
@@ -66,9 +68,10 @@ public class Balancer2 implements EventListener {
         if (optLastPrices.isEmpty()) {
             return;
         }
-
         BigDecimal lastPrice = optLastPrices.get().price();
         Portfolio portfolio = marketContext.getPortfolio();
+        closeDay(optLastPrices.get(), portfolio);
+
         List<Deal> instrumentDeals = portfolio.getOpenDeals(mainShare.uid());
         instrumentDeals.forEach(deal -> {
             setTakeProfit(deal, lastPrice);
@@ -138,7 +141,7 @@ public class Balancer2 implements EventListener {
         }
         OrderDirection direction = deal.getType().equals(OPERATION_TYPE_SELL) ? ORDER_DIRECTION_BUY : ORDER_DIRECTION_SELL;
         lastProfitOrderDirection = direction;
-        postOrderWithRepeatProtected(mainShare.uid(), deal.getQuantity() / mainShare.lot(), lastPrice, direction, deal.getAccountId(), ORDER_TYPE_LIMIT);
+        postOrderWithRepeatProtected(mainShare.uid(), 1L, lastPrice, direction, deal.getAccountId(), ORDER_TYPE_LIMIT);
     }
 
     private void closeFrozenOrders(List<Order> activeOrders) {
@@ -163,9 +166,9 @@ public class Balancer2 implements EventListener {
                 .mapToLong(value -> value)
                 .sum();
         if (unbalancedDeal > 0) {
-            postOrderWithRepeatProtected(mainShare.uid(), unbalancedDeal / mainShare.lot(), ZERO, ORDER_DIRECTION_SELL, ACCOUNT_SELL, ORDER_TYPE_MARKET);
+            postOrderWithRepeatProtected(mainShare.uid(), 1L, ZERO, ORDER_DIRECTION_SELL, ACCOUNT_SELL, ORDER_TYPE_MARKET);
         } else if (unbalancedDeal < 0) {
-            postOrderWithRepeatProtected(mainShare.uid(), -1 * unbalancedDeal / mainShare.lot(), ZERO, ORDER_DIRECTION_BUY, ACCOUNT_BUY, ORDER_TYPE_MARKET);
+            postOrderWithRepeatProtected(mainShare.uid(), 1L, ZERO, ORDER_DIRECTION_BUY, ACCOUNT_BUY, ORDER_TYPE_MARKET);
         } else {
             String accountId = lastProfitOrderDirection.equals(ORDER_DIRECTION_SELL) ? ACCOUNT_SELL : ACCOUNT_BUY;
             postOrderWithRepeatProtected(mainShare.uid(), 1L, ZERO, lastProfitOrderDirection, accountId, ORDER_TYPE_MARKET);
@@ -196,5 +199,18 @@ public class Balancer2 implements EventListener {
         }
         marketContext.postOrder(instrumentId, lot, price, direction, accountId, type);
         lastAction = LocalDateTime.now(ZoneOffset.UTC);
+    }
+
+    public void closeDay(LastPrice lastPrice, Portfolio portfolio) {
+        if (currentDay == null) {
+            currentDay = lastPrice.time().toLocalDate();
+            return;
+        }
+        if (ChronoUnit.DAYS.between(currentDay, lastPrice.time().toLocalDate()) > 0) {
+            for (Deal d : portfolio.getOpenDeals()) {
+                OrderDirection direction = d.getType().equals(OPERATION_TYPE_SELL) ? ORDER_DIRECTION_BUY : ORDER_DIRECTION_SELL;
+                postOrderWithRepeatProtected(d.getInstrumentUid(), d.getQuantity(), ZERO, direction, d.getAccountId(), ORDER_TYPE_MARKET);
+            }
+        }
     }
 }

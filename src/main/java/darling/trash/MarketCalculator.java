@@ -1,4 +1,4 @@
-package darling.domain;
+package darling.trash;
 
 import java.math.BigDecimal;
 
