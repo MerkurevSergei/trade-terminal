@@ -5,20 +5,28 @@ import darling.repository.OperationRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class OperationMemoryRepository implements OperationRepository {
 
-    private final List<Operation> operations = new ArrayList<>();
+    private final Set<Operation> operationAll = new HashSet<>();
+    private final Set<Operation> operationQueue = new HashSet<>();
 
     @Override
     public List<Operation> findAll() {
-        return new ArrayList<>(operations);
+        List<Operation> result = new ArrayList<>(this.operationAll);
+        result.sort(Comparator.comparing(Operation::date));
+        return result;
     }
 
     @Override
     public int saveNew(List<Operation> operations) {
-        return 0;
+        this.operationAll.addAll(operations);
+        this.operationQueue.addAll(operations);
+        return this.operationQueue.size();
     }
 
     @Override
@@ -28,6 +36,9 @@ public class OperationMemoryRepository implements OperationRepository {
 
     @Override
     public List<Operation> popFromQueue() {
-        return List.of();
+        List<Operation> result = new ArrayList<>(this.operationQueue);
+        this.operationQueue.clear();
+        result.sort(Comparator.comparing(Operation::date));
+        return result;
     }
 }

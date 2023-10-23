@@ -47,10 +47,10 @@ public final class BeanFactory {
     private static final InvestApi TINKOFF_CLIENT = InvestApi.create(TINKOFF_TOKEN);
 
     public BeanFactory(boolean sandMode) {
-        InstrumentsService instrumentsService = TINKOFF_CLIENT.getInstrumentsService();
+        InstrumentsService instrumentsGrpcTinkoffService = TINKOFF_CLIENT.getInstrumentsService();
         MarketDataService marketDataGrpcTinkoffService = TINKOFF_CLIENT.getMarketDataService();
-        OperationsService operationsService = TINKOFF_CLIENT.getOperationsService();
-        OrdersService ordersService = TINKOFF_CLIENT.getOrdersService();
+        OperationsService operationsGrpcTinkoffService = TINKOFF_CLIENT.getOperationsService();
+        OrdersService ordersGrpcTinkoffService = TINKOFF_CLIENT.getOrdersService();
 
         AvailableShareDbRepository availableShareDbRepository = new AvailableShareDbRepository();
         LastPriceMemoryRepository lastPriceRepository = new LastPriceMemoryRepository(new ArrayList<>());
@@ -60,10 +60,10 @@ public final class BeanFactory {
 
         this.historyService = new HistoryTinkoffService(lastPriceRepository, marketDataGrpcTinkoffService);
         this.lastPriceService = new LastPriceTinkoffService(lastPriceRepository, marketDataGrpcTinkoffService);
-        this.instrumentService = new InstrumentTinkoffService(instrumentsService);
-        this.operationService = sandMode ? new OperationSandService() : new OperationTinkoffService(availableShareDbRepository, operationRepository,
-                                                                                                    positionMemoryRepository, operationsService);
-        this.orderService = sandMode ? new OrderSandService() : new OrderTinkoffService(this.instrumentService, ordersService);
-        this.portfolioService = sandMode ? new PortfolioSandService(dealRepository) : new PortfolioLiveService(dealRepository, operationRepository);
+        this.instrumentService = new InstrumentTinkoffService(instrumentsGrpcTinkoffService);
+        this.operationService = sandMode ? new OperationSandService(operationRepository) : new OperationTinkoffService(availableShareDbRepository, operationRepository,
+                                                                                                                       positionMemoryRepository, operationsGrpcTinkoffService);
+        this.orderService = sandMode ? new OrderSandService(operationRepository, instrumentService, lastPriceService) : new OrderTinkoffService(this.instrumentService, ordersGrpcTinkoffService);
+        this.portfolioService = sandMode ? new PortfolioSandService(dealRepository, operationRepository) : new PortfolioLiveService(dealRepository, operationRepository);
     }
 }

@@ -61,7 +61,7 @@ public class DealDbRepository implements DealRepository {
     }
 
     @Override
-    public void refreshOpenDeals(List<Deal> deals) {
+    public void clearAndSaveOpenDeals(List<Deal> deals) {
         try (Connection connection = DriverManager.getConnection("jdbc:h2:./data/darling", "sa", "")) {
             try {
                 connection.setAutoCommit(false);

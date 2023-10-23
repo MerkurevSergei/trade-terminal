@@ -140,6 +140,7 @@ public class MarketContext extends EventSubscriber {
 
     public void savePortfolio(Portfolio portfolio) {
         portfolioService.savePortfolio(portfolio);
+        if (sandMode) return;
         notify(Event.PORTFOLIO_REFRESHED);
     }
 
@@ -192,6 +193,7 @@ public class MarketContext extends EventSubscriber {
     public void postOrder(String instrumentId, long quantity, BigDecimal price, OrderDirection direction,
                           String accountId, OrderType type) {
         orderService.postOrder(instrumentId, quantity, price, direction, accountId, type);
+        if (sandMode) return;
         notify(Event.ORDER_POSTED);
     }
 

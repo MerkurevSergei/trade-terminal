@@ -8,7 +8,7 @@ import java.util.List;
 public interface DealRepository {
     List<Deal> findAllOpenDeals();
 
-    void refreshOpenDeals(List<Deal> deals);
+    void clearAndSaveOpenDeals(List<Deal> deals);
 
     List<Deal> getClosedDeals(LocalDateTime start, LocalDateTime end);
 

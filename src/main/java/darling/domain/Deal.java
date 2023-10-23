@@ -65,14 +65,6 @@ public final class Deal {
         return closeOperation != null;
     }
 
-    public BigDecimal getOpenPayment() {
-        return openOperation.payment();
-    }
-
-    public BigDecimal getClosePayment() {
-        return closeOperation.payment();
-    }
-
     public BigDecimal getOpenPrice() {
         return openOperation.price();
     }
@@ -93,7 +85,6 @@ public final class Deal {
     public void setCloseOperation(Operation operation) {
         this.closeOperation = operation;
     }
-
 
 
     public BigDecimal getTakeProfitPrice() {

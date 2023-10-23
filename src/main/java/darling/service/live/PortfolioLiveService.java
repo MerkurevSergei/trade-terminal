@@ -5,7 +5,6 @@ import darling.domain.Operation;
 import darling.domain.Portfolio;
 import darling.repository.DealRepository;
 import darling.repository.OperationRepository;
-import darling.repository.db.DealDbRepository;
 import darling.service.PortfolioService;
 import lombok.RequiredArgsConstructor;
 
@@ -35,14 +34,14 @@ public class PortfolioLiveService implements PortfolioService {
                 .stream()
                 .filter(deal -> deal.getQuantity() != 0)
                 .toList();
-        dealDbRepository.refreshOpenDeals(deals);
+        dealDbRepository.clearAndSaveOpenDeals(deals);
         dealDbRepository.saveClosedDeals(portfolio.getClosedDeals());
         return !portfolio.getClosedDeals().isEmpty();
     }
 
     @Override
     public void savePortfolio(Portfolio portfolio) {
-        dealDbRepository.refreshOpenDeals(portfolio.getOpenDeals());
+        dealDbRepository.clearAndSaveOpenDeals(portfolio.getOpenDeals());
     }
 
     @Override

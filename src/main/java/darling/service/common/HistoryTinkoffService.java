@@ -13,8 +13,10 @@ import ru.tinkoff.piapi.core.MarketDataService;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -25,8 +27,8 @@ public class HistoryTinkoffService implements HistoryService {
     private final MarketDataService marketDataService;
 
     @Override
-    public List<HistoricCandle> getCandles(String instrumentUid, Instant from, Instant to, CandleInterval candleIntervalDay) {
-        return marketDataService.getCandles(instrumentUid, from, to, CandleInterval.CANDLE_INTERVAL_DAY).join();
+    public List<HistoricCandle> getCandles(String instrumentUid, Instant from, Instant to, CandleInterval candleInterval) {
+        return marketDataService.getCandles(instrumentUid, from, to, candleInterval).join();
     }
 
     @Override
@@ -54,12 +56,12 @@ public class HistoryTinkoffService implements HistoryService {
     }
 
     @Override
-    public List<HistoricCandle> getMinuteCandles(String figi, LocalDateTime start, LocalDateTime end) {
+    public List<HistoricCandle> getMinuteCandles(String instrumentUid, LocalDateTime start, LocalDateTime end) {
         ArrayList<HistoricCandle> candles = new ArrayList<>();
         for (LocalDateTime i = start; i.isBefore(end); i = i.plusDays(1L)) {
             Instant from = Instant.ofEpochSecond(i.toEpochSecond(ZoneOffset.UTC));
-            Instant to = Instant.ofEpochSecond(i.plusDays(1L).toEpochSecond(ZoneOffset.UTC));
-            List<HistoricCandle> mins = getCandles(figi, from, to, CandleInterval.CANDLE_INTERVAL_1_MIN);
+            Instant to = Instant.ofEpochSecond(i.toLocalDate().atTime(LocalTime.MAX).toEpochSecond(ZoneOffset.UTC));
+            List<HistoricCandle> mins = getCandles(instrumentUid, from, to, CandleInterval.CANDLE_INTERVAL_1_MIN);
             candles.addAll(mins);
         }
         return candles;
@@ -79,6 +81,7 @@ public class HistoryTinkoffService implements HistoryService {
             points.add(new HistoricPoint(time.plusSeconds(2), high, volume / 3));
             points.add(new HistoricPoint(time.plusSeconds(3), low, volume / 3));
         }
+        points.sort(Comparator.comparing(HistoricPoint::time));
         return points;
     }
 

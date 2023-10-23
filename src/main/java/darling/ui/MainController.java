@@ -125,7 +125,7 @@ public class MainController implements Initializable {
             tradingShares = marketContext.getMainShares().stream().filter(MainShare::isTrade).toList();
         }
         for (MainShare tradingShare : tradingShares) {
-            Balancer2 balancer2 = new Balancer2(marketContext, tradingShare);
+            Balancer2 balancer2 = new Balancer2(marketContext, tradingShare, !sandMode);
             robots.add(balancer2);
             marketContext.addListener(balancer2);
         }

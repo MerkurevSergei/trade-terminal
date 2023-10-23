@@ -1,51 +1,56 @@
 package darling.service.sand;
 
 import darling.domain.Deal;
+import darling.domain.Operation;
 import darling.domain.Portfolio;
 import darling.repository.DealRepository;
+import darling.repository.OperationRepository;
 import darling.service.PortfolioService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @RequiredArgsConstructor
 public class PortfolioSandService implements PortfolioService {
 
-    private final DealRepository dealDbRepository;
+    private final DealRepository dealRepository;
+
+    private final OperationRepository operationRepository;
 
     /**
      * Возвращает признак наличия закрытых сделок на шаге.
      */
     @Override
     public boolean refreshPortfolio() {
-        List<Deal> allDeals = dealDbRepository.findAllOpenDeals();
+        List<Deal> allDeals = dealRepository.findAllOpenDeals();
         Portfolio portfolio = new Portfolio(allDeals);
-//        List<Operation> allOperations = operationRepository.popFromQueue().stream()
-//                .sorted(Comparator.comparing(Operation::date))
-//                .toList();
-//        allOperations.forEach(portfolio::refresh);
-//        List<Deal> deals = portfolio.getOpenDeals()
-//                .stream()
-//                .filter(deal -> deal.getQuantity() != 0)
-//                .toList();
-//        dealRepository.refreshOpenDeals(deals);
-//        dealRepository.saveClosedDeals(portfolio.getClosedDeals());
+        List<Operation> allOperations = operationRepository.popFromQueue().stream()
+                .sorted(Comparator.comparing(Operation::date))
+                .toList();
+        allOperations.forEach(portfolio::refresh);
+        List<Deal> deals = portfolio.getOpenDeals()
+                .stream()
+                .filter(deal -> deal.getQuantity() != 0)
+                .toList();
+        dealRepository.clearAndSaveOpenDeals(deals);
+        dealRepository.saveClosedDeals(portfolio.getClosedDeals());
         return !portfolio.getClosedDeals().isEmpty();
     }
 
     @Override
     public void savePortfolio(Portfolio portfolio) {
-        dealDbRepository.refreshOpenDeals(portfolio.getOpenDeals());
+        dealRepository.clearAndSaveOpenDeals(portfolio.getOpenDeals());
     }
 
     @Override
     public Portfolio getPortfolio() {
-        return new Portfolio(dealDbRepository.findAllOpenDeals());
+        return new Portfolio(dealRepository.findAllOpenDeals());
     }
 
     @Override
     public List<Deal> getClosedDeals(LocalDateTime start, LocalDateTime end) {
-        return dealDbRepository.getClosedDeals(start, end);
+        return dealRepository.getClosedDeals(start, end);
     }
 }

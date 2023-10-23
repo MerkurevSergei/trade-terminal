@@ -48,6 +48,7 @@ public class Balancer2 implements EventListener {
     private final MarketContext marketContext;
     private final MainShare mainShare;
 
+    private final boolean enableDelay;
     private LocalDateTime lastAction = LocalDateTime.now(ZoneOffset.UTC);
     private OrderDirection lastProfitOrderDirection = ORDER_DIRECTION_BUY;
 
@@ -61,19 +62,20 @@ public class Balancer2 implements EventListener {
         if (!activeOrders.isEmpty()) {
             return;
         }
-
         Optional<LastPrice> optLastPrices = marketContext.getLastPrice(mainShare.uid());
-        if (optLastPrices.isEmpty()) return;
+        if (optLastPrices.isEmpty()) {
+            return;
+        }
+
         BigDecimal lastPrice = optLastPrices.get().price();
         Portfolio portfolio = marketContext.getPortfolio();
         List<Deal> instrumentDeals = portfolio.getOpenDeals(mainShare.uid());
-
         instrumentDeals.forEach(deal -> {
             setTakeProfit(deal, lastPrice);
             clearTakeProfit(deal, lastPrice);
             closeProfitDeal(deal, lastPrice);
         });
-        postOrder(instrumentDeals, lastPrice);
+        postNewOrder(instrumentDeals, lastPrice);
         portfolio.updateDealsWithCalculatedData(instrumentDeals);
         marketContext.savePortfolio(portfolio);
     }
@@ -151,7 +153,7 @@ public class Balancer2 implements EventListener {
         }
     }
 
-    private void postOrder(List<Deal> deals, BigDecimal lastPrice) {
+    private void postNewOrder(List<Deal> deals, BigDecimal lastPrice) {
         if (!isEmptyLevel(deals, lastPrice)) {
             return;
         }
@@ -189,7 +191,7 @@ public class Balancer2 implements EventListener {
 
     private void postOrderWithRepeatProtected(String instrumentId, long lot, BigDecimal price, OrderDirection direction,
                                               String accountId, OrderType type) {
-        if (ChronoUnit.SECONDS.between(lastAction, LocalDateTime.now(ZoneOffset.UTC)) < 15) {
+        if (enableDelay && ChronoUnit.SECONDS.between(lastAction, LocalDateTime.now(ZoneOffset.UTC)) < 15) {
             return;
         }
         marketContext.postOrder(instrumentId, lot, price, direction, accountId, type);

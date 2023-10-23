@@ -3,7 +3,6 @@ package darling.robot.balancer;
 import darling.domain.Bet;
 import darling.domain.HistoricPoint;
 import darling.domain.order.OrderDirection;
-import darling.robot.Robot;
 import darling.service.OrderService;
 import darling.service.sand.OrderSandService;
 
@@ -15,11 +14,11 @@ import java.util.List;
 import static darling.domain.order.OrderDirection.UP;
 import static java.math.BigDecimal.ZERO;
 
-public final class Balancer implements Robot {
+public final class Balancer {
 
     private final String instrumentUid;
 
-    private final OrderService orderService = new OrderSandService();
+    //private final OrderService orderService = new OrderSandService();
 
     private final List<Bet> bets = new ArrayList<>();
 
@@ -40,7 +39,6 @@ public final class Balancer implements Robot {
      *
      * @param currentPoint текущая точка время/цена/объем.
      */
-    @Override
     public void doStep(HistoricPoint currentPoint) {
         makeFirstIsNeed(currentPoint);
         setOrTakeProfit(currentPoint);
