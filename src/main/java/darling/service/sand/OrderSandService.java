@@ -4,6 +4,7 @@ import darling.domain.LastPrice;
 import darling.domain.MainShare;
 import darling.domain.Operation;
 import darling.domain.order.Order;
+import darling.mapper.DirectionMapper;
 import darling.repository.OperationRepository;
 import darling.service.InstrumentService;
 import darling.service.LastPriceService;
@@ -32,10 +33,9 @@ public class OrderSandService implements OrderService {
     private MainShare mainShare;
 
     @Override
-    public void postOrder(String instrumentId, long quantity, BigDecimal price, ru.tinkoff.piapi.contract.v1.OrderDirection direction, String accountId, ru.tinkoff.piapi.contract.v1.OrderType type) {
+    public void postOrder(String instrumentId, long quantity, BigDecimal price, ru.tinkoff.piapi.contract.v1.OrderDirection orderDirection, String accountId, ru.tinkoff.piapi.contract.v1.OrderType type) {
         LastPrice lastPrice = lastPriceService.getLastPrice(instrumentId).orElseThrow();
         price = type.equals(OrderType.ORDER_TYPE_MARKET) ? lastPrice.price() : price;
-        OperationType operationType = direction.equals(OrderDirection.ORDER_DIRECTION_BUY) ? OPERATION_TYPE_BUY : OPERATION_TYPE_SELL;
 
         if (mainShare == null) {
             mainShare = instrumentService.getMainShares().stream()
@@ -47,8 +47,8 @@ public class OrderSandService implements OrderService {
                 .id(UUID.randomUUID().toString())
                 .brokerAccountId(accountId)
                 .date(lastPrice.time())
-                .type(operationType)
-                .description(direction + " " + quantityPieces)
+                .type(DirectionMapper.map(orderDirection))
+                .description(orderDirection + " " + quantityPieces)
                 .instrumentUid(instrumentId)
                 .payment(price.multiply(BigDecimal.valueOf(quantityPieces)))
                 .price(price)

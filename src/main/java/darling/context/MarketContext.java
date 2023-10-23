@@ -25,6 +25,7 @@ import ru.tinkoff.piapi.contract.v1.OrderType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -78,13 +79,21 @@ public class MarketContext extends EventSubscriber {
         if (!sandMode) return;
         stop();
         List<HistoricPoint> historicPoints = historyService.getMinutePointsByDay(instrumentUid, start, end);
+        LocalDate currentDay = historicPoints.isEmpty() ? null : historicPoints.get(0).time().toLocalDate();
         for (HistoricPoint point : historicPoints) {
+            if (ChronoUnit.DAYS.between(currentDay, point.time().toLocalDate()) > 0) {
+                currentDay = point.time().toLocalDate();
+                notify(Event.CLOSE_DAY);
+            }
             historyService.updateLastPrice(new LastPrice(instrumentUid, point.price(), point.time()));
             syncOperations();
             refreshPortfolio();
             notify(Event.CONTEXT_REFRESHED);
         }
-        start();
+        notify(Event.CLOSE_DAY);
+        syncOperations();
+        refreshPortfolio();
+        notify(Event.CONTEXT_INIT);
     }
 
     public void stop() {
