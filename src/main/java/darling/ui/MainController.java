@@ -27,6 +27,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.util.Duration;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -34,6 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import static darling.shared.ApplicationProperties.PERCENT_DELTA_PROFIT;
+import static darling.shared.ApplicationProperties.PERCENT_DELTA_PROFIT_TRIGGER;
+import static darling.shared.ApplicationProperties.PERCENT_PROFIT_CLEAR_LAG;
 import static java.time.LocalTime.MAX;
 
 @Getter
@@ -68,8 +72,8 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        fxmlDatePickerEmulateStart.setValue(LocalDate.now(ZoneOffset.UTC).minusDays(30));
-        fxmlDatePickerEmulateEnd.setValue(LocalDate.now(ZoneOffset.UTC));
+        fxmlDatePickerEmulateStart.setValue(LocalDate.now(ZoneOffset.UTC).minusDays(18));
+        fxmlDatePickerEmulateEnd.setValue(LocalDate.now(ZoneOffset.UTC).minusDays(18));
         initMarket(true, false);
         Thread.setDefaultUncaughtExceptionHandler(
                 (thread, exception) -> {
@@ -178,6 +182,21 @@ public class MainController implements Initializable {
     public void fxmlRobotOnOff() {
         boolean isSandMode = !fxmlModeSwitcher.isSelected();
         boolean robotTradeOn = fxmlToggleOnOffRobot.isSelected();
+//        if (!robotTradeOn) return;
+//        BigDecimal I2 = PERCENT_DELTA_PROFIT;
+//        BigDecimal I3 = PERCENT_PROFIT_CLEAR_LAG;
+//        for (int i = 0; i < 3; i++) {
+//            PERCENT_DELTA_PROFIT_TRIGGER = PERCENT_DELTA_PROFIT_TRIGGER.add(new BigDecimal("0.01"));
+//            for (int j = 0; j < 3; j++) {
+//                PERCENT_DELTA_PROFIT = PERCENT_DELTA_PROFIT.add(new BigDecimal("0.02"));
+//                for (int k = 0; k < 3; k++) {
+//                    PERCENT_PROFIT_CLEAR_LAG = PERCENT_PROFIT_CLEAR_LAG.add(new BigDecimal("2"));
+//                    initMarket(isSandMode, robotTradeOn);
+//                }
+//                PERCENT_PROFIT_CLEAR_LAG = I3;
+//            }
+//            PERCENT_DELTA_PROFIT = I2;
+//        }
         initMarket(isSandMode, robotTradeOn);
         if (robotTradeOn) {
             fxmlToggleOnOffRobot.setText("Остановить робота");

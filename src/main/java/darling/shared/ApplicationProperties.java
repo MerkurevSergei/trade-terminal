@@ -17,9 +17,9 @@ public final class ApplicationProperties {
     public static final List<String> ACCOUNTS = List.of(ACCOUNT_BUY, ACCOUNT_SELL);
 
     // BALANCER
-    public static final BigDecimal PERCENT_DELTA_PROFIT_TRIGGER = new BigDecimal("0.02");
-    public static final BigDecimal PERCENT_DELTA_PROFIT = new BigDecimal("0.16");
-    public static final BigDecimal PERCENT_PROFIT_CLEAR_LAG = new BigDecimal("25");
-    public static final BigDecimal EMPTY_LEVEL_LAG = new BigDecimal("5");
-    public static final long TIME_TO_FROZEN_SECOND = 30;
+    public static BigDecimal PERCENT_DELTA_PROFIT_TRIGGER = new BigDecimal("0.02");
+    public static BigDecimal PERCENT_DELTA_PROFIT = new BigDecimal("0.22");
+    public static BigDecimal PERCENT_PROFIT_CLEAR_LAG = new BigDecimal("20");
+    public static final BigDecimal EMPTY_LEVEL_DELTA = PERCENT_DELTA_PROFIT.add(PERCENT_DELTA_PROFIT_TRIGGER).add(new BigDecimal("0.001"));
+    public static final long NEW_REQUEST_FROZEN_SECONDS = 30;
 }
