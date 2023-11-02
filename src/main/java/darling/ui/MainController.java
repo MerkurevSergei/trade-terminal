@@ -22,12 +22,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -35,9 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static darling.shared.ApplicationProperties.PERCENT_DELTA_PROFIT;
-import static darling.shared.ApplicationProperties.PERCENT_DELTA_PROFIT_TRIGGER;
-import static darling.shared.ApplicationProperties.PERCENT_PROFIT_CLEAR_LAG;
 import static java.time.LocalTime.MAX;
 
 @Getter
@@ -46,6 +46,9 @@ public class MainController implements Initializable {
     @FXML
     public TableView<MainShareView> fxmlTableViewMainShares;
     private MainShareManager mainShareManager;
+
+    @FXML
+    public TabPane fxmlTabPanePortfolioAndCharts;
 
     @FXML
     public TableView<PortfolioViewItem> fxmlTableViewPortfolio;
@@ -74,6 +77,7 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         fxmlDatePickerEmulateStart.setValue(LocalDate.now(ZoneOffset.UTC).minusDays(18));
         fxmlDatePickerEmulateEnd.setValue(LocalDate.now(ZoneOffset.UTC).minusDays(18));
+        fxmlTabPanePortfolioAndCharts.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
         initMarket(true, false);
         Thread.setDefaultUncaughtExceptionHandler(
                 (thread, exception) -> {
@@ -270,5 +274,11 @@ public class MainController implements Initializable {
     private Throwable getRootCause(Throwable throwable) {
         Throwable cause = throwable.getCause();
         return (cause != null) ? getRootCause(cause) : throwable;
+    }
+
+    public void onMouseClickedAddNewChart(MouseEvent event) {
+        if (event.getButton().equals(MouseButton.PRIMARY) && (event.getClickCount() == 2)) {
+            fxmlTabPanePortfolioAndCharts.getTabs().add(new Tab(fxmlTableViewMainShares.getSelectionModel().getSelectedItem().share().ticker()));
+        }
     }
 }
