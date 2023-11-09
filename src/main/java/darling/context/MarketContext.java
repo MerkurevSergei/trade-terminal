@@ -3,6 +3,7 @@ package darling.context;
 import darling.context.event.Event;
 import darling.context.event.EventSubscriber;
 import darling.domain.Deal;
+import darling.domain.HistoricCandle;
 import darling.domain.HistoricPoint;
 import darling.domain.LastPrice;
 import darling.domain.MainShare;
@@ -18,7 +19,7 @@ import darling.service.OperationService;
 import darling.service.OrderService;
 import darling.service.PortfolioService;
 import lombok.extern.slf4j.Slf4j;
-import ru.tinkoff.piapi.contract.v1.HistoricCandle;
+import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.OrderDirection;
 import ru.tinkoff.piapi.contract.v1.OrderType;
 
@@ -79,7 +80,12 @@ public class MarketContext extends EventSubscriber {
         if (!sandMode) return;
         stop();
         List<HistoricPoint> historicPoints = historyService.getMinutePointsByDay(instrumentUid, start, end);
-        LocalDate currentDay = historicPoints.isEmpty() ? null : historicPoints.get(0).time().toLocalDate();
+        LocalDate currentDay = LocalDate.MIN;
+        if (!historicPoints.isEmpty()) {
+            HistoricPoint point = historicPoints.get(0);
+            historyService.updateLastPrice(new LastPrice(instrumentUid, point.price(), point.time()));
+        }
+
         for (HistoricPoint point : historicPoints) {
             if (ChronoUnit.DAYS.between(currentDay, point.time().toLocalDate()) > 0) {
                 currentDay = point.time().toLocalDate();
@@ -94,6 +100,7 @@ public class MarketContext extends EventSubscriber {
         syncOperations();
         refreshPortfolio();
         notify(Event.CONTEXT_INIT);
+        notify(Event.CONTEXT_CLOSED);
     }
 
     public void stop() {
@@ -230,5 +237,9 @@ public class MarketContext extends EventSubscriber {
 
     public List<HistoricCandle> getDailyCandles(String instrumentUid, LocalDateTime start, LocalDateTime end) {
         return historyService.getDailyCandles(instrumentUid, start, end);
+    }
+
+    public List<HistoricCandle> getCandles5Min(String instrumentUid, LocalDateTime start, LocalDateTime end) {
+        return historyService.getCandles(instrumentUid, start, end, CandleInterval.CANDLE_INTERVAL_5_MIN);
     }
 }

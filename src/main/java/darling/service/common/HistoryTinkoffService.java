@@ -1,16 +1,15 @@
 package darling.service.common;
 
+import darling.domain.HistoricCandle;
 import darling.domain.HistoricPoint;
 import darling.domain.LastPrice;
-import darling.mapper.TinkoffSpecialTypeMapper;
+import darling.mapper.HistoricCandleMapper;
 import darling.repository.memory.LastPriceMemoryRepository;
 import darling.service.HistoryService;
 import lombok.RequiredArgsConstructor;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
-import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 import ru.tinkoff.piapi.core.MarketDataService;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -27,15 +26,17 @@ public class HistoryTinkoffService implements HistoryService {
     private final MarketDataService marketDataService;
 
     @Override
-    public List<HistoricCandle> getCandles(String instrumentUid, Instant from, Instant to, CandleInterval candleInterval) {
-        return marketDataService.getCandles(instrumentUid, from, to, candleInterval).join();
+    public List<HistoricCandle> getCandles(String instrumentUid, LocalDateTime start, LocalDateTime end, CandleInterval candleInterval) {
+        Instant from = Instant.ofEpochSecond(start.toEpochSecond(ZoneOffset.UTC));
+        Instant to = Instant.ofEpochSecond(end.toEpochSecond(ZoneOffset.UTC));
+        return HistoricCandleMapper.INST.map(
+                marketDataService.getCandles(instrumentUid, from, to, candleInterval).join()
+        );
     }
 
     @Override
     public List<HistoricCandle> getDailyCandles(String figi, LocalDateTime start, LocalDateTime end) {
-        Instant from = Instant.ofEpochSecond(start.toEpochSecond(ZoneOffset.UTC));
-        Instant to = Instant.ofEpochSecond(end.toEpochSecond(ZoneOffset.UTC));
-        return getCandles(figi, from, to, CandleInterval.CANDLE_INTERVAL_DAY);
+        return getCandles(figi, start, end, CandleInterval.CANDLE_INTERVAL_DAY);
     }
 
     @Override
@@ -43,14 +44,11 @@ public class HistoryTinkoffService implements HistoryService {
         List<HistoricPoint> points = new ArrayList<>();
         List<HistoricCandle> dailyCandles = getDailyCandles(figi, start, end);
         for (HistoricCandle candle : dailyCandles) {
-            LocalDateTime time = TinkoffSpecialTypeMapper.map(candle.getTime());
-            BigDecimal open = TinkoffSpecialTypeMapper.map(candle.getOpen());
-            BigDecimal high = TinkoffSpecialTypeMapper.map(candle.getHigh());
-            BigDecimal low = TinkoffSpecialTypeMapper.map(candle.getLow());
-            long volume = candle.getVolume();
-            points.add(new HistoricPoint(time, open, volume / 3));
-            points.add(new HistoricPoint(time, high, volume / 3));
-            points.add(new HistoricPoint(time, low, volume / 3));
+            LocalDateTime time = candle.time();
+            long volume = candle.volume();
+            points.add(new HistoricPoint(time, candle.open(), volume / 3));
+            points.add(new HistoricPoint(time, candle.high(), volume / 3));
+            points.add(new HistoricPoint(time, candle.low(), volume / 3));
         }
         return points;
     }
@@ -59,9 +57,8 @@ public class HistoryTinkoffService implements HistoryService {
     public List<HistoricCandle> getMinuteCandles(String instrumentUid, LocalDateTime start, LocalDateTime end) {
         ArrayList<HistoricCandle> candles = new ArrayList<>();
         for (LocalDateTime i = start; i.isBefore(end); i = i.plusDays(1L)) {
-            Instant from = Instant.ofEpochSecond(i.toEpochSecond(ZoneOffset.UTC));
-            Instant to = Instant.ofEpochSecond(i.toLocalDate().atTime(LocalTime.MAX).toEpochSecond(ZoneOffset.UTC));
-            List<HistoricCandle> mins = getCandles(instrumentUid, from, to, CandleInterval.CANDLE_INTERVAL_1_MIN);
+            List<HistoricCandle> mins = getCandles(instrumentUid, i, i.toLocalDate().atTime(LocalTime.MAX),
+                                                   CandleInterval.CANDLE_INTERVAL_1_MIN);
             candles.addAll(mins);
         }
         return candles;
@@ -72,14 +69,11 @@ public class HistoryTinkoffService implements HistoryService {
         List<HistoricPoint> points = new ArrayList<>();
         List<HistoricCandle> minuteCandles = getMinuteCandles(figi, start, end);
         for (HistoricCandle candle : minuteCandles) {
-            LocalDateTime time = TinkoffSpecialTypeMapper.map(candle.getTime());
-            BigDecimal open = TinkoffSpecialTypeMapper.map(candle.getOpen());
-            BigDecimal high = TinkoffSpecialTypeMapper.map(candle.getHigh());
-            BigDecimal low = TinkoffSpecialTypeMapper.map(candle.getLow());
-            long volume = candle.getVolume();
-            points.add(new HistoricPoint(time.plusSeconds(1), open, volume / 3));
-            points.add(new HistoricPoint(time.plusSeconds(2), high, volume / 3));
-            points.add(new HistoricPoint(time.plusSeconds(3), low, volume / 3));
+            LocalDateTime time = candle.time();
+            long volume = candle.volume();
+            points.add(new HistoricPoint(time.plusSeconds(1), candle.open(), volume / 3));
+            points.add(new HistoricPoint(time.plusSeconds(2), candle.high(), volume / 3));
+            points.add(new HistoricPoint(time.plusSeconds(3), candle.low(), volume / 3));
         }
         points.sort(Comparator.comparing(HistoricPoint::time));
         return points;

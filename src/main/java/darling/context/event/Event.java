@@ -2,6 +2,7 @@ package darling.context.event;
 
 public enum Event {
     CONTEXT_INIT,
+    CONTEXT_CLOSED,
     CONTEXT_REFRESHED,
     CLOSE_DAY,
     LAST_PRICES_UPDATED,

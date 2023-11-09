@@ -1,20 +1,17 @@
 package darling.ui.stockdetail;
 
 import darling.context.MarketContext;
+import darling.domain.HistoricCandle;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 import ru.tinkoff.piapi.contract.v1.Share;
-import darling.mapper.TinkoffSpecialTypeMapper;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,17 +43,15 @@ public record VolatilityTableManager(TableView<List<String>> volatilityTableView
         BigDecimal volatilityByDay;
         List<HistoricCandle> historicCandles = marketContext.getDailyCandles(selectedItem.getFigi(), start.atStartOfDay(), start.plusDays(120).atStartOfDay());
         for (HistoricCandle candle : historicCandles) {
-            LocalDateTime currentDate = Instant.ofEpochSecond(candle.getTime().getSeconds(), candle.getTime().getNanos())
-                    .atOffset(ZoneOffset.UTC)
-                    .toLocalDateTime();
+            LocalDateTime currentDate = candle.time();
 
             if (currentDate.getDayOfWeek().equals(SATURDAY) || currentDate.getDayOfWeek().equals(SUNDAY)) {
                 continue;
             }
-            BigDecimal high = TinkoffSpecialTypeMapper.map(candle.getHigh());
-            BigDecimal low = TinkoffSpecialTypeMapper.map(candle.getLow());
+            BigDecimal high = candle.high();
+            BigDecimal low = candle.low();
             volatilityByDay = high.subtract(low).setScale(7, HALF_UP);
-            BigDecimal price = TinkoffSpecialTypeMapper.map(historicCandles.get(0).getOpen());
+            BigDecimal price = historicCandles.get(0).open();
             volatilityByDay = volatilityByDay.divide(price, 7, HALF_UP).multiply(BigDecimal.valueOf(100));
             if (volatilityByDay.compareTo(BigDecimal.valueOf(1)) < 0) {
                 volatility01 = volatility01.add(BigDecimal.ONE);

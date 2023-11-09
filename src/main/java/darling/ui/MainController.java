@@ -4,7 +4,7 @@ import darling.context.MarketContext;
 import darling.domain.MainShare;
 import darling.domain.Operation;
 import darling.domain.order.Order;
-import darling.robot.Balancer2;
+import darling.robot.Bouncer;
 import darling.shared.JavaFxUtils;
 import darling.ui.main.ActiveOrderManager;
 import darling.ui.main.MainShareManager;
@@ -75,8 +75,8 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        fxmlDatePickerEmulateStart.setValue(LocalDate.now(ZoneOffset.UTC).minusDays(18));
-        fxmlDatePickerEmulateEnd.setValue(LocalDate.now(ZoneOffset.UTC).minusDays(18));
+        fxmlDatePickerEmulateStart.setValue(LocalDate.now(ZoneOffset.UTC));
+        fxmlDatePickerEmulateEnd.setValue(LocalDate.now(ZoneOffset.UTC));
         fxmlTabPanePortfolioAndCharts.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
         initMarket(true, false);
         Thread.setDefaultUncaughtExceptionHandler(
@@ -133,9 +133,9 @@ public class MainController implements Initializable {
             tradingShares = marketContext.getMainShares().stream().filter(MainShare::isTrade).toList();
         }
         for (MainShare tradingShare : tradingShares) {
-            Balancer2 balancer2 = new Balancer2(marketContext, tradingShare, !sandMode);
-            robots.add(balancer2);
-            marketContext.addListener(balancer2);
+            Bouncer bouncer = new Bouncer(marketContext, tradingShare, !sandMode);
+            robots.add(bouncer);
+            marketContext.addListener(bouncer);
         }
     }
 
@@ -154,7 +154,7 @@ public class MainController implements Initializable {
     @FXML
     public ChoiceBox<MainShare> fxmlChoiceTestShare;
 
-    private final List<Balancer2> robots = new ArrayList<>();
+    private final List<Bouncer> robots = new ArrayList<>();
 
     /**
      * Переключение режима песочница / торговля.

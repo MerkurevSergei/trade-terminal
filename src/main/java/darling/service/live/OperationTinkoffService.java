@@ -45,7 +45,7 @@ public class OperationTinkoffService implements OperationService {
     public boolean syncOperations() {
         int count = 0;
         for (String account : ACCOUNTS) {
-            Instant from = TinkoffSpecialTypeMapper.map(operationRepository.getLastOperationTime(account).minusMinutes(10));
+            Instant from = TinkoffSpecialTypeMapper.map(operationRepository.getLastOperationTime(account).minusMinutes(4320));
             Instant to = TinkoffSpecialTypeMapper.map(OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime());
             GetOperationsByCursorResponse cursor = operationsService.getOperationByCursorSync(account, from, to);
             List<Operation> operationPart = cursor.getItemsList().stream().map(OperationMapper.INST::map).toList();
