@@ -1,4 +1,4 @@
-package darling.trash.bouncer0;
+package darling.trash.bouncer1;
 
 import darling.domain.HistoricCandle;
 import darling.service.HistoryService;
@@ -18,6 +18,7 @@ public class Atr5 {
     private final HistoryService historyService;
 
     private BigDecimal atrSum;
+
     private BigDecimal tail;
 
     private BigDecimal atrCount;
@@ -66,7 +67,7 @@ public class Atr5 {
         atrCount = atrCount.add(BigDecimal.ONE);
     }
 
-    public BigDecimal atr() {
+    public BigDecimal get() {
         return atrCount.compareTo(ZERO) > 0 ? atrSum.divide(atrCount, 9, HALF_UP) : ZERO;
     }
 
@@ -75,10 +76,10 @@ public class Atr5 {
         bar = normalizeTail(bar);
         BigDecimal length = bar.high().subtract(bar.low());
         BigDecimal center = length.divide(BigDecimal.valueOf(2), 9, HALF_UP).add(bar.low());
-        if (atr().multiply(new BigDecimal("2.0")).compareTo(length) < 0) {
-            length = atr().multiply(new BigDecimal("2.0"));
-        } else if (atr().multiply(new BigDecimal("0.3")).compareTo(length) > 0) {
-            length = atr().multiply(new BigDecimal("0.3"));
+        if (get().multiply(new BigDecimal("2.0")).compareTo(length) < 0) {
+            length = get().multiply(new BigDecimal("2.0"));
+        } else if (get().multiply(new BigDecimal("0.3")).compareTo(length) > 0) {
+            length = get().multiply(new BigDecimal("0.3"));
         }
         BigDecimal halfNormalLength = length.divide(BigDecimal.valueOf(2), 9, HALF_UP);
         return new HistoricCandle(bar.time(), null, null, center.subtract(halfNormalLength),
